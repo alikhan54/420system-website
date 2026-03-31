@@ -114,15 +114,11 @@ function ParticleBrain() {
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={count}
-            array={positions}
-            itemSize={3}
+            args={[positions, 3]}
           />
           <bufferAttribute
             attach="attributes-color"
-            count={count}
-            array={colors}
-            itemSize={3}
+            args={[colors, 3]}
           />
         </bufferGeometry>
         <pointsMaterial
@@ -139,15 +135,11 @@ function ParticleBrain() {
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            count={lineCount * 2}
-            array={linePositions}
-            itemSize={3}
+            args={[linePositions, 3]}
           />
           <bufferAttribute
             attach="attributes-color"
-            count={lineCount * 2}
-            array={lineColors}
-            itemSize={3}
+            args={[lineColors, 3]}
           />
         </bufferGeometry>
         <lineBasicMaterial
