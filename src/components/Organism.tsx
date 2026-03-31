@@ -92,10 +92,10 @@ function OrbitDiagram() {
 export default function Organism() {
   return (
     <section id="how-it-works" className="relative" style={{ zIndex: 2, padding: '6rem 0' }}>
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+      <div className="max-w-[1200px] mx-auto" style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center" style={{ gap: '4rem' }}>
           <RevealOnScroll>
-            <div>
+            <div style={{ paddingLeft: '0.5rem' }}>
               <span className="text-xs font-mono tracking-[0.15em] text-cyan mb-4 block">
                 // The Architecture
               </span>
@@ -104,7 +104,7 @@ export default function Organism() {
                 <br />
                 <span className="gradient-text">not a tool collection.</span>
               </h2>
-              <p className="text-text-muted leading-relaxed">
+              <p className="text-text-muted leading-relaxed" style={{ maxWidth: '520px' }}>
                 Traditional SaaS forces you to connect dozens of disconnected tools. The 420
                 System is a unified intelligence — every module shares context, learns from
                 every interaction, and autonomously coordinates across departments. It
