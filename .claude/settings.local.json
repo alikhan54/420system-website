@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm config:*)"
+      "Bash(npm config:*)",
+      "Bash(SUPA_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuY2ZieXdrZW1zeHd1aW93eHhlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Njg2ODI3NSwiZXhwIjoyMDgyNDQ0Mjc1fQ.Q_Z47LEXi7WtYPAL4M18LIVUy7oTvq2VR79nVEIL4FE\" __NEW_LINE_bb4ed727f4c98fa3__ curl -s \"https://fncfbywkemsxwuiowxxe.supabase.co/rest/v1/blog_posts?select=title,featured_image_url,status&status=eq.published&order=created_at.desc\" -H \"apikey: $SUPA_KEY\" -H \"Authorization: Bearer $SUPA_KEY\")",
+      "Bash(N8N_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYmVhOTRhMS1mOWRhLTQyZDktYmQ4Yi1hNjZhZTA0MGMwYWQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiYTc0MGI1MzctMjhjZS00Njg0LTllMDYtN2QxMjE1NDYwNWRkIiwiaWF0IjoxNzc0Mjg0MjQ2fQ.NguZRCCrXj6BNLjG7mzM5630apRr2oLxZvoN2WOfWIY\" __NEW_LINE_74386fe1e1b7dafe__ curl -s \"http://localhost:5678/api/v1/executions/89269?includeData=true\" -H \"X-N8N-API-KEY: $N8N_KEY\")",
+      "Bash(echo \"Waiting for :00 trigger \\(~27 min\\)...\" sleep 1680 __NEW_LINE_4897f932ee1dcd85__ N8N_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYmVhOTRhMS1mOWRhLTQyZDktYmQ4Yi1hNjZhZTA0MGMwYWQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiYTc0MGI1MzctMjhjZS00Njg0LTllMDYtN2QxMjE1NDYwNWRkIiwiaWF0IjoxNzc0Mjg0MjQ2fQ.NguZRCCrXj6BNLjG7mzM5630apRr2oLxZvoN2WOfWIY\" SUPA_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZuY2ZieXdrZW1zeHd1aW93eHhlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2Njg2ODI3NSwiZXhwIjoyMDgyNDQ0Mjc1fQ.Q_Z47LEXi7WtYPAL4M18LIVUy7oTvq2VR79nVEIL4FE\" __NEW_LINE_4897f932ee1dcd85__ echo \"=== Execution check ===\" curl -s \"http://localhost:5678/api/v1/executions?workflowId=0lWvUw9rT9z59q9x&limit=3\" -H \"X-N8N-API-KEY: $N8N_KEY\")",
+      "Bash(python3 -c \":*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

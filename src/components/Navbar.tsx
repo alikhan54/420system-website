@@ -29,6 +29,7 @@ export default function Navbar() {
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         borderBottom: scrolled ? '1px solid rgba(240,235,248,0.06)' : '1px solid transparent',
+        boxShadow: scrolled ? '0 1px 20px rgba(0,240,255,0.04)' : 'none',
       }}
     >
       <div className="max-w-[1200px] mx-auto px-6 md:px-12 flex items-center justify-between">

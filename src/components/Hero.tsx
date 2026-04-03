@@ -1,15 +1,14 @@
-import { useEffect, useRef, useMemo, useState } from 'react'
+import { useEffect, useRef, useMemo, useState, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import gsap from 'gsap'
+import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
+import { useInView, useCountUp, usePrefersReducedMotion } from '../utils/animations'
 
 /* ─── Particle Brain ─── */
-function ParticleBrain() {
+function ParticleBrain({ count = 1500 }: { count?: number }) {
   const meshRef = useRef<THREE.Points>(null)
   const mouseRef = useRef({ x: 0, y: 0 })
-
-  const count = 1500
   const lineCount = count * 3
 
   const [positions, colors, linePositions, lineColors] = useMemo(() => {
@@ -43,7 +42,7 @@ function ParticleBrain() {
     lCol.fill(0)
 
     return [pos, col, lPos, lCol]
-  }, [])
+  }, [count, lineCount])
 
   const lineRef = useRef<THREE.LineSegments>(null)
 
@@ -112,14 +111,8 @@ function ParticleBrain() {
     <>
       <points ref={meshRef}>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[positions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[colors, 3]}
-          />
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         </bufferGeometry>
         <pointsMaterial
           size={0.025}
@@ -133,14 +126,8 @@ function ParticleBrain() {
       </points>
       <lineSegments ref={lineRef}>
         <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[linePositions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[lineColors, 3]}
-          />
+          <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[lineColors, 3]} />
         </bufferGeometry>
         <lineBasicMaterial
           vertexColors
@@ -154,136 +141,183 @@ function ParticleBrain() {
   )
 }
 
-/* ─── Stats item ─── */
-function StatItem({ value, label }: { value: string; label: string }) {
+/* ─── Typing label ─── */
+function TypingLabel() {
+  const text = 'Autonomous AI Platform'
+  const [displayed, setDisplayed] = useState('')
+  const reducedMotion = usePrefersReducedMotion()
+
+  useEffect(() => {
+    if (reducedMotion) { setDisplayed(text); return }
+    let i = 0
+    const timer = setInterval(() => {
+      setDisplayed(text.slice(0, ++i))
+      if (i >= text.length) clearInterval(timer)
+    }, 45)
+    return () => clearInterval(timer)
+  }, [reducedMotion])
+
   return (
-    <div className="text-center">
-      <div className="text-lg md:text-xl font-heading font-bold text-text">{value}</div>
+    <span className="text-xs font-mono tracking-[0.2em] text-cyan uppercase">
+      {displayed}
+      <span className="animate-pulse">|</span>
+    </span>
+  )
+}
+
+/* ─── Animated stat ─── */
+function AnimatedStat({ value, label, suffix = '' }: { value: number; label: string; suffix?: string }) {
+  const { ref, inView } = useInView(0.5)
+  const count = useCountUp(value, inView)
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-lg md:text-xl font-heading font-bold text-text">
+        {label === 'Manual Labor' ? '$' : ''}{count}{suffix}
+      </div>
       <div className="text-xs text-text-muted mt-0.5">{label}</div>
     </div>
   )
 }
 
+/* ─── Gradient fallback for lazy canvas ─── */
+function CanvasFallback() {
+  return (
+    <div className="fixed inset-0" style={{
+      zIndex: 0,
+      background: 'radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0,240,255,0.05) 0%, transparent 70%)',
+    }} />
+  )
+}
+
 /* ─── Hero Section ─── */
 export default function Hero() {
-  const contentRef = useRef<HTMLDivElement>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const [screenWidth, setScreenWidth] = useState(1024)
+  const reducedMotion = usePrefersReducedMotion()
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
+    const check = () => setScreenWidth(window.innerWidth)
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  useEffect(() => {
-    const el = contentRef.current
-    if (!el) return
+  const isMobile = screenWidth < 768
+  const isTablet = screenWidth < 1024
+  const particleCount = isMobile ? 0 : isTablet ? 800 : 1500
 
-    const children = el.querySelectorAll('.hero-anim')
-    gsap.fromTo(
-      children,
-      { opacity: 0, y: 30 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.12,
-        ease: 'power3.out',
-        delay: 0.3,
-      },
-    )
-  }, [])
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: reducedMotion ? 0 : 0.12, delayChildren: 0.3 } },
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: reducedMotion ? 0 : 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] } },
+  }
 
   return (
     <section className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden"
       style={{ paddingTop: '8rem', paddingBottom: '4rem' }}
     >
-      {/* Three.js Background — fixed, hidden on mobile */}
-      {!isMobile && (
-        <div className="fixed inset-0" style={{ zIndex: 0 }}>
-          <Canvas
-            camera={{ position: [0, 0, 5], fov: 60 }}
-            dpr={[1, 1.5]}
-            style={{ background: 'transparent' }}
-          >
-            <ambientLight intensity={0.5} />
-            <ParticleBrain />
-          </Canvas>
-        </div>
+      {/* Three.js Background — lazy loaded, responsive particle count */}
+      {!isMobile ? (
+        <Suspense fallback={<CanvasFallback />}>
+          <div className="fixed inset-0" style={{ zIndex: 0 }}>
+            <Canvas
+              camera={{ position: [0, 0, 5], fov: 60 }}
+              dpr={[1, 1.5]}
+              style={{ background: 'transparent' }}
+            >
+              <ambientLight intensity={0.5} />
+              <ParticleBrain count={particleCount} />
+            </Canvas>
+          </div>
+        </Suspense>
+      ) : (
+        <CanvasFallback />
       )}
 
-      {/* Radial gradient overlay */}
+      {/* Radial gradient overlay — improved readability */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
           zIndex: 1,
           background:
-            'radial-gradient(ellipse 60% 50% at 50% 50%, transparent 0%, #020008 70%)',
+            'radial-gradient(ellipse 55% 45% at 50% 50%, rgba(2,0,8,0.3) 0%, #020008 65%)',
         }}
       />
 
       {/* Content */}
-      <div
-        ref={contentRef}
+      <motion.div
         className="relative flex flex-col items-center text-center max-w-[840px] mx-auto px-6"
         style={{ zIndex: 10, gap: '2rem' }}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
-        {/* Label */}
-        <div className="hero-anim flex items-center justify-center gap-3">
+        {/* Typing label */}
+        <motion.div variants={itemVariants} className="flex items-center justify-center gap-3">
           <div className="h-px w-8 bg-cyan/40" />
-          <span className="text-xs font-mono tracking-[0.2em] text-cyan uppercase">
-            Autonomous AI Platform
-          </span>
+          <TypingLabel />
           <div className="h-px w-8 bg-cyan/40" />
-        </div>
+        </motion.div>
 
         {/* Heading */}
-        <h1 className="hero-anim font-[800] leading-[0.95] tracking-tight"
+        <motion.h1 variants={itemVariants}
+          className="font-[800] leading-[0.95] tracking-tight"
           style={{ fontSize: 'clamp(2.5rem, 7vw, 7rem)' }}
         >
           <span className="text-text">One System.</span>
           <br />
           <span className="gradient-text">Every Department.</span>
-        </h1>
+        </motion.h1>
 
         {/* Subtitle */}
-        <p className="hero-anim text-base md:text-lg text-text-muted max-w-[560px] mx-auto leading-relaxed">
+        <motion.p variants={itemVariants}
+          className="text-base md:text-lg text-text-muted max-w-[560px] mx-auto leading-relaxed"
+        >
           The 420 System replaces your entire software stack with a single autonomous AI
           platform. Sales, marketing, HR, and operations — all managed by AI that thinks,
           decides, and executes.
-        </p>
+        </motion.p>
 
         {/* Buttons */}
-        <div className="hero-anim flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <motion.button
             onClick={() => navigateToDemo('hero_start_free_trial')}
-            className="px-8 py-3.5 rounded-lg font-medium text-sm text-bg cursor-pointer border-none transition-all duration-300 hover:scale-105"
-            style={{
-              background: 'linear-gradient(135deg, #00F0FF, #0ACF83)',
-            }}
+            className="px-8 py-3.5 rounded-lg font-medium text-sm text-bg cursor-pointer border-none"
+            style={{ background: 'linear-gradient(135deg, #00F0FF, #0ACF83)' }}
+            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(0,240,255,0.3)' }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.2 }}
           >
             Start Free Trial
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-            className="px-8 py-3.5 rounded-lg font-medium text-sm text-text-muted border border-card-border hover:border-text-muted/40 hover:text-text transition-all duration-300 cursor-pointer bg-transparent"
+            className="px-8 py-3.5 rounded-lg font-medium text-sm text-text-muted border border-card-border cursor-pointer bg-transparent"
+            whileHover={{ borderColor: 'rgba(240,235,248,0.3)', color: '#F0EBF8' }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.2 }}
           >
             See the Architecture
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
-        {/* Stats */}
-        <div className="hero-anim flex items-center justify-center flex-wrap" style={{ gap: '2.5rem' }}>
-          <StatItem value="6" label="Industries" />
+        {/* Animated Stats */}
+        <motion.div variants={itemVariants}
+          className="flex items-center justify-center flex-wrap" style={{ gap: '2.5rem' }}
+        >
+          <AnimatedStat value={6} label="Industries" />
           <div className="w-px h-8 bg-card-border hidden sm:block" />
-          <StatItem value="100%" label="Autonomous" />
+          <AnimatedStat value={100} label="Autonomous" suffix="%" />
           <div className="w-px h-8 bg-card-border hidden sm:block" />
-          <StatItem value="$0" label="Manual Labor" />
+          <AnimatedStat value={0} label="Manual Labor" />
           <div className="w-px h-8 bg-card-border hidden sm:block" />
-          <StatItem value="24/7" label="AI Operations" />
-        </div>
-      </div>
+          <AnimatedStat value={24} label="AI Operations" suffix="/7" />
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

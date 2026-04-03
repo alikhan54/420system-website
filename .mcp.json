@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "21st-dev": {
+      "type": "url",
+      "url": "https://21st.dev/magic-chat?mcp_section=true"
+    }
+  }
+}
