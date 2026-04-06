@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePrefersReducedMotion } from '../utils/animations'
 
@@ -74,6 +74,65 @@ const modules: ModuleData[] = [
   },
 ]
 
+/* ─── Card particles (CSS only — drifts inside bounds) ─── */
+function CardParticles() {
+  const particles = Array.from({ length: 20 }, (_, i) => i)
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
+      {particles.map((i) => {
+        const delay = (i * 0.3) % 4
+        const duration = 6 + (i % 4)
+        const left = (i * 7919) % 100
+        const top = (i * 6971) % 100
+        const color = i % 3 === 0 ? '#00F0FF' : i % 3 === 1 ? '#0ACF83' : '#7B61FF'
+        return (
+          <span
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+              width: 2,
+              height: 2,
+              background: color,
+              opacity: 0.4,
+              animation: `cardDrift ${duration}s ease-in-out ${delay}s infinite`,
+              boxShadow: `0 0 4px ${color}`,
+            }}
+          />
+        )
+      })}
+      <style>{`
+        @keyframes cardDrift {
+          0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+          50% { transform: translate(12px, -18px); opacity: 0.5; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+/* ─── Typing capability item ─── */
+function TypingCapability({ text, delay }: { text: string; delay: number }) {
+  const [displayed, setDisplayed] = useState('')
+  const reducedMotion = usePrefersReducedMotion()
+
+  useEffect(() => {
+    if (reducedMotion) { setDisplayed(text); return }
+    const startTimer = setTimeout(() => {
+      let i = 0
+      const interval = setInterval(() => {
+        setDisplayed(text.slice(0, ++i))
+        if (i >= text.length) clearInterval(interval)
+      }, 8) // fast but visible
+      return () => clearInterval(interval)
+    }, delay)
+    return () => clearTimeout(startTimer)
+  }, [text, delay, reducedMotion])
+
+  return <span className="leading-relaxed">{displayed}</span>
+}
+
 function ModuleCard({
   mod, index, expanded, onToggle, anyExpanded,
 }: {
@@ -100,14 +159,16 @@ function ModuleCard({
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
-      transition={{ delay: index * 0.15, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ delay: index * 0.15, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+      className="ze-conic-wrapper"
+      style={{ position: 'relative', borderRadius: '12px' }}
     >
       <div
         ref={cardRef}
         onClick={onToggle}
         onMouseMove={!expanded ? handleMouseMove : undefined}
         onMouseLeave={handleMouseLeave}
-        className="group relative rounded-xl cursor-pointer"
+        className="group relative rounded-xl cursor-pointer overflow-hidden"
         style={{
           padding: '2rem',
           background: expanded
@@ -124,6 +185,9 @@ function ModuleCard({
           willChange: 'transform',
         }}
       >
+        {/* Particles when expanded */}
+        {expanded && <CardParticles />}
+
         {!expanded && (
           <>
             <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -170,23 +234,17 @@ function ModuleCard({
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
                 style={{ overflow: 'hidden' }}
               >
                 <p className="text-sm text-text-muted mb-5 leading-relaxed italic">{mod.subtitle}</p>
 
                 <ul className="space-y-3 mb-6">
                   {mod.capabilities.map((cap, i) => (
-                    <motion.li
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.06, duration: 0.3 }}
-                      className="flex items-start gap-2.5 text-sm text-text-muted"
-                    >
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-text-muted">
                       <span className="mt-[7px] flex-shrink-0 rounded-full" style={{ width: 6, height: 6, background: '#0ACF83' }} />
-                      <span className="leading-relaxed">{cap}</span>
-                    </motion.li>
+                      <TypingCapability text={cap} delay={i * 180} />
+                    </li>
                   ))}
                 </ul>
 

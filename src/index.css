@@ -86,3 +86,75 @@ h1, h2, h3, h4, h5, h6 {
 .animate-pulse {
   animation: pulse 1s ease-in-out infinite;
 }
+
+/* Conic-gradient rotating border for module cards */
+@property --ze-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.ze-conic-wrapper {
+  position: relative;
+}
+.ze-conic-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 13px;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ze-angle, 0deg),
+    transparent 0deg,
+    rgba(0, 240, 255, 0.6) 60deg,
+    rgba(10, 207, 131, 0.4) 120deg,
+    transparent 180deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: ze-conic-spin 4s linear infinite;
+  pointer-events: none;
+  opacity: 0.6;
+}
+@keyframes ze-conic-spin {
+  to { --ze-angle: 360deg; }
+}
+
+/* Fallback for browsers without @property: static gradient */
+@supports not (background: conic-gradient(from var(--ze-angle), #000, #fff)) {
+  .ze-conic-wrapper::before {
+    background: linear-gradient(135deg, rgba(0,240,255,0.3), transparent 40%, transparent 60%, rgba(10,207,131,0.3));
+    animation: none;
+  }
+}
+
+/* Electric border for Pricing featured card */
+@keyframes ze-electric {
+  0%, 100% {
+    box-shadow:
+      0 0 20px rgba(0, 240, 255, 0.3),
+      0 0 40px rgba(0, 240, 255, 0.15),
+      inset 0 0 20px rgba(0, 240, 255, 0.08);
+  }
+  33% {
+    box-shadow:
+      0 0 30px rgba(10, 207, 131, 0.3),
+      0 0 60px rgba(10, 207, 131, 0.15),
+      inset 0 0 20px rgba(10, 207, 131, 0.08);
+  }
+  66% {
+    box-shadow:
+      0 0 25px rgba(123, 97, 255, 0.3),
+      0 0 50px rgba(123, 97, 255, 0.15),
+      inset 0 0 20px rgba(123, 97, 255, 0.08);
+  }
+}
+.ze-pricing-featured {
+  animation: ze-electric 6s ease-in-out infinite;
+}
+.ze-price-glow {
+  text-shadow: 0 0 25px rgba(0, 240, 255, 0.5), 0 0 50px rgba(10, 207, 131, 0.2);
+}

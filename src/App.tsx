@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Organism from './components/Organism'
@@ -10,41 +10,53 @@ import CTA from './components/CTA'
 import Footer from './components/Footer'
 import ExitIntentModal from './components/ExitIntentModal'
 import CustomCursor from './components/CustomCursor'
+import LoadingScreen from './components/LoadingScreen'
 import { initVisitorTracking } from './utils/tracking'
+import { usePrefersReducedMotion } from './utils/animations'
 
 export default function App() {
   const [loading, setLoading] = useState(true)
+  const reducedMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     initVisitorTracking()
-    // Brief load screen, then reveal
-    const timer = setTimeout(() => setLoading(false), 600)
+    const duration = reducedMotion ? 100 : 1500
+    const timer = setTimeout(() => setLoading(false), duration)
     return () => clearTimeout(timer)
-  }, [])
+  }, [reducedMotion])
+
+  // Section title parallax: slight depth effect
+  useEffect(() => {
+    if (reducedMotion) return
+    let raf = 0
+    const onScroll = () => {
+      if (raf) return
+      raf = requestAnimationFrame(() => {
+        const scrollY = window.scrollY
+        document.querySelectorAll<HTMLElement>('[data-parallax-title]').forEach((el) => {
+          const rect = el.getBoundingClientRect()
+          const centerY = rect.top + rect.height / 2
+          const offset = (centerY - window.innerHeight / 2) * -0.05
+          el.style.transform = `translate3d(0, ${offset}px, 0)`
+        })
+        // Section content subtle parallax
+        document.querySelectorAll<HTMLElement>('[data-parallax-bg]').forEach((el) => {
+          el.style.transform = `translate3d(0, ${scrollY * -0.2}px, 0)`
+        })
+        raf = 0
+      })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [reducedMotion])
 
   return (
     <div className="min-h-screen bg-bg overflow-x-hidden max-w-[100vw]">
-      {/* Page load overlay */}
       <AnimatePresence>
-        {loading && (
-          <motion.div
-            key="loader"
-            className="fixed inset-0 bg-bg flex items-center justify-center"
-            style={{ zIndex: 9999 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="font-heading font-bold text-3xl"
-            >
-              <span className="text-cyan">4</span>
-              <span className="text-emerald">20</span>
-            </motion.div>
-          </motion.div>
-        )}
+        {loading && <LoadingScreen key="loader" />}
       </AnimatePresence>
 
       <CustomCursor />

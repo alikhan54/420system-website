@@ -56,9 +56,13 @@ const plans = [
   },
 ]
 
-function AnimatedPrice({ value, inView }: { value: number; inView: boolean }) {
+function AnimatedPrice({ value, inView, featured }: { value: number; inView: boolean; featured: boolean }) {
   const count = useCountUp(value, inView, 1400)
-  return <>${count.toLocaleString()}</>
+  return (
+    <span className={featured ? 'ze-price-glow' : ''}>
+      ${count.toLocaleString()}
+    </span>
+  )
 }
 
 function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) {
@@ -70,57 +74,59 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ delay: index * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ delay: index * 0.12, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+      style={{
+        opacity: plan.featured ? 1 : 0.85,
+      }}
     >
       <motion.div
-        className="relative rounded-xl h-full"
+        className={`relative rounded-xl h-full ${plan.featured ? 'ze-pricing-featured' : ''}`}
         style={{
           padding: '2.5rem',
           background: plan.featured
-            ? 'linear-gradient(180deg, rgba(0,240,255,0.06) 0%, rgba(240,235,248,0.03) 100%)'
-            : 'rgba(240, 235, 248, 0.03)',
+            ? 'linear-gradient(180deg, rgba(0,240,255,0.08) 0%, rgba(10,207,131,0.03) 100%)'
+            : 'rgba(240, 235, 248, 0.025)',
           border: plan.featured
-            ? '1px solid rgba(0, 240, 255, 0.3)'
+            ? '1px solid rgba(0, 240, 255, 0.4)'
             : '1px solid rgba(240, 235, 248, 0.06)',
-          boxShadow: plan.featured
-            ? '0 0 60px rgba(0, 240, 255, 0.08)'
-            : 'none',
         }}
         whileHover={{
           y: -6,
-          boxShadow: plan.featured
-            ? '0 0 80px rgba(0, 240, 255, 0.12)'
-            : '0 8px 40px rgba(0, 0, 0, 0.3)',
           transition: { duration: 0.25 },
         }}
       >
-        {/* Pulsing border for featured */}
+        {/* Most Popular badge */}
         {plan.featured && (
           <div
-            className="absolute inset-0 rounded-xl pointer-events-none"
-            style={{
-              border: '1px solid rgba(0, 240, 255, 0.3)',
-              animation: 'pulseBorder 3s ease-in-out infinite',
-            }}
-          />
-        )}
-
-        {plan.featured && (
-          <div
-            className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase"
+            className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase z-10"
             style={{
               background: 'linear-gradient(135deg, #00F0FF, #0ACF83)',
               color: '#020008',
+              boxShadow: '0 0 20px rgba(0,240,255,0.3)',
             }}
           >
             Most Popular
           </div>
         )}
 
+        {/* Recommended ribbon — top right */}
+        {plan.featured && (
+          <div
+            className="absolute top-4 right-4 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-1 rounded"
+            style={{
+              background: 'linear-gradient(135deg, rgba(0,240,255,0.15), rgba(10,207,131,0.1))',
+              border: '1px solid rgba(0,240,255,0.3)',
+              color: '#00F0FF',
+            }}
+          >
+            Recommended
+          </div>
+        )}
+
         <h3 className="text-lg font-heading font-bold text-text mb-2">{plan.name}</h3>
         <div className="flex items-baseline gap-1 mb-3">
           <span className="text-4xl font-heading font-[800] text-text">
-            <AnimatedPrice value={plan.price} inView={inView} />
+            <AnimatedPrice value={plan.price} inView={inView} featured={plan.featured} />
           </span>
           <span className="text-sm text-text-muted">{plan.period}</span>
         </div>
@@ -178,13 +184,6 @@ export default function Pricing() {
           ))}
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulseBorder {
-          0%, 100% { box-shadow: 0 0 20px rgba(0,240,255,0.05); }
-          50% { box-shadow: 0 0 40px rgba(0,240,255,0.15); }
-        }
-      `}</style>
     </section>
   )
 }

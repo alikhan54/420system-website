@@ -1,90 +1,180 @@
+import { useRef, useState, useMemo } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
 import RevealOnScroll from './RevealOnScroll'
 
 const nodes = [
-  { label: 'Sales', icon: '⚡', ring: 1 },
-  { label: 'Marketing', icon: '📡', ring: 2 },
-  { label: 'HR', icon: '👤', ring: 1 },
-  { label: 'Ops', icon: '⚙️', ring: 2 },
+  { label: 'Sales', color: '#00F0FF', angle: 0, speed: 0.4, radius: 2.0 },
+  { label: 'Marketing', color: '#0ACF83', angle: Math.PI * 0.5, speed: 0.3, radius: 2.4 },
+  { label: 'HR', color: '#7B61FF', angle: Math.PI, speed: 0.35, radius: 2.0 },
+  { label: 'Ops', color: '#00F0FF', angle: Math.PI * 1.5, speed: 0.28, radius: 2.4 },
 ]
 
-function OrbitDiagram() {
+/* ─── Central core ─── */
+function Core() {
+  const ref = useRef<THREE.Mesh>(null)
+  const glowRef = useRef<THREE.Mesh>(null)
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime
+    if (ref.current) {
+      ref.current.rotation.y = t * 0.3
+      const s = 1 + Math.sin(t * 2) * 0.1
+      ref.current.scale.set(s, s, s)
+    }
+    if (glowRef.current) {
+      const s = 1 + Math.sin(t * 1.5) * 0.15
+      glowRef.current.scale.set(s, s, s)
+    }
+  })
+
+  return (
+    <group>
+      <mesh ref={ref}>
+        <icosahedronGeometry args={[0.4, 1]} />
+        <meshBasicMaterial color="#00F0FF" wireframe transparent opacity={0.8} />
+      </mesh>
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[0.5, 24, 24]} />
+        <meshBasicMaterial color="#00F0FF" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.8, 24, 24]} />
+        <meshBasicMaterial color="#0ACF83" transparent opacity={0.06} blending={THREE.AdditiveBlending} />
+      </mesh>
+    </group>
+  )
+}
+
+/* ─── Orbiting node ─── */
+function OrbitNode({
+  node, phaseOffset, onHover, hovered,
+}: {
+  node: typeof nodes[0]
+  phaseOffset: number
+  onHover: (label: string | null) => void
+  hovered: boolean
+}) {
+  const groupRef = useRef<THREE.Group>(null)
+  const sphereRef = useRef<THREE.Mesh>(null)
+  const lineRef = useRef<THREE.Line>(null)
+  const positionRef = useRef(new THREE.Vector3())
+
+  // Stable line geometry setup
+  const lineGeo = useMemo(() => {
+    const g = new THREE.BufferGeometry()
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3))
+    return g
+  }, [])
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime
+    const angle = phaseOffset + t * node.speed
+    const x = Math.cos(angle) * node.radius
+    const z = Math.sin(angle) * node.radius
+    const y = Math.sin(angle * 2) * 0.3
+
+    if (groupRef.current) {
+      groupRef.current.position.set(x, y, z)
+      positionRef.current.set(x, y, z)
+    }
+    if (sphereRef.current) {
+      const target = hovered ? 1.5 : 1
+      sphereRef.current.scale.lerp(new THREE.Vector3(target, target, target), 0.1)
+    }
+    // Pulsing line from core to node
+    if (lineRef.current && lineRef.current.geometry.attributes.position) {
+      const posAttr = lineRef.current.geometry.attributes.position as THREE.BufferAttribute
+      posAttr.setXYZ(0, 0, 0, 0)
+      posAttr.setXYZ(1, x, y, z)
+      posAttr.needsUpdate = true
+      const mat = lineRef.current.material as THREE.LineBasicMaterial
+      mat.opacity = 0.15 + Math.sin(t * 3 + phaseOffset) * 0.1 + (hovered ? 0.2 : 0)
+    }
+  })
+
+  return (
+    <>
+      {/* Connection line (rendered from origin; positions updated in frame) */}
+      <primitive
+        object={new THREE.Line(
+          lineGeo,
+          new THREE.LineBasicMaterial({ color: node.color, transparent: true, opacity: 0.15 })
+        )}
+        ref={lineRef}
+      />
+      <group
+        ref={groupRef}
+        onPointerOver={(e) => { e.stopPropagation(); onHover(node.label); document.body.style.cursor = 'pointer' }}
+        onPointerOut={() => { onHover(null); document.body.style.cursor = 'auto' }}
+      >
+        <mesh ref={sphereRef}>
+          <sphereGeometry args={[0.14, 16, 16]} />
+          <meshBasicMaterial color={node.color} />
+        </mesh>
+        <mesh>
+          <sphereGeometry args={[0.22, 16, 16]} />
+          <meshBasicMaterial color={node.color} transparent opacity={0.2} blending={THREE.AdditiveBlending} />
+        </mesh>
+      </group>
+    </>
+  )
+}
+
+/* ─── Orbital scene ─── */
+function OrbitalScene() {
+  const [hovered, setHovered] = useState<string | null>(null)
+
   return (
     <div className="relative mx-auto w-full" style={{ maxWidth: 400, aspectRatio: '1' }}>
-      {/* Rings */}
-      {[90, 130, 170].map((r, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full border border-card-border"
-          style={{
-            width: r * 2,
-            height: r * 2,
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            animation: `spin ${20 + i * 10}s linear infinite${i % 2 ? ' reverse' : ''}`,
-          }}
-        />
-      ))}
-
-      {/* Center node */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-        <div
-          className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center"
-          style={{
-            background: 'radial-gradient(circle, rgba(0,240,255,0.15) 0%, rgba(2,0,8,0.9) 70%)',
-            border: '1px solid rgba(0,240,255,0.3)',
-            boxShadow: '0 0 40px rgba(0,240,255,0.15)',
-          }}
-        >
-          <span className="font-heading font-bold text-lg md:text-xl">
-            <span className="text-cyan">4</span>
-            <span className="text-emerald">20</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Orbiting nodes */}
-      {nodes.map((node, i) => {
-        const animDuration = node.ring === 1 ? 20 : 30
-        return (
-          <div
-            key={i}
-            className="absolute top-1/2 left-1/2 z-10"
-            style={{
-              animation: `orbit${node.ring} ${animDuration}s linear infinite`,
-              animationDelay: `${-(animDuration / 4) * i}s`,
-            }}
-          >
+      <Canvas camera={{ position: [0, 1.5, 5.5], fov: 55 }} dpr={[1, 1.5]}>
+        <ambientLight intensity={0.5} />
+        <Core />
+        {nodes.map((node) => (
+          <OrbitNode
+            key={node.label}
+            node={node}
+            phaseOffset={node.angle}
+            onHover={setHovered}
+            hovered={hovered === node.label}
+          />
+        ))}
+      </Canvas>
+      {/* CSS labels positioned absolutely */}
+      <div className="absolute inset-0 pointer-events-none">
+        {nodes.map((node, i) => {
+          const anglePos = [
+            { top: '15%', right: '10%' },
+            { bottom: '15%', right: '10%' },
+            { bottom: '15%', left: '10%' },
+            { top: '15%', left: '10%' },
+          ][i]
+          const active = hovered === node.label
+          return (
             <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono"
+              key={node.label}
+              className="absolute text-xs font-mono transition-all duration-300"
               style={{
-                background: 'rgba(2, 0, 8, 0.85)',
-                border: '1px solid rgba(240,235,248,0.1)',
-                transform: 'translate(-50%, -50%)',
-                whiteSpace: 'nowrap',
+                ...anglePos,
+                color: node.color,
+                opacity: active ? 1 : 0.5,
+                textShadow: active ? `0 0 12px ${node.color}` : 'none',
+                letterSpacing: '0.1em',
               }}
             >
-              <span>{node.icon}</span>
-              <span className="text-text-muted">{node.label}</span>
+              {node.label.toUpperCase()}
             </div>
-          </div>
-        )
-      })}
-
-      <style>{`
-        @keyframes spin {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @keyframes orbit1 {
-          from { transform: rotate(0deg) translateX(90px) rotate(0deg); }
-          to { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
-        }
-        @keyframes orbit2 {
-          from { transform: rotate(0deg) translateX(130px) rotate(0deg); }
-          to { transform: rotate(360deg) translateX(130px) rotate(-360deg); }
-        }
-      `}</style>
+          )
+        })}
+      </div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+        <div
+          className="text-[10px] font-mono font-bold text-cyan tracking-[0.2em]"
+          style={{ textShadow: '0 0 10px #00F0FF', transform: 'translateY(60px)' }}
+        >
+          CORE
+        </div>
+      </div>
     </div>
   )
 }
@@ -114,7 +204,7 @@ export default function Organism() {
           </RevealOnScroll>
 
           <RevealOnScroll delay={0.2}>
-            <OrbitDiagram />
+            <OrbitalScene />
           </RevealOnScroll>
         </div>
       </div>

@@ -5,8 +5,85 @@ import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
 import { useInView, useCountUp, usePrefersReducedMotion } from '../utils/animations'
 
-/* ─── Particle Brain ─── */
-function ParticleBrain({ count = 1500 }: { count?: number }) {
+/* ─── Glowing core ─── */
+function GlowingCore() {
+  const coreRef = useRef<THREE.Mesh>(null)
+  const glowRef = useRef<THREE.Mesh>(null)
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime
+    if (coreRef.current) {
+      const s = 1 + Math.sin(t * 2) * 0.15
+      coreRef.current.scale.set(s, s, s)
+    }
+    if (glowRef.current) {
+      const s = 1 + Math.sin(t * 1.5) * 0.1
+      glowRef.current.scale.set(s, s, s)
+    }
+  })
+
+  return (
+    <>
+      <mesh ref={coreRef}>
+        <sphereGeometry args={[0.1, 32, 32]} />
+        <meshBasicMaterial color="#0ACF83" transparent opacity={0.95} />
+      </mesh>
+      <mesh ref={glowRef}>
+        <sphereGeometry args={[0.4, 32, 32]} />
+        <meshBasicMaterial color="#0ACF83" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.8, 32, 32]} />
+        <meshBasicMaterial color="#00F0FF" transparent opacity={0.05} blending={THREE.AdditiveBlending} />
+      </mesh>
+    </>
+  )
+}
+
+/* ─── Data rings ─── */
+function DataRings() {
+  const ring1 = useRef<THREE.Mesh>(null)
+  const ring2 = useRef<THREE.Mesh>(null)
+  const ring3 = useRef<THREE.Mesh>(null)
+  const ring4 = useRef<THREE.Mesh>(null)
+  const ring5 = useRef<THREE.Mesh>(null)
+
+  useFrame(() => {
+    if (ring1.current) ring1.current.rotation.y += 0.001
+    if (ring2.current) { ring2.current.rotation.x += 0.0012; ring2.current.rotation.y += 0.0008 }
+    if (ring3.current) ring3.current.rotation.z += 0.0015
+    if (ring4.current) { ring4.current.rotation.x += 0.0008; ring4.current.rotation.z += 0.001 }
+    if (ring5.current) ring5.current.rotation.y -= 0.0013
+  })
+
+  return (
+    <>
+      <mesh ref={ring1} rotation={[Math.PI * 0.3, 0, 0]}>
+        <torusGeometry args={[2.8, 0.005, 8, 80]} />
+        <meshBasicMaterial color="#00F0FF" transparent opacity={0.15} />
+      </mesh>
+      <mesh ref={ring2} rotation={[Math.PI * 0.5, Math.PI * 0.2, 0]}>
+        <torusGeometry args={[3.2, 0.005, 8, 80]} />
+        <meshBasicMaterial color="#0ACF83" transparent opacity={0.12} />
+      </mesh>
+      <mesh ref={ring3} rotation={[0, 0, Math.PI * 0.4]}>
+        <torusGeometry args={[3.6, 0.004, 8, 80]} />
+        <meshBasicMaterial color="#7B61FF" transparent opacity={0.1} />
+      </mesh>
+      <mesh ref={ring4} rotation={[Math.PI * 0.25, Math.PI * 0.3, 0]}>
+        <torusGeometry args={[4.0, 0.004, 8, 80]} />
+        <meshBasicMaterial color="#00F0FF" transparent opacity={0.08} />
+      </mesh>
+      <mesh ref={ring5} rotation={[Math.PI * 0.6, 0, Math.PI * 0.2]}>
+        <torusGeometry args={[4.4, 0.003, 8, 80]} />
+        <meshBasicMaterial color="#0ACF83" transparent opacity={0.06} />
+      </mesh>
+    </>
+  )
+}
+
+/* ─── Particle Brain with distance-based brightness ─── */
+function ParticleBrain({ count = 2000 }: { count?: number }) {
   const meshRef = useRef<THREE.Points>(null)
   const mouseRef = useRef({ x: 0, y: 0 })
   const lineCount = count * 3
@@ -18,9 +95,9 @@ function ParticleBrain({ count = 1500 }: { count?: number }) {
     const lCol = new Float32Array(lineCount * 2 * 3)
 
     const palette = [
-      [0, 0.94, 1],
-      [0.04, 0.81, 0.51],
-      [0.48, 0.38, 1],
+      [0, 0.94, 1],      // cyan
+      [0.04, 0.81, 0.51], // emerald
+      [0.48, 0.38, 1],    // violet
     ]
 
     for (let i = 0; i < count; i++) {
@@ -32,10 +109,14 @@ function ParticleBrain({ count = 1500 }: { count?: number }) {
       pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
       pos[i * 3 + 2] = r * Math.cos(phi)
 
+      // Brightness based on distance from core (closer = brighter)
+      const distFromCore = Math.sqrt(pos[i*3]**2 + pos[i*3+1]**2 + pos[i*3+2]**2)
+      const brightness = Math.max(0.3, 1.2 - distFromCore / 3.5)
+
       const c = palette[Math.floor(Math.random() * palette.length)]
-      col[i * 3] = c[0]
-      col[i * 3 + 1] = c[1]
-      col[i * 3 + 2] = c[2]
+      col[i * 3] = c[0] * brightness
+      col[i * 3 + 1] = c[1] * brightness
+      col[i * 3 + 2] = c[2] * brightness
     }
 
     lPos.fill(0)
@@ -71,13 +152,13 @@ function ParticleBrain({ count = 1500 }: { count?: number }) {
 
       const tempA = new THREE.Vector3()
       const tempB = new THREE.Vector3()
-      const maxDist = 0.65
+      const maxDist = 0.55
 
-      for (let i = 0; i < count && lineIdx < lineCount; i++) {
+      for (let i = 0; i < count && lineIdx < lineCount; i += 2) {
         tempA.set(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i))
         tempA.applyMatrix4(meshRef.current.matrixWorld)
 
-        for (let j = i + 1; j < Math.min(i + 20, count) && lineIdx < lineCount; j++) {
+        for (let j = i + 1; j < Math.min(i + 15, count) && lineIdx < lineCount; j++) {
           tempB.set(posAttr.getX(j), posAttr.getY(j), posAttr.getZ(j))
           tempB.applyMatrix4(meshRef.current.matrixWorld)
 
@@ -115,7 +196,7 @@ function ParticleBrain({ count = 1500 }: { count?: number }) {
           <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.025}
+          size={0.022}
           vertexColors
           transparent
           opacity={0.9}
@@ -180,7 +261,45 @@ function AnimatedStat({ value, label, suffix = '' }: { value: number; label: str
   )
 }
 
-/* ─── Gradient fallback for lazy canvas ─── */
+/* ─── Code ticker ─── */
+function CodeTicker() {
+  const snippets = [
+    'lead.score > 80 → route.sales',
+    'campaign.launch → auto',
+    'hire.onboard → 24hrs',
+    'customer.reply → ai.respond',
+    'invoice.overdue → dunning.start',
+    'meeting.booked → calendar.sync',
+    'signal.detected → strategy.pivot',
+    'agent.analyze → action.execute',
+    'metrics.daily → dashboard.refresh',
+    'anomaly.found → alert.ops',
+  ]
+  const ticker = [...snippets, ...snippets, ...snippets].join('  •  ')
+
+  return (
+    <div className="w-full overflow-hidden" style={{ maskImage: 'linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent)', WebkitMaskImage: 'linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent)' }}>
+      <div
+        className="whitespace-nowrap font-mono text-xs text-text-muted"
+        style={{
+          opacity: 0.15,
+          animation: 'tickerScroll 40s linear infinite',
+          display: 'inline-block',
+        }}
+      >
+        {ticker}
+      </div>
+      <style>{`
+        @keyframes tickerScroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.333%); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+/* ─── Gradient fallback ─── */
 function CanvasFallback() {
   return (
     <div className="fixed inset-0" style={{
@@ -204,7 +323,7 @@ export default function Hero() {
 
   const isMobile = screenWidth < 768
   const isTablet = screenWidth < 1024
-  const particleCount = isMobile ? 0 : isTablet ? 800 : 1500
+  const particleCount = isMobile ? 0 : isTablet ? 1000 : 2000
 
   const containerVariants = {
     hidden: {},
@@ -220,7 +339,6 @@ export default function Hero() {
     <section className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden"
       style={{ paddingTop: '8rem', paddingBottom: '4rem' }}
     >
-      {/* Three.js Background — lazy loaded, responsive particle count */}
       {!isMobile ? (
         <Suspense fallback={<CanvasFallback />}>
           <div className="fixed inset-0" style={{ zIndex: 0 }}>
@@ -231,6 +349,8 @@ export default function Hero() {
             >
               <ambientLight intensity={0.5} />
               <ParticleBrain count={particleCount} />
+              <GlowingCore />
+              <DataRings />
             </Canvas>
           </div>
         </Suspense>
@@ -238,7 +358,6 @@ export default function Hero() {
         <CanvasFallback />
       )}
 
-      {/* Radial gradient overlay — improved readability */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
@@ -248,7 +367,6 @@ export default function Hero() {
         }}
       />
 
-      {/* Content */}
       <motion.div
         className="relative flex flex-col items-center text-center max-w-[840px] mx-auto px-6"
         style={{ zIndex: 10, gap: '2rem' }}
@@ -256,24 +374,29 @@ export default function Hero() {
         initial="hidden"
         animate="visible"
       >
-        {/* Typing label */}
         <motion.div variants={itemVariants} className="flex items-center justify-center gap-3">
           <div className="h-px w-8 bg-cyan/40" />
           <TypingLabel />
           <div className="h-px w-8 bg-cyan/40" />
         </motion.div>
 
-        {/* Heading */}
         <motion.h1 variants={itemVariants}
           className="font-[800] leading-[0.95] tracking-tight"
           style={{ fontSize: 'clamp(2.5rem, 7vw, 7rem)' }}
         >
           <span className="text-text">One System.</span>
           <br />
-          <span className="gradient-text">Every Department.</span>
+          <span
+            className="gradient-text"
+            style={{
+              textShadow: '0 0 60px rgba(0,240,255,0.4)',
+              filter: 'drop-shadow(0 0 20px rgba(0,240,255,0.2))',
+            }}
+          >
+            Every Department.
+          </span>
         </motion.h1>
 
-        {/* Subtitle */}
         <motion.p variants={itemVariants}
           className="text-base md:text-lg text-text-muted max-w-[560px] mx-auto leading-relaxed"
         >
@@ -282,7 +405,6 @@ export default function Hero() {
           decides, and executes.
         </motion.p>
 
-        {/* Buttons */}
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.button
             onClick={() => navigateToDemo('hero_start_free_trial')}
@@ -305,7 +427,6 @@ export default function Hero() {
           </motion.button>
         </motion.div>
 
-        {/* Animated Stats */}
         <motion.div variants={itemVariants}
           className="flex items-center justify-center flex-wrap" style={{ gap: '2.5rem' }}
         >
@@ -316,6 +437,11 @@ export default function Hero() {
           <AnimatedStat value={0} label="Manual Labor" />
           <div className="w-px h-8 bg-card-border hidden sm:block" />
           <AnimatedStat value={24} label="AI Operations" suffix="/7" />
+        </motion.div>
+
+        {/* Code ticker */}
+        <motion.div variants={itemVariants} className="w-full max-w-[900px] mt-4">
+          <CodeTicker />
         </motion.div>
       </motion.div>
     </section>
