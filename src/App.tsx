@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import Lenis from '@studio-freight/lenis'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Organism from './components/Organism'
 import Modules from './components/Modules'
+import ModulesMobile from './components/ModulesMobile'
 import Industries from './components/Industries'
 import Pricing from './components/Pricing'
 import CTA from './components/CTA'
@@ -11,6 +13,7 @@ import Footer from './components/Footer'
 import ExitIntentModal from './components/ExitIntentModal'
 import CustomCursor from './components/CustomCursor'
 import LoadingScreen from './components/LoadingScreen'
+import SectionTransition from './components/SectionTransition'
 import { initVisitorTracking } from './utils/tracking'
 import { usePrefersReducedMotion } from './utils/animations'
 
@@ -20,37 +23,34 @@ export default function App() {
 
   useEffect(() => {
     initVisitorTracking()
-    const duration = reducedMotion ? 100 : 1500
+    const duration = reducedMotion ? 100 : 2200
     const timer = setTimeout(() => setLoading(false), duration)
     return () => clearTimeout(timer)
   }, [reducedMotion])
 
-  // Section title parallax: slight depth effect
+  // Lenis smooth scroll
   useEffect(() => {
     if (reducedMotion) return
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    })
     let raf = 0
-    const onScroll = () => {
-      if (raf) return
-      raf = requestAnimationFrame(() => {
-        const scrollY = window.scrollY
-        document.querySelectorAll<HTMLElement>('[data-parallax-title]').forEach((el) => {
-          const rect = el.getBoundingClientRect()
-          const centerY = rect.top + rect.height / 2
-          const offset = (centerY - window.innerHeight / 2) * -0.05
-          el.style.transform = `translate3d(0, ${offset}px, 0)`
-        })
-        // Section content subtle parallax
-        document.querySelectorAll<HTMLElement>('[data-parallax-bg]').forEach((el) => {
-          el.style.transform = `translate3d(0, ${scrollY * -0.2}px, 0)`
-        })
-        raf = 0
-      })
+    function tick(time: number) {
+      lenis.raf(time)
+      raf = requestAnimationFrame(tick)
     }
-    window.addEventListener('scroll', onScroll, { passive: true })
+    raf = requestAnimationFrame(tick)
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      if (raf) cancelAnimationFrame(raf)
+      cancelAnimationFrame(raf)
+      lenis.destroy()
     }
+  }, [reducedMotion])
+
+  // Tag body for custom cursor
+  useEffect(() => {
+    document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false'
   }, [reducedMotion])
 
   return (
@@ -62,10 +62,16 @@ export default function App() {
       <CustomCursor />
       <Navbar />
       <Hero />
+      <SectionTransition />
       <Organism />
+      <SectionTransition />
       <Modules />
+      <ModulesMobile />
+      <SectionTransition />
       <Industries />
+      <SectionTransition />
       <Pricing />
+      <SectionTransition />
       <CTA />
       <Footer />
       <ExitIntentModal />

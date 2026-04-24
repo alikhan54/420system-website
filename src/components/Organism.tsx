@@ -1,7 +1,7 @@
 import { useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import RevealOnScroll from './RevealOnScroll'
+import { motion } from 'framer-motion'
 
 const nodes = [
   { label: 'Sales', color: '#00F0FF', angle: 0, speed: 0.4, radius: 2.0 },
@@ -10,11 +10,9 @@ const nodes = [
   { label: 'Ops', color: '#00F0FF', angle: Math.PI * 1.5, speed: 0.28, radius: 2.4 },
 ]
 
-/* ─── Central core ─── */
 function Core() {
   const ref = useRef<THREE.Mesh>(null)
   const glowRef = useRef<THREE.Mesh>(null)
-
   useFrame((state) => {
     const t = state.clock.elapsedTime
     if (ref.current) {
@@ -27,7 +25,6 @@ function Core() {
       glowRef.current.scale.set(s, s, s)
     }
   })
-
   return (
     <group>
       <mesh ref={ref}>
@@ -46,21 +43,13 @@ function Core() {
   )
 }
 
-/* ─── Orbiting node ─── */
 function OrbitNode({
   node, phaseOffset, onHover, hovered,
-}: {
-  node: typeof nodes[0]
-  phaseOffset: number
-  onHover: (label: string | null) => void
-  hovered: boolean
-}) {
+}: { node: typeof nodes[0]; phaseOffset: number; onHover: (label: string | null) => void; hovered: boolean }) {
   const groupRef = useRef<THREE.Group>(null)
   const sphereRef = useRef<THREE.Mesh>(null)
   const lineRef = useRef<THREE.Line>(null)
-  const positionRef = useRef(new THREE.Vector3())
 
-  // Stable line geometry setup
   const lineGeo = useMemo(() => {
     const g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3))
@@ -74,15 +63,11 @@ function OrbitNode({
     const z = Math.sin(angle) * node.radius
     const y = Math.sin(angle * 2) * 0.3
 
-    if (groupRef.current) {
-      groupRef.current.position.set(x, y, z)
-      positionRef.current.set(x, y, z)
-    }
+    if (groupRef.current) groupRef.current.position.set(x, y, z)
     if (sphereRef.current) {
       const target = hovered ? 1.5 : 1
       sphereRef.current.scale.lerp(new THREE.Vector3(target, target, target), 0.1)
     }
-    // Pulsing line from core to node
     if (lineRef.current && lineRef.current.geometry.attributes.position) {
       const posAttr = lineRef.current.geometry.attributes.position as THREE.BufferAttribute
       posAttr.setXYZ(0, 0, 0, 0)
@@ -95,12 +80,8 @@ function OrbitNode({
 
   return (
     <>
-      {/* Connection line (rendered from origin; positions updated in frame) */}
       <primitive
-        object={new THREE.Line(
-          lineGeo,
-          new THREE.LineBasicMaterial({ color: node.color, transparent: true, opacity: 0.15 })
-        )}
+        object={new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ color: node.color, transparent: true, opacity: 0.15 }))}
         ref={lineRef}
       />
       <group
@@ -121,10 +102,8 @@ function OrbitNode({
   )
 }
 
-/* ─── Orbital scene ─── */
 function OrbitalScene() {
   const [hovered, setHovered] = useState<string | null>(null)
-
   return (
     <div className="relative mx-auto w-full" style={{ maxWidth: 400, aspectRatio: '1' }}>
       <Canvas camera={{ position: [0, 1.5, 5.5], fov: 55 }} dpr={[1, 1.5]}>
@@ -140,7 +119,6 @@ function OrbitalScene() {
           />
         ))}
       </Canvas>
-      {/* CSS labels positioned absolutely */}
       <div className="absolute inset-0 pointer-events-none">
         {nodes.map((node, i) => {
           const anglePos = [
@@ -180,32 +158,62 @@ function OrbitalScene() {
 }
 
 export default function Organism() {
+  const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
+
   return (
-    <section id="how-it-works" className="relative" style={{ zIndex: 2, padding: '6rem 0' }}>
+    <section id="how-it-works" className="relative" style={{ zIndex: 2, padding: '8rem 0' }}>
+      {/* Drawing line at top */}
+      <motion.div
+        className="absolute top-0 left-0 h-px"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(10,207,131,0.6), rgba(0,240,255,0.6), transparent)',
+          transformOrigin: 'left',
+        }}
+        initial={{ scaleX: 0, width: '100%' }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 1.2, ease: EASE }}
+      />
+
       <div className="max-w-[1200px] mx-auto" style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center" style={{ gap: '4rem' }}>
-          <RevealOnScroll>
-            <div style={{ paddingLeft: '0.5rem' }}>
-              <span className="text-xs font-mono tracking-[0.15em] text-cyan mb-4 block">
-                // The Architecture
-              </span>
-              <h2 className="font-[800] leading-tight mb-6 text-text" style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-                A living organism,
-                <br />
-                <span className="gradient-text">not a tool collection.</span>
-              </h2>
-              <p className="text-text-muted leading-relaxed" style={{ maxWidth: '520px' }}>
-                Traditional SaaS forces you to connect dozens of disconnected tools. The 420
-                System is a unified intelligence — every module shares context, learns from
-                every interaction, and autonomously coordinates across departments. It
-                doesn't just automate tasks. It thinks, adapts, and evolves.
-              </p>
-            </div>
-          </RevealOnScroll>
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.8, ease: EASE }}
+            style={{ paddingLeft: '0.5rem' }}
+          >
+            <span className="text-[11px] font-mono tracking-[0.3em] text-emerald uppercase mb-4 block">
+              // The Architecture
+            </span>
+            <h2
+              className="font-[800] leading-[1.1] mb-6 text-text"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', letterSpacing: '-0.02em' }}
+            >
+              A living organism,
+              <br />
+              <span className="gradient-text">not a tool collection.</span>
+            </h2>
+            <p
+              className="leading-relaxed"
+              style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8, maxWidth: '560px' }}
+            >
+              Traditional SaaS forces you to connect dozens of disconnected tools. The 420
+              System is a unified intelligence — every module shares context, learns from
+              every interaction, and autonomously coordinates across departments. It
+              doesn't just automate tasks. It thinks, adapts, and evolves.
+            </p>
+          </motion.div>
 
-          <RevealOnScroll delay={0.2}>
+          <motion.div
+            initial={{ opacity: 0, x: 80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
             <OrbitalScene />
-          </RevealOnScroll>
+          </motion.div>
         </div>
       </div>
     </section>
