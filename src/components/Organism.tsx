@@ -2,6 +2,7 @@ import { useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
+import VideoBackground from './VideoBackground'
 
 const nodes = [
   { label: 'Sales', color: '#00D4AA', angle: 0, speed: 0.4, radius: 2.0 },
@@ -161,13 +162,21 @@ export default function Organism() {
   const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
   return (
-    <section id="how-it-works" className="relative" style={{ zIndex: 2, padding: '8rem 0' }}>
+    <section id="how-it-works" className="relative overflow-hidden" style={{ zIndex: 2, padding: '8rem 0', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
+      {/* Video background */}
+      <VideoBackground
+        src="/videos/organism-bg.mp4"
+        opacity={0.3}
+        overlayGradient="linear-gradient(to bottom, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.85) 100%)"
+      />
+
       {/* Drawing line at top */}
       <motion.div
         className="absolute top-0 left-0 h-px"
         style={{
           background: 'linear-gradient(90deg, transparent, rgba(0,212,170,0.5), rgba(0,180,216,0.5), transparent)',
           transformOrigin: 'left',
+          zIndex: 5,
         }}
         initial={{ scaleX: 0, width: '100%' }}
         whileInView={{ scaleX: 1 }}
@@ -175,7 +184,7 @@ export default function Organism() {
         transition={{ duration: 1.2, ease: EASE }}
       />
 
-      <div className="max-w-[1200px] mx-auto" style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)' }}>
+      <div className="max-w-[1200px] mx-auto relative" style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)', width: '100%', zIndex: 10 }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center" style={{ gap: '4rem' }}>
           <motion.div
             initial={{ opacity: 0, x: -80 }}
@@ -207,10 +216,10 @@ export default function Organism() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 80 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: 80, scale: 0.85 }}
+            whileInView={{ opacity: 1, x: 0, scale: 1 }}
             viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.8, ease: EASE }}
+            transition={{ duration: 0.9, ease: EASE }}
           >
             <OrbitalScene />
           </motion.div>
