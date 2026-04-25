@@ -7,19 +7,11 @@ export default function LoadingScreen() {
 
   return (
     <motion.div
-      className="fixed inset-0 flex flex-col items-center justify-center"
-      style={{
-        zIndex: 9999,
-        background: '#050505',
-        // Allow scroll events to pass through (ensures we never accidentally block scroll)
-        // Loader is decorative; users can't interact with the page beneath anyway during the 2s show
-        pointerEvents: 'none',
-      }}
-      initial={{ opacity: 1 }}
+      className="fixed inset-0 bg-bg flex flex-col items-center justify-center"
+      style={{ zIndex: 9999 }}
       exit={{
-        opacity: 0,
         y: '-100%',
-        transition: { duration: 0.6, ease: EASE },
+        transition: { duration: 0.9, ease: EASE, delay: 0.2 },
       }}
     >
       {/* Radial ambient */}

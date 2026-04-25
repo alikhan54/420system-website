@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Organism from './components/Organism'
 import Modules from './components/Modules'
+import ModulesMobile from './components/ModulesMobile'
 import Industries from './components/Industries'
 import Pricing from './components/Pricing'
 import CTA from './components/CTA'
@@ -11,7 +12,7 @@ import Footer from './components/Footer'
 import ExitIntentModal from './components/ExitIntentModal'
 import CustomCursor from './components/CustomCursor'
 import LoadingScreen from './components/LoadingScreen'
-import StoryBeat from './components/StoryBeat'
+import SectionTransition from './components/SectionTransition'
 import { initVisitorTracking } from './utils/tracking'
 import { usePrefersReducedMotion } from './utils/animations'
 
@@ -39,39 +40,17 @@ export default function App() {
 
       <CustomCursor />
       <Navbar />
-
       <Hero />
-
-      <StoryBeat lines={[
-        { text: 'Imagine a business...' },
-        { text: '...where every department thinks together.' },
-        { text: "Where AI doesn't just automate \u2014" },
-        { text: 'it decides.', accent: true, large: true },
-      ]} />
-
+      <SectionTransition />
       <Organism />
-
-      <StoryBeat lines={[
-        { text: 'Four intelligences.' },
-        { text: 'Working as one.', accent: true, large: true },
-      ]} />
-
+      <SectionTransition />
       <Modules />
-
-      <StoryBeat lines={[
-        { text: 'Built for YOUR industry.' },
-        { text: 'Not generic templates.', accent: true, large: true },
-      ]} />
-
+      <ModulesMobile />
+      <SectionTransition />
       <Industries />
-
-      <StoryBeat lines={[
-        { text: 'The ROI of autonomy?' },
-        { text: "It's not even close.", accent: true, large: true },
-      ]} />
-
+      <SectionTransition />
       <Pricing />
-
+      <SectionTransition />
       <CTA />
       <Footer />
       <ExitIntentModal />
