@@ -1,8 +1,4 @@
-import { useRef, useEffect } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
+import { motion } from 'framer-motion'
 
 interface ModuleData {
   title: string
@@ -72,79 +68,125 @@ const modules: ModuleData[] = [
   },
 ]
 
-export default function Modules() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const section = sectionRef.current
-    const track = trackRef.current
-    if (!section || !track) return
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const isMobile = window.innerWidth < 768
-    if (prefersReduced || isMobile) return
-
-    let ctx: gsap.Context | null = null
-
-    // Wait for DOM/layout to settle, then create the trigger
-    const setup = () => {
-      ctx = gsap.context(() => {
-        const distance = () => track.scrollWidth - window.innerWidth
-
-        gsap.to(track, {
-          x: () => -distance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            pin: true,
-            scrub: 1,
-            start: 'top top',
-            end: () => '+=' + distance(),
-            invalidateOnRefresh: true,
-            anticipatePin: 1,
-          },
-        })
-        console.log('[Modules] ScrollTrigger initialized, distance:', distance())
-      }, section)
-
-      // Refresh after fonts/images settle
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh()
-      })
-    }
-
-    // Defer setup to next paint cycle so layout is stable
-    const t = setTimeout(setup, 100)
-
-    // Refresh on window load (after images/fonts)
-    const onLoad = () => ScrollTrigger.refresh()
-    window.addEventListener('load', onLoad)
-
-    return () => {
-      clearTimeout(t)
-      window.removeEventListener('load', onLoad)
-      ctx?.revert()
-    }
-  }, [])
+function ModuleCard({ mod, index }: { mod: ModuleData; index: number }) {
+  const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
   return (
-    <section
-      id="modules"
-      ref={sectionRef}
-      className="relative hidden md:block"
-      style={{ zIndex: 2 }}
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ delay: index * 0.1, duration: 0.6, ease: EASE }}
+      className="relative rounded-2xl"
+      style={{
+        padding: 'clamp(1.75rem, 3vw, 2.5rem)',
+        background: '#0A0A0F',
+        border: `1px solid ${mod.accent}33`,
+        boxShadow: `0 0 60px ${mod.accent}10`,
+      }}
     >
-      <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
-        {/* Pinned header */}
+      {/* Index */}
+      <div
+        className="absolute top-6 right-6 font-mono text-xs tracking-[0.2em]"
+        style={{ color: '#4A4F58' }}
+      >
+        0{index + 1} / 04
+      </div>
+
+      <div className="flex items-start gap-5 mb-5">
         <div
-          className="absolute top-0 left-0 right-0 z-20 pt-16 px-6 text-center pointer-events-none"
+          className="flex items-center justify-center rounded-xl flex-shrink-0"
+          style={{
+            width: 64,
+            height: 64,
+            background: `radial-gradient(circle, ${mod.accent}1A 0%, transparent 70%)`,
+            border: `1px solid ${mod.accent}33`,
+            fontSize: '2rem',
+            boxShadow: `0 0 20px ${mod.accent}1F inset`,
+          }}
         >
-          <span className="text-xs font-mono tracking-[0.3em] uppercase block mb-3" style={{ color: '#00D4AA' }}>
+          {mod.icon}
+        </div>
+        <div>
+          <h3
+            className="font-heading font-[800] mb-1.5"
+            style={{
+              fontSize: 'clamp(1.25rem, 1.8vw, 1.5rem)',
+              color: '#F0F0F5',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.15,
+            }}
+          >
+            {mod.title}
+          </h3>
+          <p
+            className="italic"
+            style={{
+              color: mod.accent,
+              fontSize: '0.875rem',
+              opacity: 0.85,
+              lineHeight: 1.5,
+            }}
+          >
+            {mod.subtitle}
+          </p>
+        </div>
+      </div>
+
+      <ul className="space-y-2.5 mb-5">
+        {mod.capabilities.map((cap, ci) => (
+          <li
+            key={ci}
+            className="flex items-start gap-2.5 text-sm leading-relaxed"
+            style={{ color: '#8A8F98', lineHeight: 1.65 }}
+          >
+            <span
+              className="mt-[7px] flex-shrink-0 rounded-full"
+              style={{
+                width: 5,
+                height: 5,
+                background: mod.accent,
+                boxShadow: `0 0 6px ${mod.accent}`,
+              }}
+            />
+            <span>{cap}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div
+        className="pt-4 font-mono text-xs tracking-wide"
+        style={{
+          color: mod.accent,
+          borderTop: '1px solid #1A1A24',
+        }}
+      >
+        {mod.stat}
+      </div>
+    </motion.div>
+  )
+}
+
+export default function Modules() {
+  return (
+    <section id="modules" className="relative" style={{ zIndex: 2, padding: '8rem 0' }}>
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12">
+        <motion.div
+          className="text-center"
+          style={{ marginBottom: '3rem' }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <span
+            className="text-[11px] font-mono tracking-[0.3em] uppercase mb-4 block"
+            style={{ color: '#00D4AA' }}
+          >
             // Core Modules
           </span>
           <h2
-            className="font-[800] mx-auto"
+            className="font-[800]"
             style={{
               fontSize: 'clamp(2rem, 4.5vw, 3.5rem)',
               letterSpacing: '-0.02em',
@@ -154,138 +196,14 @@ export default function Modules() {
           >
             Four brains. <span style={{ color: '#00D4AA' }}>One mind.</span>
           </h2>
-          <p className="text-sm mt-3" style={{ color: '#8A8F98' }}>Scroll to traverse each department</p>
-        </div>
+        </motion.div>
 
-        {/* Horizontal track */}
         <div
-          ref={trackRef}
-          style={{
-            display: 'flex',
-            width: '400vw',
-            height: '100%',
-            willChange: 'transform',
-          }}
+          className="grid grid-cols-1 md:grid-cols-2"
+          style={{ gap: '1.5rem' }}
         >
           {modules.map((mod, i) => (
-            <div
-              key={mod.title}
-              style={{
-                width: '100vw',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 6vw',
-                paddingTop: '12vh',
-              }}
-            >
-              <div
-                className="relative rounded-2xl grid grid-cols-1 lg:grid-cols-[auto,1fr] gap-8 lg:gap-16 items-center"
-                style={{
-                  width: '100%',
-                  maxWidth: 1200,
-                  padding: 'clamp(2rem, 4vw, 4rem)',
-                  background: '#0A0A0F',
-                  border: `1px solid ${mod.accent}4D`,
-                  boxShadow: `0 0 60px ${mod.accent}14`,
-                }}
-              >
-                {/* Accent index */}
-                <div
-                  className="absolute top-6 right-8 font-mono text-xs tracking-[0.2em]"
-                  style={{ color: '#4A4F58' }}
-                >
-                  0{i + 1} / 04
-                </div>
-
-                {/* Icon */}
-                <div
-                  className="flex items-center justify-center rounded-2xl"
-                  style={{
-                    width: 'clamp(120px, 14vw, 180px)',
-                    height: 'clamp(120px, 14vw, 180px)',
-                    background: `radial-gradient(circle, ${mod.accent}1A 0%, transparent 70%)`,
-                    border: `1px solid ${mod.accent}33`,
-                    fontSize: 'clamp(3rem, 5vw, 5rem)',
-                    boxShadow: `0 0 30px ${mod.accent}1F inset`,
-                  }}
-                >
-                  {mod.icon}
-                </div>
-
-                {/* Content */}
-                <div>
-                  <h3
-                    className="font-heading font-[800] mb-3"
-                    style={{
-                      fontSize: 'clamp(2rem, 3.5vw, 3rem)',
-                      color: '#F0F0F5',
-                      letterSpacing: '-0.02em',
-                      lineHeight: 1.05,
-                    }}
-                  >
-                    {mod.title}
-                  </h3>
-                  <p
-                    className="italic mb-6"
-                    style={{
-                      color: mod.accent,
-                      fontSize: 'clamp(1rem, 1.3vw, 1.2rem)',
-                      opacity: 0.85,
-                    }}
-                  >
-                    {mod.subtitle}
-                  </p>
-
-                  <ul className="space-y-3 mb-6">
-                    {mod.capabilities.map((cap, ci) => (
-                      <li
-                        key={ci}
-                        className="flex items-start gap-3 text-sm md:text-base leading-relaxed"
-                        style={{ color: '#8A8F98', lineHeight: 1.7 }}
-                      >
-                        <span
-                          className="mt-[8px] flex-shrink-0 rounded-full"
-                          style={{
-                            width: 6,
-                            height: 6,
-                            background: mod.accent,
-                            boxShadow: `0 0 6px ${mod.accent}`,
-                          }}
-                        />
-                        <span>{cap}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div
-                    className="pt-4 font-mono text-xs tracking-wide"
-                    style={{
-                      color: mod.accent,
-                      borderTop: '1px solid #1A1A24',
-                    }}
-                  >
-                    {mod.stat}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Progress indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {modules.map((_, i) => (
-            <div
-              key={i}
-              className="rounded-full"
-              style={{
-                width: 24,
-                height: 3,
-                background: '#1A1A24',
-              }}
-            />
+            <ModuleCard key={mod.title} mod={mod} index={i} />
           ))}
         </div>
       </div>

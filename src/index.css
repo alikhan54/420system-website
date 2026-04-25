@@ -191,25 +191,11 @@ h1, h2, h3, h4, h5, h6 {
   left: 100%;
 }
 
-/* Hide default cursor when custom cursor is active (desktop) */
-@media (hover: hover) and (pointer: fine) {
-  body:not([data-reduced-motion="true"]) {
-    cursor: none;
-  }
-  body:not([data-reduced-motion="true"]) a,
-  body:not([data-reduced-motion="true"]) button,
-  body:not([data-reduced-motion="true"]) [role="button"],
-  body:not([data-reduced-motion="true"]) input,
-  body:not([data-reduced-motion="true"]) textarea {
-    cursor: none;
-  }
-}
-
 /* Typography polish */
 html {
   font-feature-settings: 'ss01', 'cv02';
 }
 p { max-width: 65ch; }
 
-/* Smooth scroll polish */
-html { scroll-behavior: smooth; }
+/* Native scroll — no smooth-scroll override (conflicts with anchor links + JS scroll) */
+html { scroll-behavior: auto; }
