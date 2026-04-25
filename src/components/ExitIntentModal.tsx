@@ -51,9 +51,9 @@ export default function ExitIntentModal() {
       <div
         className="relative w-full max-w-[460px] rounded-2xl p-8 md:p-10"
         style={{
-          background: 'linear-gradient(180deg, rgba(240,235,248,0.06) 0%, rgba(240,235,248,0.02) 100%)',
+          background: '#0A0A0F',
           border: '1px solid rgba(240,235,248,0.1)',
-          boxShadow: '0 0 80px rgba(0,240,255,0.06)',
+          boxShadow: '0 0 80px rgba(0,212,170,0.06)',
         }}
       >
         {/* Close button */}
@@ -97,11 +97,11 @@ export default function ExitIntentModal() {
                 required
                 className="w-full px-4 py-3 rounded-lg text-sm text-text placeholder-text-muted outline-none transition-colors"
                 style={{
-                  background: 'rgba(240,235,248,0.04)',
-                  border: '1px solid rgba(240,235,248,0.1)',
+                  background: '#12121A',
+                  border: '1px solid #1A1A24',
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(0,240,255,0.4)'}
-                onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(240,235,248,0.1)'}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(0,212,170,0.4)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#1A1A24'}
               />
               <input
                 type="email"
@@ -111,18 +111,18 @@ export default function ExitIntentModal() {
                 required
                 className="w-full px-4 py-3 rounded-lg text-sm text-text placeholder-text-muted outline-none transition-colors"
                 style={{
-                  background: 'rgba(240,235,248,0.04)',
-                  border: '1px solid rgba(240,235,248,0.1)',
+                  background: '#12121A',
+                  border: '1px solid #1A1A24',
                 }}
-                onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(0,240,255,0.4)'}
-                onBlur={(e) => e.currentTarget.style.borderColor = 'rgba(240,235,248,0.1)'}
+                onFocus={(e) => e.currentTarget.style.borderColor = 'rgba(0,212,170,0.4)'}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#1A1A24'}
               />
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full py-3.5 rounded-lg text-sm font-medium text-bg cursor-pointer border-none transition-all duration-300 hover:scale-[1.02] mt-1"
                 style={{
-                  background: 'linear-gradient(135deg, #00F0FF, #0ACF83)',
+                  background: 'linear-gradient(135deg, #00D4AA, #00B4D8)',
                   opacity: loading ? 0.7 : 1,
                 }}
               >

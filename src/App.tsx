@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import Lenis from '@studio-freight/lenis'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Organism from './components/Organism'
@@ -28,33 +27,13 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [reducedMotion])
 
-  // Lenis smooth scroll
-  useEffect(() => {
-    if (reducedMotion) return
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    })
-    let raf = 0
-    function tick(time: number) {
-      lenis.raf(time)
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(raf)
-      lenis.destroy()
-    }
-  }, [reducedMotion])
-
   // Tag body for custom cursor
   useEffect(() => {
     document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false'
   }, [reducedMotion])
 
   return (
-    <div className="min-h-screen bg-bg overflow-x-hidden max-w-[100vw]">
+    <div className="min-h-screen bg-bg">
       <AnimatePresence>
         {loading && <LoadingScreen key="loader" />}
       </AnimatePresence>

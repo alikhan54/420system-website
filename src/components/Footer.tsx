@@ -12,7 +12,7 @@ function FooterParticles() {
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3)
     const col = new Float32Array(count * 3)
-    const palette = [[0, 0.94, 1], [0.04, 0.81, 0.51], [0.48, 0.38, 1]]
+    const palette = [[0.0, 0.831, 0.667], [0.0, 0.706, 0.847], [0.388, 0.4, 0.945]]
     for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 14
       pos[i * 3 + 1] = (Math.random() - 0.5) * 3.5
@@ -95,8 +95,8 @@ function TypewriterTagline() {
   return (
     <div
       ref={ref}
-      className="font-mono text-xs md:text-sm tracking-[0.15em] text-emerald text-center mb-8 min-h-[1.5rem]"
-      style={{ opacity: 0.85 }}
+      className="font-mono text-xs md:text-sm tracking-[0.15em] text-center mb-8 min-h-[1.5rem]"
+      style={{ color: '#00D4AA', opacity: 0.85 }}
     >
       {displayed}
       {started && displayed.length < fullText.length && <span className="animate-pulse">|</span>}
@@ -154,12 +154,12 @@ export default function Footer() {
 
   return (
     <footer
-      className="relative border-t border-card-border overflow-hidden"
-      style={{ zIndex: 2, paddingTop: '4rem', paddingBottom: '2.5rem' }}
+      className="relative overflow-hidden"
+      style={{ zIndex: 2, paddingTop: '4rem', paddingBottom: '2.5rem', background: '#050505', borderTop: '1px solid #1A1A24' }}
     >
       {/* Full-width particle scene */}
       {showCanvas && (
-        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.5 }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.4 }}>
           <Suspense fallback={null}>
             <Canvas camera={{ position: [0, 0, 5], fov: 60 }} dpr={[1, 1.5]} style={{ background: 'transparent' }}>
               <ambientLight intensity={0.4} />
@@ -173,7 +173,7 @@ export default function Footer() {
       <div
         className="absolute left-0 right-0 top-0 h-px pointer-events-none"
         style={{
-          background: 'linear-gradient(90deg, transparent, rgba(10,207,131,0.5), rgba(0,240,255,0.5), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(0,212,170,0.4), rgba(0,180,216,0.4), transparent)',
         }}
       />
 
@@ -181,27 +181,36 @@ export default function Footer() {
         <TypewriterTagline />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5 text-sm text-text-muted">
+          <div className="flex items-center gap-1.5 text-sm" style={{ color: '#4A4F58' }}>
             <span>&copy; 2026</span>
             <span className="font-heading font-bold">
-              <span className="text-cyan">4</span>
-              <span className="text-emerald">20</span>
+              <span style={{ color: '#00D4AA' }}>4</span>
+              <span style={{ color: '#00B4D8' }}>20</span>
             </span>
             <span>System</span>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-text-muted">
-            <a href="#" className="hover:text-text transition-colors">Privacy</a>
-            <a href="#" className="hover:text-text transition-colors">Terms</a>
-            <a href="mailto:ai@zatesystems.com" className="hover:text-text transition-colors">
+          <div className="flex items-center gap-6 text-sm" style={{ color: '#8A8F98' }}>
+            <a href="#" className="transition-colors" style={{ color: '#8A8F98' }}
+               onMouseEnter={(e) => (e.currentTarget.style.color = '#F0F0F5')}
+               onMouseLeave={(e) => (e.currentTarget.style.color = '#8A8F98')}>Privacy</a>
+            <a href="#" className="transition-colors" style={{ color: '#8A8F98' }}
+               onMouseEnter={(e) => (e.currentTarget.style.color = '#F0F0F5')}
+               onMouseLeave={(e) => (e.currentTarget.style.color = '#8A8F98')}>Terms</a>
+            <a href="mailto:ai@zatesystems.com" className="transition-colors" style={{ color: '#8A8F98' }}
+               onMouseEnter={(e) => (e.currentTarget.style.color = '#F0F0F5')}
+               onMouseLeave={(e) => (e.currentTarget.style.color = '#8A8F98')}>
               ai@zatesystems.com
             </a>
-            <span className="text-text-muted/40 hidden md:inline">|</span>
+            <span className="hidden md:inline" style={{ color: '#2A2A38' }}>|</span>
             <a
               href="https://zatesystems.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-center gap-1.5 text-text-muted hover:text-emerald transition-colors"
+              className="group flex items-center gap-1.5 transition-colors"
+              style={{ color: '#8A8F98' }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#00D4AA')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#8A8F98')}
             >
               <span className="text-xs">Built by</span>
               <ZateBrand />

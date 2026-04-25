@@ -6,38 +6,38 @@ const industries = [
   {
     title: 'Hospitality & Restaurant',
     description: 'Automated reservations, AI-powered guest management, kitchen optimization, review response AI, and intelligent upselling across every touchpoint.',
-    gradient: 'linear-gradient(180deg, #FF8C42 0%, #FFAA6B 100%)',
-    glow: 'rgba(255, 140, 66, 0.25)',
+    gradient: 'linear-gradient(180deg, #F59E0B 0%, #FBBF24 100%)',
+    glow: 'rgba(245, 158, 11, 0.18)',
   },
   {
     title: 'Banking & Financial Services',
     description: 'Risk assessment AI, automated compliance monitoring, fraud detection, customer onboarding automation, and intelligent portfolio management.',
-    gradient: 'linear-gradient(180deg, #4A7BFF 0%, #6B9AFF 100%)',
-    glow: 'rgba(74, 123, 255, 0.25)',
+    gradient: 'linear-gradient(180deg, #00B4D8 0%, #4DC8E0 100%)',
+    glow: 'rgba(0, 180, 216, 0.18)',
   },
   {
     title: 'Healthcare & Aesthetics',
     description: 'Patient intake automation, appointment scheduling AI, treatment plan optimization, insurance processing, and personalized follow-up sequences.',
-    gradient: 'linear-gradient(180deg, #0ACF83 0%, #3FE0A0 100%)',
-    glow: 'rgba(10, 207, 131, 0.25)',
+    gradient: 'linear-gradient(180deg, #00D4AA 0%, #3FDFC0 100%)',
+    glow: 'rgba(0, 212, 170, 0.18)',
   },
   {
     title: 'Construction & Estimation',
     description: 'AI-powered cost estimation, project timeline automation, subcontractor management, material optimization, and real-time budget tracking.',
-    gradient: 'linear-gradient(180deg, #FFB020 0%, #FFC850 100%)',
-    glow: 'rgba(255, 176, 32, 0.25)',
+    gradient: 'linear-gradient(180deg, #D97706 0%, #F59E0B 100%)',
+    glow: 'rgba(217, 119, 6, 0.18)',
   },
   {
     title: 'Technology & SaaS',
     description: 'Automated lead scoring, product-led growth optimization, churn prediction AI, developer documentation, and intelligent customer success.',
-    gradient: 'linear-gradient(180deg, #00F0FF 0%, #5DF5FF 100%)',
-    glow: 'rgba(0, 240, 255, 0.25)',
+    gradient: 'linear-gradient(180deg, #6366F1 0%, #818CF8 100%)',
+    glow: 'rgba(99, 102, 241, 0.18)',
   },
   {
     title: 'Real Estate & Property',
     description: 'Property matching AI, automated valuations, tenant screening, lease management automation, and intelligent market analysis.',
-    gradient: 'linear-gradient(180deg, #7B61FF 0%, #9B85FF 100%)',
-    glow: 'rgba(123, 97, 255, 0.25)',
+    gradient: 'linear-gradient(180deg, #8B5CF6 0%, #A78BFA 100%)',
+    glow: 'rgba(139, 92, 246, 0.18)',
   },
 ]
 
@@ -73,10 +73,10 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
         className="group relative rounded-xl overflow-hidden"
         style={{
           padding: '2rem 2rem 2rem 2.5rem',
-          background: 'rgba(240, 235, 248, 0.03)',
-          border: '1px solid rgba(240, 235, 248, 0.06)',
+          background: '#0A0A0F',
+          border: '1px solid #1A1A24',
           transformStyle: 'preserve-3d',
-          transition: 'transform 0.2s ease-out, box-shadow 0.3s ease',
+          transition: 'transform 0.2s ease-out, border-color 0.3s ease, box-shadow 0.3s ease',
           willChange: 'transform',
         }}
       >
@@ -115,7 +115,7 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
           </h3>
           <p
             className="text-sm leading-relaxed"
-            style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8 }}
+            style={{ color: '#8A8F98', lineHeight: 1.8 }}
           >
             {ind.description}
           </p>
@@ -136,7 +136,7 @@ export default function Industries() {
         style={{
           top: 0,
           height: 2,
-          background: 'linear-gradient(90deg, transparent, rgba(10,207,131,0.6), rgba(0,240,255,0.6), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(0,212,170,0.5), rgba(0,180,216,0.5), transparent)',
           filter: 'blur(1px)',
           zIndex: 1,
         }}
@@ -158,12 +158,12 @@ export default function Industries() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-[11px] font-mono tracking-[0.3em] text-emerald uppercase mb-4 block">
+          <span className="text-[11px] font-mono tracking-[0.3em] uppercase mb-4 block" style={{ color: '#00D4AA' }}>
             // Multi-Industry
           </span>
           <h2
-            className="font-[800] text-text"
-            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.02em', lineHeight: 1.1 }}
+            className="font-[800]"
+            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.02em', lineHeight: 1.1, color: '#F0F0F5' }}
           >
             One Platform. Every Industry.
             <br />

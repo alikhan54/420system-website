@@ -4,10 +4,10 @@ import * as THREE from 'three'
 import { motion } from 'framer-motion'
 
 const nodes = [
-  { label: 'Sales', color: '#00F0FF', angle: 0, speed: 0.4, radius: 2.0 },
-  { label: 'Marketing', color: '#0ACF83', angle: Math.PI * 0.5, speed: 0.3, radius: 2.4 },
-  { label: 'HR', color: '#7B61FF', angle: Math.PI, speed: 0.35, radius: 2.0 },
-  { label: 'Ops', color: '#00F0FF', angle: Math.PI * 1.5, speed: 0.28, radius: 2.4 },
+  { label: 'Sales', color: '#00D4AA', angle: 0, speed: 0.4, radius: 2.0 },
+  { label: 'Marketing', color: '#00B4D8', angle: Math.PI * 0.5, speed: 0.3, radius: 2.4 },
+  { label: 'HR', color: '#6366F1', angle: Math.PI, speed: 0.35, radius: 2.0 },
+  { label: 'Ops', color: '#00D4AA', angle: Math.PI * 1.5, speed: 0.28, radius: 2.4 },
 ]
 
 function Core() {
@@ -29,15 +29,15 @@ function Core() {
     <group>
       <mesh ref={ref}>
         <icosahedronGeometry args={[0.4, 1]} />
-        <meshBasicMaterial color="#00F0FF" wireframe transparent opacity={0.8} />
+        <meshBasicMaterial color="#00D4AA" wireframe transparent opacity={0.8} />
       </mesh>
       <mesh ref={glowRef}>
         <sphereGeometry args={[0.5, 24, 24]} />
-        <meshBasicMaterial color="#00F0FF" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.15} blending={THREE.AdditiveBlending} />
       </mesh>
       <mesh>
         <sphereGeometry args={[0.8, 24, 24]} />
-        <meshBasicMaterial color="#0ACF83" transparent opacity={0.06} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial color="#00B4D8" transparent opacity={0.05} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
   )
@@ -147,8 +147,8 @@ function OrbitalScene() {
       </div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
         <div
-          className="text-[10px] font-mono font-bold text-cyan tracking-[0.2em]"
-          style={{ textShadow: '0 0 10px #00F0FF', transform: 'translateY(60px)' }}
+          className="text-[10px] font-mono font-bold tracking-[0.2em]"
+          style={{ color: '#00D4AA', textShadow: '0 0 10px #00D4AA', transform: 'translateY(60px)' }}
         >
           CORE
         </div>
@@ -166,7 +166,7 @@ export default function Organism() {
       <motion.div
         className="absolute top-0 left-0 h-px"
         style={{
-          background: 'linear-gradient(90deg, transparent, rgba(10,207,131,0.6), rgba(0,240,255,0.6), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(0,212,170,0.5), rgba(0,180,216,0.5), transparent)',
           transformOrigin: 'left',
         }}
         initial={{ scaleX: 0, width: '100%' }}
@@ -184,20 +184,20 @@ export default function Organism() {
             transition={{ duration: 0.8, ease: EASE }}
             style={{ paddingLeft: '0.5rem' }}
           >
-            <span className="text-[11px] font-mono tracking-[0.3em] text-emerald uppercase mb-4 block">
+            <span className="text-[11px] font-mono tracking-[0.3em] uppercase mb-4 block" style={{ color: '#00D4AA' }}>
               // The Architecture
             </span>
             <h2
-              className="font-[800] leading-[1.1] mb-6 text-text"
-              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', letterSpacing: '-0.02em' }}
+              className="font-[800] leading-[1.1] mb-6"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', letterSpacing: '-0.02em', color: '#F0F0F5' }}
             >
               A living organism,
               <br />
-              <span className="gradient-text">not a tool collection.</span>
+              <span style={{ color: '#00D4AA' }}>not a tool collection.</span>
             </h2>
             <p
               className="leading-relaxed"
-              style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8, maxWidth: '560px' }}
+              style={{ color: '#8A8F98', lineHeight: 1.8, maxWidth: '560px' }}
             >
               Traditional SaaS forces you to connect dozens of disconnected tools. The 420
               System is a unified intelligence — every module shares context, learns from

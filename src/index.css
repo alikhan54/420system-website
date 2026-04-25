@@ -1,14 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #020008;
-  --color-cyan: #00F0FF;
-  --color-emerald: #0ACF83;
-  --color-violet: #7B61FF;
-  --color-text: #F0EBF8;
-  --color-text-muted: rgba(240, 235, 248, 0.55);
-  --color-card: rgba(240, 235, 248, 0.04);
-  --color-card-border: rgba(240, 235, 248, 0.08);
+  /* Surfaces */
+  --color-bg: #050505;
+  --color-surface: #0A0A0F;
+  --color-surface-hover: #12121A;
+
+  /* Accents (premium, less saturated) */
+  --color-cyan: #00B4D8;       /* Secondary — ocean blue */
+  --color-emerald: #00D4AA;    /* Primary teal — the hero accent */
+  --color-violet: #6366F1;     /* Tertiary — softer indigo */
+
+  /* Text hierarchy */
+  --color-text: #F0F0F5;
+  --color-text-muted: #8A8F98;
+  --color-text-subtle: #4A4F58;
+
+  /* Borders */
+  --color-card: #0A0A0F;
+  --color-card-border: #1A1A24;
+  --color-card-border-hover: #2A2A38;
+  --color-divider: #141420;
+
+  /* Fonts */
   --font-heading: "Syne", sans-serif;
   --font-body: "DM Sans", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
@@ -35,8 +49,8 @@ body {
 }
 
 ::selection {
-  background: rgba(0, 240, 255, 0.2);
-  color: #fff;
+  background: rgba(0, 212, 170, 0.2);
+  color: #F0F0F5;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -44,14 +58,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #00F0FF, #0ACF83, #7B61FF);
+  background: linear-gradient(135deg, #00D4AA, #00B4D8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.glow-cyan {
-  box-shadow: 0 0 40px rgba(0, 240, 255, 0.15), 0 0 80px rgba(0, 240, 255, 0.05);
+.glow-teal {
+  box-shadow: 0 0 40px rgba(0, 212, 170, 0.15), 0 0 80px rgba(0, 212, 170, 0.05);
 }
 
 ::-webkit-scrollbar {
@@ -61,11 +75,11 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 240, 255, 0.2);
+  background: rgba(0, 212, 170, 0.2);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 240, 255, 0.4);
+  background: rgba(0, 212, 170, 0.4);
 }
 
 /* Respect prefers-reduced-motion */
@@ -105,8 +119,8 @@ h1, h2, h3, h4, h5, h6 {
   background: conic-gradient(
     from var(--ze-angle, 0deg),
     transparent 0deg,
-    rgba(0, 240, 255, 0.6) 60deg,
-    rgba(10, 207, 131, 0.4) 120deg,
+    rgba(0, 212, 170, 0.5) 60deg,
+    rgba(0, 180, 216, 0.3) 120deg,
     transparent 180deg,
     transparent 360deg
   );
@@ -117,7 +131,7 @@ h1, h2, h3, h4, h5, h6 {
           mask-composite: exclude;
   animation: ze-conic-spin 4s linear infinite;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 @keyframes ze-conic-spin {
   to { --ze-angle: 360deg; }
@@ -126,37 +140,29 @@ h1, h2, h3, h4, h5, h6 {
 /* Fallback for browsers without @property: static gradient */
 @supports not (background: conic-gradient(from var(--ze-angle), #000, #fff)) {
   .ze-conic-wrapper::before {
-    background: linear-gradient(135deg, rgba(0,240,255,0.3), transparent 40%, transparent 60%, rgba(10,207,131,0.3));
+    background: linear-gradient(135deg, rgba(0,212,170,0.3), transparent 40%, transparent 60%, rgba(0,180,216,0.3));
     animation: none;
   }
 }
 
-/* Electric border for Pricing featured card */
-@keyframes ze-electric {
+/* Subtle border glow for Pricing featured card — premium, not "electric" */
+@keyframes ze-featured-pulse {
   0%, 100% {
     box-shadow:
-      0 0 20px rgba(0, 240, 255, 0.3),
-      0 0 40px rgba(0, 240, 255, 0.15),
-      inset 0 0 20px rgba(0, 240, 255, 0.08);
+      0 0 30px rgba(0, 212, 170, 0.12),
+      inset 0 0 30px rgba(0, 212, 170, 0.04);
   }
-  33% {
+  50% {
     box-shadow:
-      0 0 30px rgba(10, 207, 131, 0.3),
-      0 0 60px rgba(10, 207, 131, 0.15),
-      inset 0 0 20px rgba(10, 207, 131, 0.08);
-  }
-  66% {
-    box-shadow:
-      0 0 25px rgba(123, 97, 255, 0.3),
-      0 0 50px rgba(123, 97, 255, 0.15),
-      inset 0 0 20px rgba(123, 97, 255, 0.08);
+      0 0 50px rgba(0, 212, 170, 0.2),
+      inset 0 0 30px rgba(0, 212, 170, 0.06);
   }
 }
 .ze-pricing-featured {
-  animation: ze-electric 6s ease-in-out infinite;
+  animation: ze-featured-pulse 5s ease-in-out infinite;
 }
 .ze-price-glow {
-  text-shadow: 0 0 25px rgba(0, 240, 255, 0.5), 0 0 50px rgba(10, 207, 131, 0.2);
+  text-shadow: 0 0 25px rgba(0, 212, 170, 0.4), 0 0 50px rgba(0, 180, 216, 0.15);
 }
 
 /* Sweep button — gradient shimmer on hover */

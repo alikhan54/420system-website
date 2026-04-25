@@ -56,7 +56,7 @@ const plans = [
   },
 ]
 
-function Checkmark({ color = '#0ACF83' }: { color?: string }) {
+function Checkmark({ color = '#00D4AA' }: { color?: string }) {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" style={{ flexShrink: 0, marginTop: 4 }}>
       <path d="M20 6L9 17l-5-5" />
@@ -93,11 +93,11 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
         style={{
           padding: plan.featured ? '3.5rem 2.5rem' : '2.5rem',
           background: plan.featured
-            ? 'linear-gradient(180deg, rgba(0,240,255,0.08) 0%, rgba(10,207,131,0.04) 100%)'
-            : 'rgba(240, 235, 248, 0.025)',
+            ? 'linear-gradient(180deg, rgba(0,212,170,0.06) 0%, rgba(10,10,15,0.95) 100%)'
+            : '#0A0A0F',
           border: plan.featured
-            ? '1px solid rgba(0, 240, 255, 0.4)'
-            : '1px solid rgba(240, 235, 248, 0.06)',
+            ? '1px solid rgba(0, 212, 170, 0.4)'
+            : '1px solid #1A1A24',
           backdropFilter: plan.featured ? undefined : 'blur(4px)',
           WebkitBackdropFilter: plan.featured ? undefined : 'blur(4px)',
         }}
@@ -111,46 +111,33 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
           <div
             className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase z-10"
             style={{
-              background: 'linear-gradient(135deg, #00F0FF, #0ACF83)',
-              color: '#020008',
-              boxShadow: '0 0 20px rgba(0,240,255,0.3)',
+              background: 'linear-gradient(135deg, #00D4AA, #00B4D8)',
+              color: '#050505',
+              boxShadow: '0 0 20px rgba(0,212,170,0.3)',
             }}
           >
             Most Popular
           </div>
         )}
 
-        {plan.featured && (
-          <div
-            className="absolute top-4 right-4 text-[9px] font-mono font-bold uppercase tracking-widest px-2 py-1 rounded"
-            style={{
-              background: 'linear-gradient(135deg, rgba(0,240,255,0.15), rgba(10,207,131,0.1))',
-              border: '1px solid rgba(0,240,255,0.3)',
-              color: '#00F0FF',
-            }}
-          >
-            Recommended
-          </div>
-        )}
-
-        <h3 className="text-lg font-heading font-bold text-text mb-2">{plan.name}</h3>
+        <h3 className="text-lg font-heading font-bold mb-2" style={{ color: '#F0F0F5' }}>{plan.name}</h3>
         <div className="flex items-baseline gap-1 mb-3">
           <span
-            className="font-heading font-[800] text-text"
-            style={{ fontSize: plan.featured ? '3.5rem' : '3rem', lineHeight: 1 }}
+            className="font-heading font-[800]"
+            style={{ fontSize: plan.featured ? '3.5rem' : '3rem', lineHeight: 1, color: '#F0F0F5' }}
           >
             <AnimatedPrice value={plan.price} inView={inView} featured={plan.featured} />
           </span>
-          <span className="text-sm text-text-muted">{plan.period}</span>
+          <span className="text-sm" style={{ color: '#4A4F58' }}>{plan.period}</span>
         </div>
-        <p className="text-sm mb-8" style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+        <p className="text-sm mb-8" style={{ color: '#8A8F98', lineHeight: 1.6 }}>
           {plan.description}
         </p>
 
         <ul className="space-y-3 mb-8">
           {plan.features.map((f) => (
-            <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              <Checkmark color={plan.featured ? '#00F0FF' : '#0ACF83'} />
+            <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: '#8A8F98' }}>
+              <Checkmark color="#00D4AA" />
               <span style={{ lineHeight: 1.5 }}>{f}</span>
             </li>
           ))}
@@ -161,11 +148,11 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
             onClick={() => navigateToDemo(`pricing_${plan.name.toLowerCase()}`)}
             className="ze-sweep-btn relative w-full py-3.5 rounded-lg text-sm font-medium cursor-pointer overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #00F0FF, #0ACF83)',
-              color: '#020008',
+              background: '#00D4AA',
+              color: '#050505',
               border: 'none',
             }}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, background: '#00E8BB' }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.2 }}
           >
@@ -177,10 +164,10 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
             className="w-full py-3 rounded-lg text-sm font-medium cursor-pointer"
             style={{
               background: 'transparent',
-              color: '#F0EBF8',
-              border: '1px solid rgba(240, 235, 248, 0.12)',
+              color: '#8A8F98',
+              border: '1px solid #2A2A38',
             }}
-            whileHover={{ scale: 1.02 }}
+            whileHover={{ scale: 1.02, borderColor: '#00D4AA', color: '#F0F0F5' }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.2 }}
           >
@@ -204,12 +191,12 @@ export default function Pricing() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-[11px] font-mono tracking-[0.3em] text-emerald uppercase mb-4 block">
+          <span className="text-[11px] font-mono tracking-[0.3em] uppercase mb-4 block" style={{ color: '#00D4AA' }}>
             // Pricing
           </span>
           <h2
-            className="font-[800] text-text"
-            style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', letterSpacing: '-0.02em', lineHeight: 1.1 }}
+            className="font-[800]"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', letterSpacing: '-0.02em', lineHeight: 1.1, color: '#F0F0F5' }}
           >
             Simple pricing. <span className="gradient-text">Infinite leverage.</span>
           </h2>

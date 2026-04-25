@@ -22,7 +22,7 @@ const modules: ModuleData[] = [
       'Automated objection handling via voice AI',
     ],
     stat: 'Stranger to booked meeting: 48 hours',
-    accent: '#00F0FF',
+    accent: '#00D4AA',
   },
   {
     title: 'Marketing AI',
@@ -36,7 +36,7 @@ const modules: ModuleData[] = [
       'SEO content optimized for search intent',
     ],
     stat: 'Strategy to publish in minutes',
-    accent: '#0ACF83',
+    accent: '#00B4D8',
   },
   {
     title: 'HR Intelligence',
@@ -50,7 +50,7 @@ const modules: ModuleData[] = [
       'Employee 360\u00B0 profiles with tracking',
     ],
     stat: 'Fully onboarded in 24 hours',
-    accent: '#7B61FF',
+    accent: '#6366F1',
   },
   {
     title: 'Operations Core',
@@ -64,7 +64,7 @@ const modules: ModuleData[] = [
       'Cross-department workflow orchestration',
     ],
     stat: 'Zero downtime. Zero excuses.',
-    accent: '#00F0FF',
+    accent: '#00D4AA',
   },
 ]
 
@@ -79,11 +79,11 @@ export default function ModulesMobile() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <span className="text-[11px] font-mono tracking-[0.3em] text-emerald uppercase block mb-3">
+          <span className="text-[11px] font-mono tracking-[0.3em] uppercase block mb-3" style={{ color: '#00D4AA' }}>
             // Core Modules
           </span>
-          <h2 className="text-3xl font-[800] text-text" style={{ letterSpacing: '-0.02em' }}>
-            Four brains. <span className="gradient-text">One mind.</span>
+          <h2 className="text-3xl font-[800]" style={{ letterSpacing: '-0.02em', color: '#F0F0F5' }}>
+            Four brains. <span style={{ color: '#00D4AA' }}>One mind.</span>
           </h2>
         </motion.div>
 
@@ -97,7 +97,7 @@ export default function ModulesMobile() {
               transition={{ delay: i * 0.08, duration: 0.4 }}
               className="relative rounded-xl p-6"
               style={{
-                background: `linear-gradient(135deg, ${mod.accent}0A 0%, rgba(240,235,248,0.02) 100%)`,
+                background: '#0A0A0F',
                 border: `1px solid ${mod.accent}33`,
               }}
             >
@@ -115,8 +115,8 @@ export default function ModulesMobile() {
                   {mod.icon}
                 </div>
                 <div>
-                  <h3 className="font-heading font-bold text-lg text-text mb-1">{mod.title}</h3>
-                  <p className="text-xs italic" style={{ color: mod.accent, opacity: 0.8 }}>
+                  <h3 className="font-heading font-bold text-lg mb-1" style={{ color: '#F0F0F5' }}>{mod.title}</h3>
+                  <p className="text-xs italic" style={{ color: mod.accent, opacity: 0.85 }}>
                     {mod.subtitle}
                   </p>
                 </div>
@@ -124,7 +124,7 @@ export default function ModulesMobile() {
 
               <ul className="space-y-2 mb-4">
                 {mod.capabilities.map((cap, ci) => (
-                  <li key={ci} className="flex items-start gap-2.5 text-sm text-text-muted leading-relaxed">
+                  <li key={ci} className="flex items-start gap-2.5 text-sm leading-relaxed" style={{ color: '#8A8F98' }}>
                     <span
                       className="mt-[7px] flex-shrink-0 rounded-full"
                       style={{ width: 5, height: 5, background: mod.accent }}
@@ -136,7 +136,7 @@ export default function ModulesMobile() {
 
               <div
                 className="pt-3 font-mono text-[11px] tracking-wide"
-                style={{ color: mod.accent, borderTop: `1px solid ${mod.accent}22` }}
+                style={{ color: mod.accent, borderTop: '1px solid #1A1A24' }}
               >
                 {mod.stat}
               </div>

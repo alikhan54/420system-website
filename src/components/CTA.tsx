@@ -36,13 +36,11 @@ function MagneticButton({
       onMouseLeave={handleMouseLeave}
       className="px-10 py-4 rounded-lg font-medium text-base cursor-pointer border-none"
       style={{
-        background: primary
-          ? 'linear-gradient(135deg, #00F0FF, #0ACF83)'
-          : 'transparent',
-        color: primary ? '#020008' : 'rgba(255,255,255,0.7)',
-        border: primary ? 'none' : '1px solid rgba(240,235,248,0.12)',
-        transition: 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.25s',
-        boxShadow: primary ? '0 0 40px rgba(0,240,255,0.2)' : 'none',
+        background: primary ? '#00D4AA' : 'transparent',
+        color: primary ? '#050505' : '#8A8F98',
+        border: primary ? 'none' : '1px solid #2A2A38',
+        transition: 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.25s, background 0.25s',
+        boxShadow: primary ? '0 0 40px rgba(0,212,170,0.2)' : 'none',
         willChange: 'transform',
       }}
     >
@@ -62,7 +60,8 @@ function FloatingParticles({ count = 35 }: { count?: number }) {
         const left = (i * 4621) % 100
         const top = (i * 7331) % 100
         const size = 1 + (i % 3)
-        const color = i % 3 === 0 ? '#00F0FF' : i % 3 === 1 ? '#0ACF83' : '#7B61FF'
+        // 70% teal, 20% ocean, 10% indigo
+        const color = i % 5 === 0 ? '#6366F1' : (i % 3 === 0 ? '#00B4D8' : '#00D4AA')
         return (
           <span
             key={i}
@@ -135,8 +134,8 @@ export default function CTA() {
         zIndex: 2,
         padding: '10rem 0',
         background: `
-          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(10,207,131,0.04) 0%, transparent 60%),
-          linear-gradient(180deg, transparent 0%, rgba(10,10,14,0.6) 40%, rgba(10,10,14,0.6) 60%, transparent 100%)
+          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,212,170,0.04) 0%, transparent 60%),
+          linear-gradient(180deg, transparent 0%, rgba(10,10,15,0.5) 40%, rgba(10,10,15,0.5) 60%, transparent 100%)
         `,
       }}
     >
@@ -146,7 +145,7 @@ export default function CTA() {
         style={{
           width: 800,
           height: 800,
-          background: 'radial-gradient(circle, rgba(0,240,255,0.08) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 60%)',
         }}
       />
 
@@ -158,12 +157,12 @@ export default function CTA() {
           className="font-[800] leading-[1.05] mb-8"
           style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', letterSpacing: '-0.03em' }}
         >
-          <RevealText text="Stop managing software." className="block text-text" />
+          <RevealText text="Stop managing software." className="block" style={{ color: '#F0F0F5' }} />
           <RevealText
             text="Let it manage itself."
             delay={0.3}
             className="block gradient-text"
-            style={{ textShadow: '0 0 60px rgba(0,240,255,0.25)' }}
+            style={{ textShadow: '0 0 60px rgba(0,212,170,0.25)' }}
           />
         </h2>
 
@@ -173,7 +172,7 @@ export default function CTA() {
           viewport={{ once: true, margin: '-50px' }}
           transition={{ delay: 0.7, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
           className="text-base md:text-lg max-w-[540px] mx-auto mb-12"
-          style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8 }}
+          style={{ color: '#8A8F98', lineHeight: 1.8 }}
         >
           Join the companies replacing their entire tech stack with a single
           autonomous intelligence.

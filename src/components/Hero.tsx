@@ -24,15 +24,15 @@ function GlowingCore() {
     <>
       <mesh ref={coreRef}>
         <sphereGeometry args={[0.12, 32, 32]} />
-        <meshBasicMaterial color="#0ACF83" transparent opacity={1} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={1} />
       </mesh>
       <mesh ref={glowRef}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <meshBasicMaterial color="#0ACF83" transparent opacity={0.2} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.18} blending={THREE.AdditiveBlending} />
       </mesh>
       <mesh>
         <sphereGeometry args={[1.0, 32, 32]} />
-        <meshBasicMaterial color="#00F0FF" transparent opacity={0.06} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial color="#00B4D8" transparent opacity={0.05} blending={THREE.AdditiveBlending} />
       </mesh>
     </>
   )
@@ -52,23 +52,23 @@ function DataRings() {
     <>
       <mesh ref={refs[0]} rotation={[Math.PI * 0.3, 0, 0]}>
         <torusGeometry args={[2.8, 0.006, 8, 80]} />
-        <meshBasicMaterial color="#00F0FF" transparent opacity={0.2} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.18} />
       </mesh>
       <mesh ref={refs[1]} rotation={[Math.PI * 0.5, Math.PI * 0.2, 0]}>
         <torusGeometry args={[3.2, 0.006, 8, 80]} />
-        <meshBasicMaterial color="#0ACF83" transparent opacity={0.16} />
+        <meshBasicMaterial color="#00B4D8" transparent opacity={0.14} />
       </mesh>
       <mesh ref={refs[2]} rotation={[0, 0, Math.PI * 0.4]}>
         <torusGeometry args={[3.6, 0.005, 8, 80]} />
-        <meshBasicMaterial color="#7B61FF" transparent opacity={0.12} />
+        <meshBasicMaterial color="#6366F1" transparent opacity={0.1} />
       </mesh>
       <mesh ref={refs[3]} rotation={[Math.PI * 0.25, Math.PI * 0.3, 0]}>
         <torusGeometry args={[4.0, 0.004, 8, 80]} />
-        <meshBasicMaterial color="#00F0FF" transparent opacity={0.1} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.08} />
       </mesh>
       <mesh ref={refs[4]} rotation={[Math.PI * 0.6, 0, Math.PI * 0.2]}>
         <torusGeometry args={[4.4, 0.003, 8, 80]} />
-        <meshBasicMaterial color="#0ACF83" transparent opacity={0.08} />
+        <meshBasicMaterial color="#00B4D8" transparent opacity={0.06} />
       </mesh>
     </>
   )
@@ -85,7 +85,13 @@ function ParticleBrain({ count = 2000 }: { count?: number }) {
     const col = new Float32Array(count * 3)
     const lPos = new Float32Array(lineCount * 2 * 3)
     const lCol = new Float32Array(lineCount * 2 * 3)
-    const palette = [[0, 0.94, 1], [0.04, 0.81, 0.51], [0.48, 0.38, 1]]
+    // Premium palette: 70% teal #00D4AA, 20% ocean blue #00B4D8, 10% indigo #6366F1
+    const palette = [
+      [0.0, 0.831, 0.667],  // #00D4AA teal
+      [0.0, 0.706, 0.847],  // #00B4D8 ocean
+      [0.388, 0.4, 0.945],  // #6366F1 indigo
+    ]
+    const weights = [0.7, 0.9, 1.0] // cumulative
     for (let i = 0; i < count; i++) {
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(2 * Math.random() - 1)
@@ -95,7 +101,9 @@ function ParticleBrain({ count = 2000 }: { count?: number }) {
       pos[i * 3 + 2] = r * Math.cos(phi)
       const distFromCore = Math.sqrt(pos[i*3]**2 + pos[i*3+1]**2 + pos[i*3+2]**2)
       const brightness = Math.max(0.5, 1.4 - distFromCore / 3.5)
-      const c = palette[Math.floor(Math.random() * palette.length)]
+      const rand = Math.random()
+      const ci = rand < weights[0] ? 0 : rand < weights[1] ? 1 : 2
+      const c = palette[ci]
       col[i * 3] = Math.min(1, c[0] * brightness)
       col[i * 3 + 1] = Math.min(1, c[1] * brightness)
       col[i * 3 + 2] = Math.min(1, c[2] * brightness)
@@ -141,8 +149,9 @@ function ParticleBrain({ count = 2000 }: { count?: number }) {
             const alpha = 1 - dist / maxDist
             lPosAttr.setXYZ(lineIdx * 2, tempA.x, tempA.y, tempA.z)
             lPosAttr.setXYZ(lineIdx * 2 + 1, tempB.x, tempB.y, tempB.z)
-            lColAttr.setXYZ(lineIdx * 2, 0, 0.94 * alpha * 0.4, alpha * 0.4)
-            lColAttr.setXYZ(lineIdx * 2 + 1, 0, 0.94 * alpha * 0.4, alpha * 0.4)
+            // Teal line color rgba(0, 212, 170)
+            lColAttr.setXYZ(lineIdx * 2, 0, 0.831 * alpha * 0.5, 0.667 * alpha * 0.5)
+            lColAttr.setXYZ(lineIdx * 2 + 1, 0, 0.831 * alpha * 0.5, 0.667 * alpha * 0.5)
             lineIdx++
           }
         }
@@ -183,10 +192,10 @@ function AnimatedStat({ value, label, suffix = '' }: { value: number; label: str
   const count = useCountUp(value, inView)
   return (
     <div ref={ref} className="text-center">
-      <div className="text-lg md:text-xl font-heading font-bold text-text">
+      <div className="text-lg md:text-xl font-heading font-bold" style={{ color: '#F0F0F5' }}>
         {label === 'Manual Labor' ? '$' : ''}{count}{suffix}
       </div>
-      <div className="text-xs text-text-muted mt-0.5">{label}</div>
+      <div className="text-xs mt-0.5" style={{ color: '#4A4F58', letterSpacing: '0.05em' }}>{label}</div>
     </div>
   )
 }
@@ -216,7 +225,7 @@ function MouseLight() {
         zIndex: 2,
         width: 400,
         height: 400,
-        background: 'radial-gradient(circle, rgba(0,240,255,0.04) 0%, transparent 60%)',
+        background: 'radial-gradient(circle, rgba(0,212,170,0.04) 0%, transparent 60%)',
         willChange: 'transform',
       }}
     />
@@ -233,10 +242,12 @@ function ScrollChevron() {
       className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none"
       style={{ zIndex: 10 }}
     >
-      <span className="text-[10px] font-mono tracking-[0.3em] text-text-muted uppercase">Scroll</span>
+      <span className="text-[10px] font-mono tracking-[0.3em] uppercase" style={{ color: '#4A4F58' }}>
+        Scroll
+      </span>
       <motion.svg
         width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="#0ACF83" strokeWidth="1.5"
+        stroke="#00D4AA" strokeWidth="1.5"
         animate={{ y: [0, 6, 0] }}
         transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
       >
@@ -250,7 +261,7 @@ function CanvasFallback() {
   return (
     <div className="fixed inset-0" style={{
       zIndex: 0,
-      background: 'radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0,240,255,0.05) 0%, transparent 70%)',
+      background: 'radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0,212,170,0.04) 0%, transparent 70%)',
     }} />
   )
 }
@@ -296,7 +307,7 @@ export default function Hero() {
         className="fixed inset-0 pointer-events-none"
         style={{
           zIndex: 1,
-          background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(2,0,8,0.1) 0%, rgba(2,0,8,0.7) 55%, #020008 85%)',
+          background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(5,5,5,0.1) 0%, rgba(5,5,5,0.7) 55%, #050505 85%)',
         }}
       />
 
@@ -311,11 +322,11 @@ export default function Hero() {
           transition={{ delay: 0.15, duration: 0.5, ease: EASE }}
           className="flex items-center justify-center gap-3"
         >
-          <div className="h-px w-8 bg-cyan/40" />
-          <span className="text-xs font-mono tracking-[0.3em] text-emerald uppercase">
+          <div className="h-px w-8" style={{ background: 'rgba(0,212,170,0.3)' }} />
+          <span className="text-xs font-mono tracking-[0.3em] uppercase" style={{ color: '#00D4AA' }}>
             Autonomous AI Platform
           </span>
-          <div className="h-px w-8 bg-cyan/40" />
+          <div className="h-px w-8" style={{ background: 'rgba(0,212,170,0.3)' }} />
         </motion.div>
 
         {/* Title — line-by-line choreography */}
@@ -324,7 +335,8 @@ export default function Hero() {
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6, ease: EASE }}
-            className="block text-text"
+            className="block"
+            style={{ color: '#F0F0F5' }}
           >
             One System.
           </motion.span>
@@ -332,20 +344,20 @@ export default function Hero() {
             initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.3, ease: EASE }}
-            className="block gradient-text"
-            style={{ display: 'inline-block' }}
+            className="block"
+            style={{ display: 'inline-block', color: '#00D4AA' }}
           >
             Every
           </motion.span>{' '}
           <motion.span
-            initial={{ opacity: 0, y: 60, textShadow: '0 0 0px rgba(0,240,255,0)' }}
+            initial={{ opacity: 0, y: 60, textShadow: '0 0 0px rgba(0,212,170,0)' }}
             animate={{
               opacity: 1,
               y: 0,
               textShadow: [
-                '0 0 0px rgba(0,240,255,0)',
-                '0 0 80px rgba(0,240,255,0.8)',
-                '0 0 40px rgba(0,240,255,0.4)',
+                '0 0 0px rgba(0,212,170,0)',
+                '0 0 80px rgba(0,212,170,0.7)',
+                '0 0 40px rgba(0,212,170,0.3)',
               ],
             }}
             transition={{
@@ -367,7 +379,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.9, duration: 0.5, ease: EASE }}
           className="text-base md:text-lg max-w-[560px] mx-auto"
-          style={{ color: 'rgba(255,255,255,0.7)', lineHeight: 1.8 }}
+          style={{ color: '#8A8F98', lineHeight: 1.8 }}
         >
           The 420 System replaces your entire software stack with a single autonomous AI
           platform. Sales, marketing, HR, and operations — all managed by AI that thinks,
@@ -388,10 +400,10 @@ export default function Hero() {
             variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.4, ease: EASE }}
             onClick={() => navigateToDemo('hero_start_free_trial')}
-            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(0,240,255,0.3)' }}
+            whileHover={{ scale: 1.04, background: '#00E8BB', boxShadow: '0 0 30px rgba(0,212,170,0.3)' }}
             whileTap={{ scale: 0.97 }}
-            className="px-8 py-3.5 rounded-lg font-medium text-sm text-bg cursor-pointer border-none"
-            style={{ background: 'linear-gradient(135deg, #00F0FF, #0ACF83)' }}
+            className="px-8 py-3.5 rounded-lg font-medium text-sm cursor-pointer border-none"
+            style={{ background: '#00D4AA', color: '#050505' }}
           >
             Start Free Trial
           </motion.button>
@@ -399,9 +411,10 @@ export default function Hero() {
             variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
             transition={{ duration: 0.4, ease: EASE }}
             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-            whileHover={{ borderColor: 'rgba(240,235,248,0.3)', color: '#F0EBF8' }}
+            whileHover={{ borderColor: '#00D4AA', color: '#F0F0F5' }}
             whileTap={{ scale: 0.97 }}
-            className="px-8 py-3.5 rounded-lg font-medium text-sm text-text-muted border border-card-border cursor-pointer bg-transparent"
+            className="px-8 py-3.5 rounded-lg font-medium text-sm cursor-pointer bg-transparent"
+            style={{ color: '#8A8F98', border: '1px solid #2A2A38' }}
           >
             See the Architecture
           </motion.button>
@@ -421,15 +434,15 @@ export default function Hero() {
           <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.4 }}>
             <AnimatedStat value={6} label="Industries" />
           </motion.div>
-          <div className="w-px h-8 bg-card-border hidden sm:block" />
+          <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
           <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.4 }}>
             <AnimatedStat value={100} label="Autonomous" suffix="%" />
           </motion.div>
-          <div className="w-px h-8 bg-card-border hidden sm:block" />
+          <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
           <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.4 }}>
             <AnimatedStat value={0} label="Manual Labor" />
           </motion.div>
-          <div className="w-px h-8 bg-card-border hidden sm:block" />
+          <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
           <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.4 }}>
             <AnimatedStat value={24} label="AI Operations" suffix="/7" />
           </motion.div>

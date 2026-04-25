@@ -20,7 +20,7 @@ export default function LoadingScreen() {
         style={{
           width: 500,
           height: 500,
-          background: 'radial-gradient(circle, rgba(0,240,255,0.08) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(0,212,170,0.08) 0%, transparent 60%)',
           animation: 'loaderPulse 2s ease-in-out infinite',
         }}
       />
@@ -37,8 +37,8 @@ export default function LoadingScreen() {
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
               letterSpacing: '0.05em',
-              color: i === 0 ? '#00F0FF' : (i === 1 || i === 2) ? '#0ACF83' : '#F0EBF8',
-              filter: i < 3 ? 'drop-shadow(0 0 30px rgba(0,240,255,0.4))' : 'none',
+              color: i === 0 ? '#00D4AA' : (i === 1 || i === 2) ? '#00B4D8' : '#F0F0F5',
+              filter: i < 3 ? 'drop-shadow(0 0 30px rgba(0,212,170,0.4))' : 'none',
             }}
           >
             {letter === ' ' ? '\u00A0' : letter}
@@ -50,7 +50,7 @@ export default function LoadingScreen() {
       <motion.div
         className="relative z-10 h-px mt-6"
         style={{
-          background: 'linear-gradient(90deg, transparent, #00F0FF, #0ACF83, transparent)',
+          background: 'linear-gradient(90deg, transparent, #00D4AA, #00B4D8, transparent)',
           transformOrigin: 'left',
         }}
         initial={{ width: '200px', scaleX: 0 }}
@@ -62,7 +62,8 @@ export default function LoadingScreen() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.3, duration: 0.5 }}
-        className="mt-4 text-[10px] font-mono text-text-muted tracking-[0.3em] uppercase relative z-10"
+        className="mt-4 text-[10px] font-mono tracking-[0.3em] uppercase relative z-10"
+        style={{ color: '#4A4F58' }}
       >
         Initializing Autonomous Intelligence
       </motion.div>
