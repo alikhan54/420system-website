@@ -74,12 +74,14 @@ const modules: ModuleData[] = [
 
 export default function Modules() {
   const sectionRef = useRef<HTMLDivElement>(null)
+  const pinRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const section = sectionRef.current
+    const pin = pinRef.current
     const track = trackRef.current
-    if (!section || !track) return
+    if (!section || !pin || !track) return
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const isMobile = window.innerWidth < 768
@@ -87,7 +89,6 @@ export default function Modules() {
 
     let ctx: gsap.Context | null = null
 
-    // Wait for DOM/layout to settle, then create the trigger
     const setup = () => {
       ctx = gsap.context(() => {
         const distance = () => track.scrollWidth - window.innerWidth
@@ -97,27 +98,22 @@ export default function Modules() {
           ease: 'none',
           scrollTrigger: {
             trigger: section,
-            pin: true,
+            pin: pin,
             scrub: 1,
             start: 'top top',
             end: () => '+=' + distance(),
             invalidateOnRefresh: true,
             anticipatePin: 1,
+            pinSpacing: true,
           },
         })
-        console.log('[Modules] ScrollTrigger initialized, distance:', distance())
+        console.log('[Modules] ScrollTrigger init, distance:', distance())
       }, section)
 
-      // Refresh after fonts/images settle
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh()
-      })
+      requestAnimationFrame(() => ScrollTrigger.refresh())
     }
 
-    // Defer setup to next paint cycle so layout is stable
-    const t = setTimeout(setup, 100)
-
-    // Refresh on window load (after images/fonts)
+    const t = setTimeout(setup, 150)
     const onLoad = () => ScrollTrigger.refresh()
     window.addEventListener('load', onLoad)
 
@@ -135,7 +131,7 @@ export default function Modules() {
       className="relative hidden md:block"
       style={{ zIndex: 2 }}
     >
-      <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+      <div ref={pinRef} style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
         {/* Pinned header */}
         <div
           className="absolute top-0 left-0 right-0 z-20 pt-16 px-6 text-center pointer-events-none"

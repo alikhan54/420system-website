@@ -8,7 +8,7 @@ export default function LoadingScreen() {
   return (
     <motion.div
       className="fixed inset-0 bg-bg flex flex-col items-center justify-center"
-      style={{ zIndex: 9999 }}
+      style={{ zIndex: 9999, pointerEvents: 'none' }}
       exit={{
         y: '-100%',
         transition: { duration: 0.9, ease: EASE, delay: 0.2 },

@@ -13,6 +13,7 @@ import ExitIntentModal from './components/ExitIntentModal'
 import CustomCursor from './components/CustomCursor'
 import LoadingScreen from './components/LoadingScreen'
 import SectionTransition from './components/SectionTransition'
+import StoryBeat from './components/StoryBeat'
 import { initVisitorTracking } from './utils/tracking'
 import { usePrefersReducedMotion } from './utils/animations'
 
@@ -40,14 +41,41 @@ export default function App() {
 
       <CustomCursor />
       <Navbar />
+
       <Hero />
+
+      <StoryBeat lines={[
+        { text: 'Imagine a business...' },
+        { text: 'Where every department thinks together.' },
+        { text: 'Where AI doesn\u2019t just automate \u2014' },
+        { text: 'it decides.', accent: true },
+      ]} />
+
       <SectionTransition />
       <Organism />
+
+      <StoryBeat lines={[
+        { text: 'Four intelligences.' },
+        { text: 'Working as one.', accent: true },
+      ]} />
+
       <SectionTransition />
       <Modules />
       <ModulesMobile />
+
+      <StoryBeat lines={[
+        { text: 'Built for YOUR industry.' },
+        { text: 'Not generic templates.', accent: true },
+      ]} />
+
       <SectionTransition />
       <Industries />
+
+      <StoryBeat lines={[
+        { text: 'The ROI of autonomy?' },
+        { text: 'It\u2019s not even close.', accent: true },
+      ]} />
+
       <SectionTransition />
       <Pricing />
       <SectionTransition />
