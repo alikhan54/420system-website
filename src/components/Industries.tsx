@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { usePrefersReducedMotion } from '../utils/animations'
+import VideoScene from './VideoScene'
 
 const industries = [
   {
@@ -73,7 +74,9 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
         className="group relative rounded-xl overflow-hidden"
         style={{
           padding: '2rem 2rem 2rem 2.5rem',
-          background: '#0A0A0F',
+          background: 'rgba(10, 10, 15, 0.75)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
           border: '1px solid #1A1A24',
           transformStyle: 'preserve-3d',
           transition: 'transform 0.2s ease-out, border-color 0.3s ease, box-shadow 0.3s ease',
@@ -126,10 +129,17 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
 }
 
 export default function Industries() {
-  const sectionRef = useRef<HTMLDivElement>(null)
-
   return (
-    <section id="industries" ref={sectionRef} className="relative overflow-hidden" style={{ zIndex: 2, padding: '8rem 0' }}>
+    <VideoScene
+      id="industries"
+      src="/videos/industries-bg.mp4"
+      direction="left"
+      parallaxIntensity={0.2}
+      scaleRange={[1.1, 1]}
+      minHeight="100vh"
+      padding="8rem 0"
+      overlay="linear-gradient(to bottom, rgba(5,5,5,0.6) 0%, rgba(5,5,5,0.85) 100%)"
+    >
       {/* Scan line — sweeps across once on view */}
       <motion.div
         className="absolute left-0 right-0 pointer-events-none"
@@ -138,7 +148,7 @@ export default function Industries() {
           height: 2,
           background: 'linear-gradient(90deg, transparent, rgba(0,212,170,0.5), rgba(0,180,216,0.5), transparent)',
           filter: 'blur(1px)',
-          zIndex: 1,
+          zIndex: 5,
         }}
         initial={{ y: 0, opacity: 0 }}
         whileInView={{
@@ -149,7 +159,7 @@ export default function Industries() {
         transition={{ duration: 2.5, ease: 'easeInOut', times: [0, 0.1, 0.9, 1] }}
       />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative" style={{ zIndex: 2 }}>
+      <div className="max-w-[1200px] mx-auto px-6 md:px-12 relative w-full" style={{ zIndex: 2 }}>
         <motion.div
           className="text-center"
           style={{ marginBottom: '2rem' }}
@@ -177,6 +187,6 @@ export default function Industries() {
           ))}
         </div>
       </div>
-    </section>
+    </VideoScene>
   )
 }

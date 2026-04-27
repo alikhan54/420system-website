@@ -26,7 +26,6 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [reducedMotion])
 
-  // Tag body for custom cursor
   useEffect(() => {
     document.body.dataset.reducedMotion = reducedMotion ? 'true' : 'false'
   }, [reducedMotion])
@@ -40,47 +39,68 @@ export default function App() {
       <CustomCursor />
       <Navbar />
 
-      {/* SCENE 1: Hero with video bg */}
+      {/* SCENE 1 — HERO: video zooms out + tilts (departing) */}
       <Hero />
 
-      {/* SCENE 2: Story Beat */}
-      <StoryBeat lines={[
-        { text: 'Traditional SaaS connects your apps.' },
-        { text: 'We replaced them entirely.', accent: true },
-      ]} />
+      {/* SCENE 2 — STORY 1: video slides LEFT (traveling) */}
+      <StoryBeat
+        videoSrc="/videos/story1-bg.mp4"
+        direction="left"
+        scaleRange={[1.2, 1.05]}
+        parallaxIntensity={0.25}
+        minHeight="80vh"
+        lines={[
+          { text: 'Traditional SaaS connects your apps.' },
+          { text: 'We replaced them entirely.', accent: true },
+        ]}
+      />
 
-      {/* SCENE 3: Organism with video bg */}
+      {/* SCENE 3 — ORGANISM: video slides RIGHT (arriving) */}
       <Organism />
 
-      {/* SCENE 4: Story Beat */}
-      <StoryBeat lines={[
-        { text: 'Four intelligences.' },
-        { text: 'Working as one.', accent: true },
-      ]} />
+      {/* SCENE 4 — STORY 2: deep parallax (diving deeper) */}
+      <StoryBeat
+        videoSrc="/videos/transition-bg.mp4"
+        direction="up"
+        scaleRange={[1.25, 1]}
+        parallaxIntensity={0.4}
+        rotateOnScroll
+        minHeight="70vh"
+        lines={[
+          { text: 'Four intelligences.' },
+          { text: 'Working as one.', accent: true },
+        ]}
+      />
 
-      {/* SCENE 5: Modules — 2x2 grid */}
+      {/* SCENE 5 — MODULES: clean dark, no video (readability priority) */}
       <Modules />
 
-      {/* Story Beat */}
-      <StoryBeat lines={[
-        { text: 'Built for YOUR industry.' },
-        { text: 'Not generic templates.', accent: true },
-      ]} />
+      {/* Story Beat — clean (no video) for breathing room */}
+      <StoryBeat
+        lines={[
+          { text: 'Built for YOUR industry.' },
+          { text: 'Not generic templates.', accent: true },
+        ]}
+      />
 
-      {/* SCENE 6: Industries */}
+      {/* SCENE 6 — INDUSTRIES: video slides LEFT (scanning across) */}
       <Industries />
 
-      {/* Story Beat */}
-      <StoryBeat lines={[
-        { text: 'The ROI of autonomy?' },
-        { text: 'It\u2019s not even close.', accent: true },
-      ]} />
+      {/* Story Beat — clean before pricing */}
+      <StoryBeat
+        lines={[
+          { text: 'The ROI of autonomy?' },
+          { text: 'It’s not even close.', accent: true },
+        ]}
+      />
 
-      {/* SCENE 7: Pricing */}
+      {/* SCENE 7 — PRICING: clean dark, no video */}
       <Pricing />
 
-      {/* SCENE 8: CTA + Footer */}
+      {/* SCENE 8 — CTA: video zooms IN (approaching power) */}
       <CTA />
+
+      {/* SCENE 9 — FOOTER */}
       <Footer />
       <ExitIntentModal />
     </div>

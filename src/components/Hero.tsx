@@ -1,10 +1,106 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useMemo, useState, Suspense } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
 import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
 import { useInView, useCountUp, usePrefersReducedMotion } from '../utils/animations'
-import VideoBackground from './VideoBackground'
+import VideoScene from './VideoScene'
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
+
+/* Particle brain — sits between video and text */
+function ParticleBrain({ count = 1200 }: { count?: number }) {
+  const meshRef = useRef<THREE.Points>(null)
+  const mouseRef = useRef({ x: 0, y: 0 })
+
+  const [positions, colors] = useMemo(() => {
+    const pos = new Float32Array(count * 3)
+    const col = new Float32Array(count * 3)
+    // 70% teal, 20% ocean blue, 10% indigo
+    const palette = [
+      [0.0, 0.831, 0.667],   // #00D4AA teal
+      [0.0, 0.706, 0.847],   // #00B4D8 ocean
+      [0.388, 0.4, 0.945],   // #6366F1 indigo
+    ]
+    const weights = [0.7, 0.9, 1.0]
+
+    for (let i = 0; i < count; i++) {
+      const theta = Math.random() * Math.PI * 2
+      const phi = Math.acos(2 * Math.random() - 1)
+      const r = 2.2 + (Math.random() - 0.5) * 1.2
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      pos[i * 3 + 2] = r * Math.cos(phi)
+
+      const distFromCore = Math.sqrt(pos[i * 3] ** 2 + pos[i * 3 + 1] ** 2 + pos[i * 3 + 2] ** 2)
+      const brightness = Math.max(0.5, 1.4 - distFromCore / 3.5)
+
+      const rand = Math.random()
+      const ci = rand < weights[0] ? 0 : rand < weights[1] ? 1 : 2
+      const c = palette[ci]
+      col[i * 3] = Math.min(1, c[0] * brightness)
+      col[i * 3 + 1] = Math.min(1, c[1] * brightness)
+      col[i * 3 + 2] = Math.min(1, c[2] * brightness)
+    }
+    return [pos, col]
+  }, [count])
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1
+      mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  useFrame((state) => {
+    if (!meshRef.current) return
+    const t = state.clock.elapsedTime
+    meshRef.current.rotation.y = t * 0.05 + mouseRef.current.x * 0.3
+    meshRef.current.rotation.x = mouseRef.current.y * 0.2
+  })
+
+  return (
+    <points ref={meshRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.02}
+        vertexColors
+        transparent
+        opacity={0.7}
+        sizeAttenuation
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  )
+}
+
+/* Glowing core */
+function Core() {
+  const ref = useRef<THREE.Mesh>(null)
+  useFrame((state) => {
+    if (!ref.current) return
+    const s = 1 + Math.sin(state.clock.elapsedTime * 2) * 0.15
+    ref.current.scale.set(s, s, s)
+  })
+  return (
+    <>
+      <mesh ref={ref}>
+        <sphereGeometry args={[0.08, 24, 24]} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.95} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.4, 24, 24]} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.12} blending={THREE.AdditiveBlending} />
+      </mesh>
+    </>
+  )
+}
 
 /* Animated stat with count-up */
 function AnimatedStat({ value, label, suffix = '', prefix = '' }: {
@@ -27,10 +123,10 @@ function ScrollIndicator() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
-      animate={{ opacity: 0.5 }}
+      animate={{ opacity: 0.6 }}
       transition={{ delay: 2.6, duration: 0.6 }}
       className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-      style={{ zIndex: 10 }}
+      style={{ zIndex: 20 }}
     >
       <span className="text-[10px] font-mono tracking-[0.4em] uppercase" style={{ color: '#4A4F58' }}>
         Scroll
@@ -49,11 +145,18 @@ function ScrollIndicator() {
 
 export default function Hero() {
   const reducedMotion = usePrefersReducedMotion()
-  const [, setMounted] = useState(false)
+  const [screenWidth, setScreenWidth] = useState(1024)
 
   useEffect(() => {
-    setMounted(true)
+    const check = () => setScreenWidth(window.innerWidth)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
+
+  const isMobile = screenWidth < 768
+  const showBrain = !isMobile && !reducedMotion
+  const particleCount = screenWidth < 1024 ? 700 : 1200
 
   const titleAnim = (delay: number, withGlow = false) => ({
     initial: { opacity: 0, y: 50 },
@@ -85,58 +188,60 @@ export default function Hero() {
   })
 
   return (
-    <section
-      className="relative w-full flex flex-col items-center justify-center overflow-hidden"
-      style={{ minHeight: '100vh', padding: '6rem 1.5rem 4rem' }}
+    <VideoScene
+      src="/videos/hero-bg.mp4"
+      parallaxIntensity={0.3}
+      scaleRange={[1.15, 1]}
+      rotateOnScroll
+      direction="up"
+      minHeight="100vh"
+      padding="6rem 1.5rem 4rem"
+      overlay="linear-gradient(to bottom, rgba(5,5,5,0.45) 0%, rgba(5,5,5,0.85) 100%)"
     >
-      {/* Video background */}
-      <VideoBackground src="/videos/hero-bg.mp4" opacity={0.4} />
+      {/* Particle brain — between video and content */}
+      {showBrain && (
+        <Suspense fallback={null}>
+          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 5 }}>
+            <Canvas
+              camera={{ position: [0, 0, 5], fov: 60 }}
+              dpr={[1, 1.5]}
+              style={{ background: 'transparent' }}
+            >
+              <ambientLight intensity={0.5} />
+              <ParticleBrain count={particleCount} />
+              <Core />
+            </Canvas>
+          </div>
+        </Suspense>
+      )}
 
-      {/* Content */}
-      <div className="relative flex flex-col items-center text-center" style={{ zIndex: 10, maxWidth: 900, gap: '2rem' }}>
-        {/* Label */}
+      {/* Content — above the brain */}
+      <div
+        className="relative w-full flex flex-col items-center text-center mx-auto"
+        style={{ zIndex: 10, maxWidth: 900, gap: '2rem', minHeight: '88vh', justifyContent: 'center', display: 'flex' }}
+      >
         <motion.div {...fadeIn(0.3)} className="flex items-center justify-center gap-3">
           <div className="h-px w-8" style={{ background: 'rgba(0,212,170,0.3)' }} />
-          <span
-            className="text-[11px] font-mono uppercase"
-            style={{ color: '#00D4AA', letterSpacing: '0.4em' }}
-          >
+          <span className="text-[11px] font-mono uppercase" style={{ color: '#00D4AA', letterSpacing: '0.4em' }}>
             Autonomous AI Platform
           </span>
           <div className="h-px w-8" style={{ background: 'rgba(0,212,170,0.3)' }} />
         </motion.div>
 
-        {/* Title */}
-        <h1
-          className="font-[800]"
-          style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', letterSpacing: '-0.03em', lineHeight: 1.05 }}
-        >
+        <h1 className="font-[800]" style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', letterSpacing: '-0.03em', lineHeight: 1.05 }}>
           <motion.span {...titleAnim(0.6)} className="block" style={{ color: '#F0F0F5' }}>
             One System.
           </motion.span>
-          <motion.span
-            {...titleAnim(0.9, true)}
-            className="block gradient-text"
-            style={{ display: 'inline-block' }}
-          >
+          <motion.span {...titleAnim(0.9, true)} className="block gradient-text" style={{ display: 'inline-block' }}>
             Every Department.
           </motion.span>
         </h1>
 
-        {/* Subtitle */}
-        <motion.p
-          {...fadeIn(1.2)}
-          className="max-w-[600px] mx-auto"
-          style={{ color: '#8A8F98', fontSize: '1.1rem', lineHeight: 1.7 }}
-        >
+        <motion.p {...fadeIn(1.2)} className="max-w-[600px] mx-auto" style={{ color: '#8A8F98', fontSize: '1.1rem', lineHeight: 1.7 }}>
           Sales, marketing, HR, and operations &mdash; all managed by AI that thinks, decides, and executes.
         </motion.p>
 
-        {/* Buttons */}
-        <motion.div
-          {...fadeIn(1.6)}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-        >
+        <motion.div {...fadeIn(1.6)} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <motion.button
             onClick={() => navigateToDemo('hero_start_free_trial')}
             whileHover={{ scale: 1.04, background: '#00E8BB', boxShadow: '0 0 30px rgba(0,212,170,0.35)' }}
@@ -157,12 +262,7 @@ export default function Hero() {
           </motion.button>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div
-          {...fadeIn(2.0)}
-          className="flex items-center justify-center flex-wrap"
-          style={{ gap: '2.5rem' }}
-        >
+        <motion.div {...fadeIn(2.0)} className="flex items-center justify-center flex-wrap" style={{ gap: '2.5rem' }}>
           <AnimatedStat value={6} label="INDUSTRIES" />
           <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
           <AnimatedStat value={100} label="AUTONOMOUS" suffix="%" />
@@ -174,6 +274,6 @@ export default function Hero() {
       </div>
 
       <ScrollIndicator />
-    </section>
+    </VideoScene>
   )
 }

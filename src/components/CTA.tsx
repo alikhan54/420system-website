@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
 import { usePrefersReducedMotion } from '../utils/animations'
-import VideoBackground from './VideoBackground'
+import VideoScene from './VideoScene'
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
@@ -25,7 +25,7 @@ function RevealText({ text, delay = 0, className, style }: {
             transition={{ delay: delay + wi * 0.05, duration: 0.7, ease: EASE }}
             style={{ display: 'inline-block' }}
           >
-            {word}{wi < words.length - 1 ? '\u00A0' : ''}
+            {word}{wi < words.length - 1 ? ' ' : ''}
           </motion.span>
         </span>
       ))}
@@ -74,17 +74,16 @@ function MagneticButton({
 
 export default function CTA() {
   return (
-    <section
-      className="relative overflow-hidden"
-      style={{ zIndex: 2, padding: '10rem 0', minHeight: '85vh', display: 'flex', alignItems: 'center' }}
+    <VideoScene
+      src="/videos/cta-bg.mp4"
+      direction="up"
+      parallaxIntensity={0.15}
+      scaleRange={[1, 1.15]}        // zoom IN as we scroll — feels like approaching
+      rotateOnScroll
+      minHeight="85vh"
+      padding="10rem 0"
+      overlay="radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5,5,5,0.65) 0%, rgba(5,5,5,0.92) 70%)"
     >
-      {/* Video background */}
-      <VideoBackground
-        src="/videos/cta-bg.mp4"
-        opacity={0.3}
-        overlayGradient="radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5,5,5,0.65) 0%, rgba(5,5,5,0.92) 70%)"
-      />
-
       <div className="relative z-10 max-w-[820px] mx-auto text-center px-6 md:px-12 w-full">
         <motion.div
           className="mb-6"
@@ -139,7 +138,18 @@ export default function CTA() {
             Book a Demo
           </MagneticButton>
         </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
+          className="mt-8 text-sm font-mono"
+          style={{ color: '#4A4F58', letterSpacing: '0.1em' }}
+        >
+          Starting at $199/month
+        </motion.p>
       </div>
-    </section>
+    </VideoScene>
   )
 }

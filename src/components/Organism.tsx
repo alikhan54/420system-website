@@ -2,7 +2,7 @@ import { useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
-import VideoBackground from './VideoBackground'
+import VideoScene from './VideoScene'
 
 const nodes = [
   { label: 'Sales', color: '#00D4AA', angle: 0, speed: 0.4, radius: 2.0 },
@@ -162,14 +162,17 @@ export default function Organism() {
   const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
   return (
-    <section id="how-it-works" className="relative overflow-hidden" style={{ zIndex: 2, padding: '8rem 0', minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-      {/* Video background */}
-      <VideoBackground
-        src="/videos/organism-bg.mp4"
-        opacity={0.3}
-        overlayGradient="linear-gradient(to bottom, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.85) 100%)"
-      />
-
+    <VideoScene
+      id="how-it-works"
+      src="/videos/organism-bg.mp4"
+      direction="right"
+      parallaxIntensity={0.25}
+      scaleRange={[1.1, 1]}
+      rotateOnScroll
+      minHeight="100vh"
+      padding="8rem 0"
+      overlay="linear-gradient(to bottom, rgba(5,5,5,0.65) 0%, rgba(5,5,5,0.85) 100%)"
+    >
       {/* Drawing line at top */}
       <motion.div
         className="absolute top-0 left-0 h-px"
@@ -184,7 +187,7 @@ export default function Organism() {
         transition={{ duration: 1.2, ease: EASE }}
       />
 
-      <div className="max-w-[1200px] mx-auto relative" style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)', width: '100%', zIndex: 10 }}>
+      <div className="max-w-[1200px] mx-auto relative w-full" style={{ paddingLeft: 'max(2rem, 5vw)', paddingRight: 'max(2rem, 5vw)' }}>
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center" style={{ gap: '4rem' }}>
           <motion.div
             initial={{ opacity: 0, x: -80 }}
@@ -209,9 +212,9 @@ export default function Organism() {
               style={{ color: '#8A8F98', lineHeight: 1.8, maxWidth: '560px' }}
             >
               Traditional SaaS forces you to connect dozens of disconnected tools. The 420
-              System is a unified intelligence — every module shares context, learns from
+              System is a unified intelligence &mdash; every module shares context, learns from
               every interaction, and autonomously coordinates across departments. It
-              doesn't just automate tasks. It thinks, adapts, and evolves.
+              doesn&rsquo;t just automate tasks. It thinks, adapts, and evolves.
             </p>
           </motion.div>
 
@@ -225,6 +228,6 @@ export default function Organism() {
           </motion.div>
         </div>
       </div>
-    </section>
+    </VideoScene>
   )
 }
