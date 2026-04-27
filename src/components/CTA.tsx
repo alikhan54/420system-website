@@ -135,11 +135,99 @@ export default function CTA() {
           </MagneticButton>
         </motion.div>
 
+        {/* Live AI — talk to it now */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ delay: 1.15, duration: 0.6, ease: EASE }}
+          style={{ marginTop: '3rem' }}
+        >
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              padding: '1rem 1.5rem',
+              background: 'rgba(0, 212, 170, 0.08)',
+              border: '1px solid rgba(0, 212, 170, 0.3)',
+              borderRadius: 12,
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+            }}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#00D4AA',
+                boxShadow: '0 0 12px rgba(0,212,170,0.8)',
+                animation: 'livePulse 1.6s ease-in-out infinite',
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontFamily: 'monospace',
+                letterSpacing: '0.25em',
+                textTransform: 'uppercase',
+                color: '#00D4AA',
+              }}
+            >
+              Live · AI Receptionist
+            </span>
+          </div>
+
+          <div style={{ marginTop: '1.25rem' }}>
+            <p
+              style={{
+                color: '#8A8F98',
+                fontSize: '0.95rem',
+                lineHeight: 1.7,
+                marginBottom: '0.75rem',
+              }}
+            >
+              Skip the form. Talk to our AI receptionist now &mdash; it books demos, qualifies leads, and answers in 6 languages, 24/7.
+            </p>
+            <a
+              href="tel:+14048192917"
+              onClick={() => navigateToDemo('cta_call_ai')}
+              style={{
+                display: 'inline-block',
+                fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+                fontWeight: 700,
+                fontFamily: 'monospace',
+                color: '#F0F0F5',
+                textDecoration: 'none',
+                letterSpacing: '0.04em',
+                textShadow: '0 0 30px rgba(0,212,170,0.25)',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#00D4AA')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#F0F0F5')}
+            >
+              +1 (404) 819-2917
+            </a>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#4A4F58' }}>
+              Tap to call &middot; powered by The 420 System
+            </p>
+          </div>
+
+          <style>{`
+            @keyframes livePulse {
+              0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.5); transform: scale(1); }
+              50% { box-shadow: 0 0 0 12px rgba(0,212,170,0); transform: scale(1.15); }
+            }
+          `}</style>
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.5 }}
-          transition={{ delay: 1.2, duration: 0.5 }}
+          transition={{ delay: 1.4, duration: 0.5 }}
           className="mt-8 text-sm font-mono"
           style={{ color: '#4A4F58', letterSpacing: '0.1em' }}
         >

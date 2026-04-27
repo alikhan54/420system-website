@@ -180,6 +180,53 @@ export default function Footer() {
       <div className="relative max-w-[1200px] mx-auto px-6 md:px-12" style={{ zIndex: 2 }}>
         <TypewriterTagline />
 
+        {/* Live AI banner */}
+        <div className="flex flex-col items-center text-center mb-10" style={{ gap: '0.75rem' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.4rem 0.85rem',
+              borderRadius: 999,
+              background: 'rgba(0, 212, 170, 0.08)',
+              border: '1px solid rgba(0, 212, 170, 0.25)',
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: '#00D4AA',
+                animation: 'livePulse 1.6s ease-in-out infinite',
+              }}
+            />
+            <span style={{ fontSize: '0.65rem', fontFamily: 'monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#00D4AA' }}>
+              Live AI Receptionist
+            </span>
+          </div>
+          <a
+            href="tel:+14048192917"
+            style={{
+              fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              color: '#F0F0F5',
+              textDecoration: 'none',
+              letterSpacing: '0.04em',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#00D4AA')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#F0F0F5')}
+          >
+            +1 (404) 819-2917
+          </a>
+          <p style={{ fontSize: '0.75rem', color: '#4A4F58', maxWidth: 420, lineHeight: 1.5 }}>
+            Tap to call. Our AI books demos, qualifies leads, and replies 24/7 &mdash; powered by The 420 System.
+          </p>
+        </div>
+
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-sm" style={{ color: '#4A4F58' }}>
             <span>&copy; 2026</span>

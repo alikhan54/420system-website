@@ -295,6 +295,52 @@ export default function Hero() {
           </motion.button>
         </motion.div>
 
+        {/* Live AI pill — tap to call */}
+        <motion.a
+          {...fadeIn(1.85)}
+          href="tel:+14048192917"
+          onClick={() => navigateToDemo('hero_call_ai')}
+          whileHover={{ scale: 1.03, borderColor: 'rgba(0,212,170,0.6)' }}
+          whileTap={{ scale: 0.97 }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            padding: '0.65rem 1.1rem',
+            borderRadius: 999,
+            background: 'rgba(0, 212, 170, 0.06)',
+            border: '1px solid rgba(0, 212, 170, 0.25)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#00D4AA',
+              animation: 'livePulse 1.6s ease-in-out infinite',
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#00D4AA' }}>
+            Live AI &middot;
+          </span>
+          <span style={{ fontSize: '0.85rem', color: '#F0F0F5', fontWeight: 500 }}>
+            +1 (404) 819-2917
+          </span>
+        </motion.a>
+
+        <style>{`
+          @keyframes livePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 0 8px rgba(0,212,170,0); transform: scale(1.2); }
+          }
+        `}</style>
+
         <motion.div {...fadeIn(2.0)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '2.5rem' }}>
           <AnimatedStat value={6} label="INDUSTRIES" />
           <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
