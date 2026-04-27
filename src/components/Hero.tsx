@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
 import { useInView, useCountUp, usePrefersReducedMotion } from '../utils/animations'
-import VideoScene from './VideoScene'
+import ScrubVideoScene from './ScrubVideoScene'
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
@@ -16,11 +16,10 @@ function ParticleBrain({ count = 1200 }: { count?: number }) {
   const [positions, colors] = useMemo(() => {
     const pos = new Float32Array(count * 3)
     const col = new Float32Array(count * 3)
-    // 70% teal, 20% ocean blue, 10% indigo
     const palette = [
-      [0.0, 0.831, 0.667],   // #00D4AA teal
-      [0.0, 0.706, 0.847],   // #00B4D8 ocean
-      [0.388, 0.4, 0.945],   // #6366F1 indigo
+      [0.0, 0.831, 0.667],
+      [0.0, 0.706, 0.847],
+      [0.388, 0.4, 0.945],
     ]
     const weights = [0.7, 0.9, 1.0]
 
@@ -80,7 +79,6 @@ function ParticleBrain({ count = 1200 }: { count?: number }) {
   )
 }
 
-/* Glowing core */
 function Core() {
   const ref = useRef<THREE.Mesh>(null)
   useFrame((state) => {
@@ -102,7 +100,6 @@ function Core() {
   )
 }
 
-/* Animated stat with count-up */
 function AnimatedStat({ value, label, suffix = '', prefix = '' }: {
   value: number; label: string; suffix?: string; prefix?: string
 }) {
@@ -118,17 +115,26 @@ function AnimatedStat({ value, label, suffix = '', prefix = '' }: {
   )
 }
 
-/* Scroll indicator */
 function ScrollIndicator() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 0.6 }}
       transition={{ delay: 2.6, duration: 0.6 }}
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-      style={{ zIndex: 20 }}
+      style={{
+        position: 'absolute',
+        bottom: '2rem',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.5rem',
+        zIndex: 20,
+        pointerEvents: 'none',
+      }}
     >
-      <span className="text-[10px] font-mono tracking-[0.4em] uppercase" style={{ color: '#4A4F58' }}>
+      <span style={{ fontSize: '10px', fontFamily: 'monospace', letterSpacing: '0.4em', textTransform: 'uppercase', color: '#4A4F58' }}>
         Scroll
       </span>
       <motion.svg
@@ -188,20 +194,16 @@ export default function Hero() {
   })
 
   return (
-    <VideoScene
+    <ScrubVideoScene
       src="/videos/hero-bg.mp4"
-      parallaxIntensity={0.3}
-      scaleRange={[1.15, 1]}
-      rotateOnScroll
-      direction="up"
-      minHeight="100vh"
-      padding="6rem 1.5rem 4rem"
-      overlay="linear-gradient(to bottom, rgba(5,5,5,0.45) 0%, rgba(5,5,5,0.85) 100%)"
+      height="200vh"
+      opacity={0.5}
+      overlay="linear-gradient(to bottom, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.85) 100%)"
     >
-      {/* Particle brain — between video and content */}
+      {/* Particle brain — between video and text (z-index 5) */}
       {showBrain && (
         <Suspense fallback={null}>
-          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 5 }}>
+          <div style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
             <Canvas
               camera={{ position: [0, 0, 5], fov: 60 }}
               dpr={[1, 1.5]}
@@ -215,39 +217,62 @@ export default function Hero() {
         </Suspense>
       )}
 
-      {/* Content — above the brain */}
+      {/* Content (z-index 10) */}
       <div
-        className="relative w-full flex flex-col items-center text-center mx-auto"
-        style={{ zIndex: 10, maxWidth: 900, gap: '2rem', minHeight: '88vh', justifyContent: 'center', display: 'flex' }}
+        style={{
+          position: 'relative',
+          zIndex: 10,
+          width: '100%',
+          maxWidth: 900,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          gap: '2rem',
+          padding: '0 1.5rem',
+        }}
       >
-        <motion.div {...fadeIn(0.3)} className="flex items-center justify-center gap-3">
-          <div className="h-px w-8" style={{ background: 'rgba(0,212,170,0.3)' }} />
-          <span className="text-[11px] font-mono uppercase" style={{ color: '#00D4AA', letterSpacing: '0.4em' }}>
+        <motion.div {...fadeIn(0.3)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
+          <div style={{ height: 1, width: 32, background: 'rgba(0,212,170,0.3)' }} />
+          <span style={{ fontSize: 11, fontFamily: 'monospace', textTransform: 'uppercase', color: '#00D4AA', letterSpacing: '0.4em' }}>
             Autonomous AI Platform
           </span>
-          <div className="h-px w-8" style={{ background: 'rgba(0,212,170,0.3)' }} />
+          <div style={{ height: 1, width: 32, background: 'rgba(0,212,170,0.3)' }} />
         </motion.div>
 
-        <h1 className="font-[800]" style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', letterSpacing: '-0.03em', lineHeight: 1.05 }}>
-          <motion.span {...titleAnim(0.6)} className="block" style={{ color: '#F0F0F5' }}>
+        <h1 style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.05 }}>
+          <motion.span {...titleAnim(0.6)} style={{ display: 'block', color: '#F0F0F5' }}>
             One System.
           </motion.span>
-          <motion.span {...titleAnim(0.9, true)} className="block gradient-text" style={{ display: 'inline-block' }}>
+          <motion.span
+            {...titleAnim(0.9, true)}
+            className="gradient-text"
+            style={{ display: 'inline-block' }}
+          >
             Every Department.
           </motion.span>
         </h1>
 
-        <motion.p {...fadeIn(1.2)} className="max-w-[600px] mx-auto" style={{ color: '#8A8F98', fontSize: '1.1rem', lineHeight: 1.7 }}>
+        <motion.p {...fadeIn(1.2)} style={{ color: '#8A8F98', fontSize: '1.1rem', lineHeight: 1.7, maxWidth: 600 }}>
           Sales, marketing, HR, and operations &mdash; all managed by AI that thinks, decides, and executes.
         </motion.p>
 
-        <motion.div {...fadeIn(1.6)} className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <motion.div {...fadeIn(1.6)} style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
           <motion.button
             onClick={() => navigateToDemo('hero_start_free_trial')}
             whileHover={{ scale: 1.04, background: '#00E8BB', boxShadow: '0 0 30px rgba(0,212,170,0.35)' }}
             whileTap={{ scale: 0.97 }}
-            className="px-8 py-3.5 rounded-lg font-medium text-sm cursor-pointer border-none"
-            style={{ background: '#00D4AA', color: '#050505', transition: 'background 0.2s' }}
+            style={{
+              background: '#00D4AA',
+              color: '#050505',
+              padding: '14px 32px',
+              borderRadius: 8,
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
           >
             Start Free Trial
           </motion.button>
@@ -255,25 +280,33 @@ export default function Hero() {
             onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
             whileHover={{ borderColor: '#00D4AA', color: '#F0F0F5' }}
             whileTap={{ scale: 0.97 }}
-            className="px-8 py-3.5 rounded-lg font-medium text-sm cursor-pointer bg-transparent"
-            style={{ color: '#8A8F98', border: '1px solid #2A2A38' }}
+            style={{
+              background: 'transparent',
+              color: '#8A8F98',
+              border: '1px solid #2A2A38',
+              padding: '14px 32px',
+              borderRadius: 8,
+              fontWeight: 500,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+            }}
           >
             See the Architecture
           </motion.button>
         </motion.div>
 
-        <motion.div {...fadeIn(2.0)} className="flex items-center justify-center flex-wrap" style={{ gap: '2.5rem' }}>
+        <motion.div {...fadeIn(2.0)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '2.5rem' }}>
           <AnimatedStat value={6} label="INDUSTRIES" />
-          <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
+          <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
           <AnimatedStat value={100} label="AUTONOMOUS" suffix="%" />
-          <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
+          <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
           <AnimatedStat value={0} label="MANUAL LABOR" prefix="$" />
-          <div className="w-px h-8 hidden sm:block" style={{ background: '#1A1A24' }} />
+          <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
           <AnimatedStat value={24} label="AI OPERATIONS" suffix="/7" />
         </motion.div>
       </div>
 
       <ScrollIndicator />
-    </VideoScene>
+    </ScrubVideoScene>
   )
 }

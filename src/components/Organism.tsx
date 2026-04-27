@@ -2,7 +2,7 @@ import { useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
-import VideoScene from './VideoScene'
+import ScrubVideoScene from './ScrubVideoScene'
 
 const nodes = [
   { label: 'Sales', color: '#00D4AA', angle: 0, speed: 0.4, radius: 2.0 },
@@ -162,16 +162,12 @@ export default function Organism() {
   const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
   return (
-    <VideoScene
+    <ScrubVideoScene
       id="how-it-works"
       src="/videos/organism-bg.mp4"
-      direction="right"
-      parallaxIntensity={0.25}
-      scaleRange={[1.1, 1]}
-      rotateOnScroll
-      minHeight="100vh"
-      padding="8rem 0"
-      overlay="linear-gradient(to bottom, rgba(5,5,5,0.65) 0%, rgba(5,5,5,0.85) 100%)"
+      height="180vh"
+      opacity={0.45}
+      overlay="linear-gradient(to bottom, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.85) 100%)"
     >
       {/* Drawing line at top */}
       <motion.div
@@ -228,6 +224,6 @@ export default function Organism() {
           </motion.div>
         </div>
       </div>
-    </VideoScene>
+    </ScrubVideoScene>
   )
 }

@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
 import { usePrefersReducedMotion } from '../utils/animations'
-import VideoScene from './VideoScene'
+import ScrubVideoScene from './ScrubVideoScene'
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
@@ -74,15 +74,11 @@ function MagneticButton({
 
 export default function CTA() {
   return (
-    <VideoScene
+    <ScrubVideoScene
       src="/videos/cta-bg.mp4"
-      direction="up"
-      parallaxIntensity={0.15}
-      scaleRange={[1, 1.15]}        // zoom IN as we scroll — feels like approaching
-      rotateOnScroll
-      minHeight="85vh"
-      padding="10rem 0"
-      overlay="radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5,5,5,0.65) 0%, rgba(5,5,5,0.92) 70%)"
+      height="160vh"
+      opacity={0.5}
+      overlay="radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.92) 70%)"
     >
       <div className="relative z-10 max-w-[820px] mx-auto text-center px-6 md:px-12 w-full">
         <motion.div
@@ -150,6 +146,6 @@ export default function CTA() {
           Starting at $199/month
         </motion.p>
       </div>
-    </VideoScene>
+    </ScrubVideoScene>
   )
 }

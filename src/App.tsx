@@ -31,7 +31,7 @@ export default function App() {
   }, [reducedMotion])
 
   return (
-    <div className="min-h-screen" style={{ background: '#050505' }}>
+    <div style={{ minHeight: '100vh', background: '#050505' }}>
       <AnimatePresence>
         {loading && <LoadingScreen key="loader" />}
       </AnimatePresence>
@@ -39,43 +39,36 @@ export default function App() {
       <CustomCursor />
       <Navbar />
 
-      {/* SCENE 1 — HERO: video zooms out + tilts (departing) */}
+      {/* SCENE 1 — HERO: scroll-scrub video (200vh sticky) */}
       <Hero />
 
-      {/* SCENE 2 — STORY 1: video slides LEFT (traveling) */}
+      {/* SCENE 2 — STORY 1: scroll-scrub video */}
       <StoryBeat
         videoSrc="/videos/story1-bg.mp4"
-        direction="left"
-        scaleRange={[1.2, 1.05]}
-        parallaxIntensity={0.25}
-        minHeight="80vh"
+        videoHeight="150vh"
         lines={[
           { text: 'Traditional SaaS connects your apps.' },
           { text: 'We replaced them entirely.', accent: true },
         ]}
       />
 
-      {/* SCENE 3 — ORGANISM: video slides RIGHT (arriving) */}
+      {/* SCENE 3 — ORGANISM: scroll-scrub video + R3F orbital scene */}
       <Organism />
 
-      {/* SCENE 4 — STORY 2: deep parallax (diving deeper) */}
+      {/* SCENE 4 — STORY 2: scroll-scrub video */}
       <StoryBeat
         videoSrc="/videos/transition-bg.mp4"
-        direction="up"
-        scaleRange={[1.25, 1]}
-        parallaxIntensity={0.4}
-        rotateOnScroll
-        minHeight="70vh"
+        videoHeight="150vh"
         lines={[
           { text: 'Four intelligences.' },
           { text: 'Working as one.', accent: true },
         ]}
       />
 
-      {/* SCENE 5 — MODULES: clean dark, no video (readability priority) */}
+      {/* SCENE 5 — MODULES: clean (no video) */}
       <Modules />
 
-      {/* Story Beat — clean (no video) for breathing room */}
+      {/* Story Beat — clean */}
       <StoryBeat
         lines={[
           { text: 'Built for YOUR industry.' },
@@ -83,10 +76,10 @@ export default function App() {
         ]}
       />
 
-      {/* SCENE 6 — INDUSTRIES: video slides LEFT (scanning across) */}
+      {/* SCENE 6 — INDUSTRIES: kept as VideoScene (autoplay parallax for smaller scene) */}
       <Industries />
 
-      {/* Story Beat — clean before pricing */}
+      {/* Story Beat — clean */}
       <StoryBeat
         lines={[
           { text: 'The ROI of autonomy?' },
@@ -94,10 +87,10 @@ export default function App() {
         ]}
       />
 
-      {/* SCENE 7 — PRICING: clean dark, no video */}
+      {/* SCENE 7 — PRICING: clean (no video) */}
       <Pricing />
 
-      {/* SCENE 8 — CTA: video zooms IN (approaching power) */}
+      {/* SCENE 8 — CTA: scroll-scrub video */}
       <CTA />
 
       {/* SCENE 9 — FOOTER */}
