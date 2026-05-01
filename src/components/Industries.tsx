@@ -1,7 +1,6 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { usePrefersReducedMotion } from '../utils/animations'
-import VideoScene from './VideoScene'
 
 const industries = [
   {
@@ -74,9 +73,7 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
         className="group relative rounded-xl overflow-hidden"
         style={{
           padding: '2rem 2rem 2rem 2.5rem',
-          background: 'rgba(10, 10, 15, 0.75)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
+          background: '#0A0A0F',
           border: '1px solid #1A1A24',
           transformStyle: 'preserve-3d',
           transition: 'transform 0.2s ease-out, border-color 0.3s ease, box-shadow 0.3s ease',
@@ -130,15 +127,16 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
 
 export default function Industries() {
   return (
-    <VideoScene
+    <section
       id="industries"
-      src="/videos/industries-bg.mp4"
-      direction="left"
-      parallaxIntensity={0.2}
-      scaleRange={[1.1, 1]}
-      minHeight="100vh"
-      padding="8rem 0"
-      overlay="linear-gradient(to bottom, rgba(5,5,5,0.6) 0%, rgba(5,5,5,0.85) 100%)"
+      style={{
+        position: 'relative',
+        background: '#050505',
+        minHeight: '100vh',
+        padding: '8rem 0',
+        zIndex: 2,
+        overflow: 'hidden',
+      }}
     >
       {/* Scan line — sweeps across once on view */}
       <motion.div
@@ -187,6 +185,6 @@ export default function Industries() {
           ))}
         </div>
       </div>
-    </VideoScene>
+    </section>
   )
 }

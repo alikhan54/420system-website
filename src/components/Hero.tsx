@@ -3,12 +3,12 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { motion } from 'framer-motion'
 import { navigateToDemo } from '../utils/tracking'
-import { useInView, useCountUp, usePrefersReducedMotion } from '../utils/animations'
+import { usePrefersReducedMotion } from '../utils/animations'
 import ScrubVideoScene from './ScrubVideoScene'
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
-/* Particle brain — sits between video and text */
+/* Particle brain */
 function ParticleBrain({ count = 1200 }: { count?: number }) {
   const meshRef = useRef<THREE.Points>(null)
   const mouseRef = useRef({ x: 0, y: 0 })
@@ -31,9 +31,8 @@ function ParticleBrain({ count = 1200 }: { count?: number }) {
       pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
       pos[i * 3 + 2] = r * Math.cos(phi)
 
-      const distFromCore = Math.sqrt(pos[i * 3] ** 2 + pos[i * 3 + 1] ** 2 + pos[i * 3 + 2] ** 2)
-      const brightness = Math.max(0.5, 1.4 - distFromCore / 3.5)
-
+      const dist = Math.sqrt(pos[i * 3] ** 2 + pos[i * 3 + 1] ** 2 + pos[i * 3 + 2] ** 2)
+      const brightness = Math.max(0.5, 1.4 - dist / 3.5)
       const rand = Math.random()
       const ci = rand < weights[0] ? 0 : rand < weights[1] ? 1 : 2
       const c = palette[ci]
@@ -45,12 +44,12 @@ function ParticleBrain({ count = 1200 }: { count?: number }) {
   }, [count])
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const onMove = (e: MouseEvent) => {
       mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1
       mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1
     }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mousemove', onMove)
+    return () => window.removeEventListener('mousemove', onMove)
   }, [])
 
   useFrame((state) => {
@@ -67,10 +66,10 @@ function ParticleBrain({ count = 1200 }: { count?: number }) {
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.02}
+        size={0.022}
         vertexColors
         transparent
-        opacity={0.7}
+        opacity={0.8}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -89,63 +88,14 @@ function Core() {
   return (
     <>
       <mesh ref={ref}>
-        <sphereGeometry args={[0.08, 24, 24]} />
+        <sphereGeometry args={[0.1, 24, 24]} />
         <meshBasicMaterial color="#00D4AA" transparent opacity={0.95} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[0.4, 24, 24]} />
-        <meshBasicMaterial color="#00D4AA" transparent opacity={0.12} blending={THREE.AdditiveBlending} />
+        <sphereGeometry args={[0.45, 24, 24]} />
+        <meshBasicMaterial color="#00D4AA" transparent opacity={0.13} blending={THREE.AdditiveBlending} />
       </mesh>
     </>
-  )
-}
-
-function AnimatedStat({ value, label, suffix = '', prefix = '' }: {
-  value: number; label: string; suffix?: string; prefix?: string
-}) {
-  const { ref, inView } = useInView(0.5)
-  const count = useCountUp(value, inView)
-  return (
-    <div ref={ref} className="text-center">
-      <div className="font-heading font-bold" style={{ color: '#F0F0F5', fontSize: '1.25rem', fontVariantNumeric: 'tabular-nums' }}>
-        {prefix}{count}{suffix}
-      </div>
-      <div className="text-xs mt-1" style={{ color: '#4A4F58', letterSpacing: '0.1em' }}>{label}</div>
-    </div>
-  )
-}
-
-function ScrollIndicator() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 0.6 }}
-      transition={{ delay: 2.6, duration: 0.6 }}
-      style={{
-        position: 'absolute',
-        bottom: '2rem',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '0.5rem',
-        zIndex: 20,
-        pointerEvents: 'none',
-      }}
-    >
-      <span style={{ fontSize: '10px', fontFamily: 'monospace', letterSpacing: '0.4em', textTransform: 'uppercase', color: '#4A4F58' }}>
-        Scroll
-      </span>
-      <motion.svg
-        width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="#00D4AA" strokeWidth="1.5"
-        animate={{ y: [0, 6, 0] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <path d="M6 9l6 6 6-6" />
-      </motion.svg>
-    </motion.div>
   )
 }
 
@@ -161,10 +111,12 @@ export default function Hero() {
   }, [])
 
   const isMobile = screenWidth < 768
-  const showBrain = !isMobile && !reducedMotion
-  const particleCount = screenWidth < 1024 ? 700 : 1200
+  const isTablet = screenWidth < 1024
+  const showBrain = !reducedMotion
+  const particleCount = isTablet ? 700 : 1200
 
-  const titleAnim = (delay: number, withGlow = false) => ({
+  // Word-by-word stagger for "One System." and "Every Department."
+  const lineVariants = (delay: number, withGlow = false) => ({
     initial: { opacity: 0, y: 50 },
     animate: {
       opacity: 1,
@@ -172,8 +124,8 @@ export default function Hero() {
       ...(withGlow && {
         textShadow: [
           '0 0 0px rgba(0,212,170,0)',
-          '0 0 80px rgba(0,212,170,0.7)',
-          '0 0 40px rgba(0,212,170,0.3)',
+          '0 0 60px rgba(0,212,170,0.6)',
+          '0 0 30px rgba(0,212,170,0.25)',
         ],
       }),
     },
@@ -196,163 +148,157 @@ export default function Hero() {
   return (
     <ScrubVideoScene
       src="/videos/hero-bg.mp4"
-      height="200vh"
-      opacity={0.5}
-      overlay="linear-gradient(to bottom, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.85) 100%)"
+      height="180vh"
+      opacity={0.4}
+      overlay="linear-gradient(to right, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.65) 50%, rgba(5,5,5,0.4) 100%)"
     >
-      {/* Particle brain — between video and text (z-index 5) */}
-      {showBrain && (
-        <Suspense fallback={null}>
-          <div style={{ position: 'absolute', inset: 0, zIndex: 5, pointerEvents: 'none' }}>
-            <Canvas
-              camera={{ position: [0, 0, 5], fov: 60 }}
-              dpr={[1, 1.5]}
-              style={{ background: 'transparent' }}
-            >
-              <ambientLight intensity={0.5} />
-              <ParticleBrain count={particleCount} />
-              <Core />
-            </Canvas>
-          </div>
-        </Suspense>
-      )}
-
-      {/* Content (z-index 10) */}
       <div
         style={{
           position: 'relative',
           zIndex: 10,
           width: '100%',
-          maxWidth: 900,
-          display: 'flex',
-          flexDirection: 'column',
+          maxWidth: 1280,
+          padding: '0 clamp(1.5rem, 5vw, 4rem)',
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '45fr 55fr',
+          gap: 'clamp(2rem, 4vw, 4rem)',
           alignItems: 'center',
-          textAlign: 'center',
-          gap: '2rem',
-          padding: '0 1.5rem',
         }}
       >
-        <motion.div {...fadeIn(0.3)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
-          <div style={{ height: 1, width: 32, background: 'rgba(0,212,170,0.3)' }} />
-          <span style={{ fontSize: 11, fontFamily: 'monospace', textTransform: 'uppercase', color: '#00D4AA', letterSpacing: '0.4em' }}>
-            Autonomous AI Platform
-          </span>
-          <div style={{ height: 1, width: 32, background: 'rgba(0,212,170,0.3)' }} />
-        </motion.div>
-
-        <h1 style={{ fontSize: 'clamp(3rem, 8vw, 7rem)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.05 }}>
-          <motion.span {...titleAnim(0.6)} style={{ display: 'block', color: '#F0F0F5' }}>
-            One System.
-          </motion.span>
-          <motion.span
-            {...titleAnim(0.9, true)}
-            className="gradient-text"
-            style={{ display: 'inline-block' }}
-          >
-            Every Department.
-          </motion.span>
-        </h1>
-
-        <motion.p {...fadeIn(1.2)} style={{ color: '#8A8F98', fontSize: '1.1rem', lineHeight: 1.7, maxWidth: 600 }}>
-          Sales, marketing, HR, and operations &mdash; all managed by AI that thinks, decides, and executes.
-        </motion.p>
-
-        <motion.div {...fadeIn(1.6)} style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-          <motion.button
-            onClick={() => navigateToDemo('hero_start_free_trial')}
-            whileHover={{ scale: 1.04, background: '#00E8BB', boxShadow: '0 0 30px rgba(0,212,170,0.35)' }}
-            whileTap={{ scale: 0.97 }}
-            style={{
-              background: '#00D4AA',
-              color: '#050505',
-              padding: '14px 32px',
-              borderRadius: 8,
-              fontWeight: 600,
-              fontSize: '0.875rem',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
-            }}
-          >
-            Start Free Trial
-          </motion.button>
-          <motion.button
-            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-            whileHover={{ borderColor: '#00D4AA', color: '#F0F0F5' }}
-            whileTap={{ scale: 0.97 }}
-            style={{
-              background: 'transparent',
-              color: '#8A8F98',
-              border: '1px solid #2A2A38',
-              padding: '14px 32px',
-              borderRadius: 8,
-              fontWeight: 500,
-              fontSize: '0.875rem',
-              cursor: 'pointer',
-            }}
-          >
-            See the Architecture
-          </motion.button>
-        </motion.div>
-
-        {/* Live AI pill — tap to call */}
-        <motion.a
-          {...fadeIn(1.85)}
-          href="tel:+14048192917"
-          onClick={() => navigateToDemo('hero_call_ai')}
-          whileHover={{ scale: 1.03, borderColor: 'rgba(0,212,170,0.6)' }}
-          whileTap={{ scale: 0.97 }}
+        {/* LEFT — text */}
+        <div
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            padding: '0.65rem 1.1rem',
-            borderRadius: 999,
-            background: 'rgba(0, 212, 170, 0.06)',
-            border: '1px solid rgba(0, 212, 170, 0.25)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            textDecoration: 'none',
-            cursor: 'pointer',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: isMobile ? 'center' : 'flex-start',
+            textAlign: isMobile ? 'center' : 'left',
+            gap: '1.75rem',
           }}
         >
-          <span
+          <h1
             style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: '#00D4AA',
-              animation: 'livePulse 1.6s ease-in-out infinite',
-              flexShrink: 0,
+              fontSize: 'clamp(3.5rem, 8vw, 7rem)',
+              fontWeight: 800,
+              letterSpacing: '-0.03em',
+              lineHeight: 1.05,
+              margin: 0,
             }}
-          />
-          <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', letterSpacing: '0.18em', textTransform: 'uppercase', color: '#00D4AA' }}>
-            Live AI &middot;
-          </span>
-          <span style={{ fontSize: '0.85rem', color: '#F0F0F5', fontWeight: 500 }}>
-            +1 (404) 819-2917
-          </span>
-        </motion.a>
+          >
+            <motion.span {...lineVariants(0.4)} style={{ display: 'block', color: '#F0F0F5' }}>
+              One System.
+            </motion.span>
+            <motion.span
+              {...lineVariants(0.7, true)}
+              className="gradient-text"
+              style={{ display: 'block' }}
+            >
+              Every Department.
+            </motion.span>
+          </h1>
 
-        <style>{`
-          @keyframes livePulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.5); transform: scale(1); }
-            50% { box-shadow: 0 0 0 8px rgba(0,212,170,0); transform: scale(1.2); }
-          }
-        `}</style>
+          <motion.p
+            {...fadeIn(1.1)}
+            style={{
+              color: '#8A8F98',
+              fontSize: '1.1rem',
+              lineHeight: 1.7,
+              maxWidth: 520,
+              margin: 0,
+            }}
+          >
+            AI that thinks, decides, and executes &mdash; across your entire business.
+          </motion.p>
 
-        <motion.div {...fadeIn(2.0)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '2.5rem' }}>
-          <AnimatedStat value={6} label="INDUSTRIES" />
-          <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
-          <AnimatedStat value={100} label="AUTONOMOUS" suffix="%" />
-          <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
-          <AnimatedStat value={0} label="MANUAL LABOR" prefix="$" />
-          <div style={{ width: 1, height: 32, background: '#1A1A24' }} className="hidden sm:block" />
-          <AnimatedStat value={24} label="AI OPERATIONS" suffix="/7" />
-        </motion.div>
+          <motion.div
+            {...fadeIn(1.4)}
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center' }}
+          >
+            <motion.button
+              onClick={() => navigateToDemo('hero_start_free_trial')}
+              whileHover={{ scale: 1.04, background: '#00E8BB', boxShadow: '0 0 30px rgba(0,212,170,0.35)' }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                background: '#00D4AA',
+                color: '#050505',
+                padding: '14px 28px',
+                borderRadius: 8,
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background 0.2s, box-shadow 0.2s',
+              }}
+            >
+              Start Free Trial
+            </motion.button>
+            <motion.a
+              href="tel:+14048192917"
+              onClick={() => navigateToDemo('hero_call_ai')}
+              whileHover={{ borderColor: '#00D4AA', color: '#F0F0F5' }}
+              whileTap={{ scale: 0.97 }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                background: 'transparent',
+                color: '#8A8F98',
+                border: '1px solid #2A2A38',
+                padding: '14px 24px',
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                transition: 'border-color 0.2s, color 0.2s',
+              }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: '#00D4AA',
+                  animation: 'livePulse 1.6s ease-in-out infinite',
+                  flexShrink: 0,
+                  marginRight: '0.25rem',
+                }}
+              />
+              Talk to our AI &rarr;
+            </motion.a>
+          </motion.div>
+        </div>
+
+        {/* RIGHT — R3F particle brain */}
+        {showBrain && !isMobile && (
+          <Suspense fallback={null}>
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                aspectRatio: '1 / 1',
+                maxHeight: '70vh',
+              }}
+            >
+              <Canvas
+                camera={{ position: [0, 0, 5], fov: 60 }}
+                dpr={[1, 1.5]}
+                style={{ background: 'transparent', pointerEvents: 'none' }}
+              >
+                <ambientLight intensity={0.5} />
+                <ParticleBrain count={particleCount} />
+                <Core />
+              </Canvas>
+            </div>
+          </Suspense>
+        )}
       </div>
 
-      <ScrollIndicator />
+      <style>{`
+        @keyframes livePulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,170,0.5); transform: scale(1); }
+          50% { box-shadow: 0 0 0 6px rgba(0,212,170,0); transform: scale(1.2); }
+        }
+      `}</style>
     </ScrubVideoScene>
   )
 }
