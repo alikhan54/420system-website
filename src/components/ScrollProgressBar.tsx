@@ -34,7 +34,7 @@ export default function ScrollProgressBar() {
         top: 0,
         left: 0,
         right: 0,
-        height: 2,
+        height: 3,
         zIndex: 9996,
         pointerEvents: 'none',
         background: 'transparent',
@@ -49,7 +49,7 @@ export default function ScrollProgressBar() {
           transformOrigin: 'left',
           transform: 'scaleX(0)',
           willChange: 'transform',
-          boxShadow: '0 0 8px rgba(0,212,170,0.4)',
+          boxShadow: '0 0 10px rgba(0,212,170,0.5)',
         }}
       />
     </div>

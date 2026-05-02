@@ -115,7 +115,18 @@ function OrbitalScene() {
 
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: 480, margin: '0 auto', aspectRatio: '1' }}>
-      <Canvas camera={{ position: [0, 1.5, 6] }} dpr={[1, 1.5]}>
+      {/* Radial glow BEHIND canvas — creates depth */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: '-10%',
+          pointerEvents: 'none',
+          background: 'radial-gradient(circle, rgba(0,212,170,0.07) 0%, rgba(0,180,216,0.03) 40%, transparent 70%)',
+          filter: 'blur(20px)',
+          zIndex: 0,
+        }}
+      />
+      <Canvas camera={{ position: [0, 1.5, 6] }} dpr={[1, 1.5]} style={{ position: 'relative', zIndex: 1 }}>
         <Environment preset="night" />
         <ambientLight intensity={0.35} />
         <pointLight position={[5, 5, 5]} intensity={1} color="#00D4AA" />

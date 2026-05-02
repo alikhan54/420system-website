@@ -16,20 +16,37 @@ export default function Problem() {
 
     const ctx = gsap.context(() => {
       const lines = gsap.utils.toArray<HTMLElement>('.problem-line')
-      gsap.set(lines, { opacity: 0, y: 30 })
+      const underline = section.querySelector<HTMLElement>('.problem-underline')
 
-      gsap.to(lines, {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        stagger: 0.3,
-        ease: 'power2.out',
+      gsap.set(lines, { opacity: 0, y: 30 })
+      if (underline) gsap.set(underline, { width: 0 })
+
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: 'top 70%',
-          toggleActions: 'play none none reverse',
+          toggleActions: 'play none none none',
         },
       })
+
+      tl.to(lines, {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        stagger: 0.4,
+        ease: 'power2.out',
+      })
+      if (underline) {
+        tl.to(
+          underline,
+          {
+            width: 200,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          '-=0.2'
+        )
+      }
     }, section)
 
     return () => ctx.revert()
@@ -50,20 +67,34 @@ export default function Problem() {
         zIndex: 2,
       }}
     >
+      {/* Subtle vertical fade vignette */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          pointerEvents: 'none',
+          background:
+            'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(0,212,170,0.025) 0%, transparent 60%)',
+        }}
+      />
+
       <div
         style={{
           maxWidth: 900,
           width: '100%',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem',
+          alignItems: 'center',
+          gap: '0.6rem',
           textAlign: 'center',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <p
           className="problem-line"
           style={{
-            fontSize: 'clamp(1.5rem, 4vw, 3rem)',
+            fontSize: 'clamp(1.3rem, 3vw, 2rem)',
             color: '#4A4F58',
             fontWeight: 400,
             letterSpacing: '-0.01em',
@@ -76,12 +107,12 @@ export default function Problem() {
         <p
           className="problem-line"
           style={{
-            fontSize: 'clamp(1.5rem, 4vw, 3rem)',
-            color: '#8A8F98',
-            fontWeight: 500,
-            letterSpacing: '-0.01em',
+            fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+            color: '#F0F0F5',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
             margin: 0,
-            lineHeight: 1.3,
+            lineHeight: 1.25,
           }}
         >
           47 disconnected tools.
@@ -89,17 +120,29 @@ export default function Problem() {
         <p
           className="problem-line"
           style={{
-            fontSize: 'clamp(2rem, 5vw, 4rem)',
+            fontSize: 'clamp(2.2rem, 5vw, 4rem)',
             color: '#00D4AA',
             fontWeight: 800,
-            letterSpacing: '-0.02em',
+            letterSpacing: '-0.025em',
             margin: '1.5rem 0 0',
-            lineHeight: 1.2,
-            textShadow: '0 0 40px rgba(0,212,170,0.25)',
+            lineHeight: 1.15,
+            textShadow: '0 0 60px rgba(0,212,170,0.3)',
           }}
         >
           We replaced all of them.
         </p>
+
+        {/* Animated underline of confidence */}
+        <div
+          className="problem-underline"
+          style={{
+            height: 2,
+            background: 'rgba(0, 212, 170, 0.3)',
+            borderRadius: 2,
+            marginTop: '1.5rem',
+            boxShadow: '0 0 20px rgba(0,212,170,0.4)',
+          }}
+        />
       </div>
     </section>
   )

@@ -73,7 +73,7 @@ const modules: ModuleData[] = [
       'Cross-department workflow orchestration',
     ],
     stat: 'Zero downtime. Zero excuses.',
-    accent: '#00D4AA',
+    accent: '#F59E0B',
   },
 ]
 
@@ -120,6 +120,15 @@ function ModuleCard({
     if (cardRef.current) cardRef.current.style.transform = 'perspective(800px) rotateY(0) rotateX(0)'
   }
 
+  // Hex accent → rgba helper (for hover glow)
+  const hexToRgba = (hex: string, a: number) => {
+    const h = hex.replace('#', '')
+    const r = parseInt(h.slice(0, 2), 16)
+    const g = parseInt(h.slice(2, 4), 16)
+    const b = parseInt(h.slice(4, 6), 16)
+    return `rgba(${r},${g},${b},${a})`
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -128,6 +137,15 @@ function ModuleCard({
       transition={{ delay: index * 0.15, duration: 0.6, ease: EASE }}
       className="ze-conic-wrapper"
       style={{ position: 'relative', borderRadius: 12 }}
+      whileHover={
+        expanded
+          ? {}
+          : {
+              y: -6,
+              boxShadow: `0 20px 60px ${hexToRgba(mod.accent, 0.12)}`,
+              transition: { duration: 0.3, ease: 'easeOut' },
+            }
+      }
     >
       <div
         ref={cardRef}
@@ -138,11 +156,11 @@ function ModuleCard({
         style={{
           padding: 'clamp(1.5rem, 2.5vw, 2.25rem)',
           background: '#0A0A0F',
-          border: expanded ? `1px solid ${mod.accent}66` : '1px solid #1A1A24',
+          border: expanded ? `1px solid ${mod.accent}66` : `1px solid ${dimmed ? '#1A1A24' : '#1A1A24'}`,
           borderLeft: expanded ? `3px solid ${mod.accent}` : '1px solid #1A1A24',
           boxShadow: expanded ? `0 0 50px ${mod.accent}22` : 'none',
           opacity: dimmed ? 0.5 : 1,
-          transition: 'opacity 0.3s, border 0.3s, box-shadow 0.3s',
+          transition: 'opacity 0.3s, border 0.3s, box-shadow 0.3s, border-color 0.3s',
           transformStyle: 'preserve-3d',
           willChange: 'transform',
         }}
@@ -256,8 +274,8 @@ export default function Modules() {
           <h2
             className="font-[800]"
             style={{
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              letterSpacing: '-0.02em',
+              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              letterSpacing: '-0.025em',
               lineHeight: 1.1,
               color: '#F0F0F5',
             }}
@@ -265,10 +283,10 @@ export default function Modules() {
             Four brains. <span style={{ color: '#00D4AA' }}>One mind.</span>
           </h2>
           <p
-            className="mt-4 max-w-md mx-auto text-sm"
-            style={{ color: '#8A8F98', lineHeight: 1.7 }}
+            className="mt-4 max-w-md mx-auto"
+            style={{ color: '#4A4F58', lineHeight: 1.7, fontSize: '0.875rem', letterSpacing: '0.02em' }}
           >
-            Click any module to explore its AI capabilities.
+            Click to explore each intelligence
           </p>
         </motion.div>
 
