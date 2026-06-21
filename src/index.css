@@ -199,3 +199,97 @@ p { max-width: 65ch; }
 
 /* Native scroll — keep default (no smooth-scroll override; conflicts with anchor + JS scroll) */
 html { scroll-behavior: auto; }
+
+/* ============================================================================
+   OMEGA — Cinematic V4 foundation (Phase 1)  ·  APPENDED, nothing above changed.
+   All atmosphere is scoped under html[data-omega] (set only on OMEGA routes) so
+   the existing production landing page is left 100% untouched.
+   ============================================================================ */
+@theme {
+  /* Display + body faces — Fraunces (editorial-cosmic) hero, Hanken body.
+     Never Inter/Roboto as the hero (frontend-design rule). Names are new /
+     namespaced so existing --color-*/--font-* tokens are NOT overridden. */
+  --font-display:     "Fraunces", "Bricolage Grotesque", Georgia, serif;
+  --font-sans-omega:  "Hanken Grotesk", "Work Sans", system-ui, sans-serif;
+
+  /* Fluid type scale — clamp(min, rem-floor + vw-slope, max). */
+  --text-kicker: 0.8125rem;
+  --text-body:   clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  --text-lead:   clamp(1.25rem, 1.1rem + 0.7vw, 1.5rem);
+  --text-h2:     clamp(2rem, 1.4rem + 3vw, 4rem);
+  --text-h1:     clamp(3rem, 1.6rem + 7vw, 8rem);
+  --text-hero:   clamp(3.5rem, 1rem + 12vw, 12rem);
+
+  /* Premium easing tokens (DESIGN_SYSTEM §4.1) */
+  --ease-expo-out:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-power3-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-back-out:   cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Home-base palette (Deep-Space Ink) — OKLCH, tinted-black (never #000). */
+  --color-omega-bg:      oklch(0.08 0.012 265);
+  --color-omega-surface: oklch(0.14 0.018 265);
+  --color-omega-text:    oklch(0.82 0.012 265);
+  --color-omega-accent:  oklch(0.86 0.13 215);
+
+  --radius-card: 1.25rem;
+}
+
+/* Registered @property color vars so the browser can interpolate them. */
+@property --scene-bg     { syntax: "<color>"; inherits: true; initial-value: #05060A; }
+@property --scene-accent { syntax: "<color>"; inherits: true; initial-value: #6EE7FF; }
+@property --scene-glow   { syntax: "<color>"; inherits: true; initial-value: #6EE7FF; }
+
+/* Atmosphere ACTIVE only on OMEGA routes (data-omega set by the page).
+   The CSS transition smooths every scene crossfade; reduced-motion → instant. */
+html[data-omega] {
+  --scene-bg: #05060A;
+  --scene-accent: #6EE7FF;
+  --scene-glow: #6EE7FF;
+  background: var(--scene-bg);
+  transition:
+    --scene-bg 700ms var(--ease-power3-out),
+    --scene-accent 700ms var(--ease-power3-out),
+    --scene-glow 700ms var(--ease-power3-out);
+}
+html[data-omega] body { background: transparent; }
+
+/* The 8 per-scene atmospheres. Only match elements carrying data-scene, which
+   exist solely inside OMEGA pages — so this never touches the landing. */
+[data-scene="home"]     { --scene-bg:#05060A; --scene-accent:#6EE7FF; --scene-glow:#6EE7FF; }
+[data-scene="think"]    { --scene-bg:#04100F; --scene-accent:#14B8A6; --scene-glow:#5EEAD4; }
+[data-scene="act"]      { --scene-bg:#120804; --scene-accent:#F97316; --scene-glow:#FBBF24; }
+[data-scene="graphite"] { --scene-bg:#0F1115; --scene-accent:#8A909C; --scene-glow:#8A909C; }
+[data-scene="auto"]     { --scene-bg:#0A0612; --scene-accent:#8B5CF6; --scene-glow:#C084FC; }
+[data-scene="truth"]    { --scene-bg:#F4F6F8; --scene-accent:#0EA5E9; --scene-glow:#0EA5E9; }
+[data-scene="synapse"]  { --scene-bg:#0E040B; --scene-accent:#EC4899; --scene-glow:#F9A8D4; }
+[data-scene="dawn"]     { --scene-bg:#1B1033; --scene-accent:#FBC78A; --scene-glow:#E8806B; }
+
+/* Display-type utilities — huge type wants NEGATIVE tracking + tight leading. */
+.u-hero   { font-size: var(--text-hero);  letter-spacing: -0.04em; line-height: 0.9;  font-family: var(--font-display); }
+.u-h1     { font-size: var(--text-h1);    letter-spacing: -0.03em; line-height: 0.95; font-family: var(--font-display); }
+.u-body   { font-size: var(--text-body);  line-height: 1.6; max-inline-size: 68ch; font-family: var(--font-sans-omega); }
+.u-kicker { font-size: var(--text-kicker); font-family: var(--font-mono); letter-spacing: 0.18em; text-transform: uppercase; }
+
+/* Gradient-mesh aurora — reads the scene accent/glow, drifts slowly. */
+.omega-aurora {
+  position: fixed; inset: -20%; z-index: -5; pointer-events: none;
+  filter: blur(60px); opacity: 0.55; mix-blend-mode: screen;
+  background:
+    radial-gradient(40% 50% at 30% 30%, var(--scene-accent) 0%, transparent 60%),
+    radial-gradient(45% 55% at 70% 60%, var(--scene-glow)   0%, transparent 65%);
+  animation: omega-drift 28s ease-in-out infinite alternate;
+}
+@keyframes omega-drift { to { transform: translate3d(4%, -3%, 0) scale(1.1); } }
+
+/* Dawn = the only multi-hue ground → a dedicated layer cross-faded by OPACITY
+   (a registered @property <color> can't interpolate a gradient). */
+.omega-dawn-layer {
+  position: fixed; inset: 0; z-index: -19; pointer-events: none;
+  background: var(--scene-gradient, transparent);
+  opacity: 0; transition: opacity 700ms var(--ease-power3-out);
+}
+html[data-omega][data-dawn="1"] .omega-dawn-layer { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .omega-aurora { animation: none; }
+}

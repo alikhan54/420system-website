@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
@@ -18,7 +18,28 @@ import ScrollProgressBar from './components/ScrollProgressBar'
 import { initVisitorTracking } from './utils/tracking'
 import { usePrefersReducedMotion } from './utils/animations'
 
-export default function App() {
+// OMEGA cinematic-v4 routes — lazy so three/gsap only load on those pages,
+// keeping the landing chunk light.
+const CinematicV4Page = lazy(() => import('./pages/CinematicV4Page'))
+const OmegaTestPage = lazy(() => import('./pages/OmegaTestPage'))
+
+function getRoute() {
+  if (typeof window === 'undefined') return '/'
+  return window.location.pathname
+}
+
+function RouteFallback() {
+  return (
+    <div style={{ position: 'fixed', inset: 0, display: 'grid', placeItems: 'center', background: '#05060A' }}>
+      <span style={{ fontFamily: 'monospace', fontSize: 12, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#6EE7FF', opacity: 0.7 }}>
+        loading…
+      </span>
+    </div>
+  )
+}
+
+/** The existing production landing page — unchanged. */
+function LandingPage() {
   const [loading, setLoading] = useState(true)
   const reducedMotion = usePrefersReducedMotion()
 
@@ -76,4 +97,26 @@ export default function App() {
       <ExitIntentModal />
     </div>
   )
+}
+
+export default function App() {
+  // Lightweight pathname routing (no router lib; main.tsx is frozen). SPA deep
+  // links resolved by vercel.json rewrite → index.html.
+  const [route] = useState(getRoute)
+
+  if (route.startsWith('/omega-test')) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <OmegaTestPage />
+      </Suspense>
+    )
+  }
+  if (route.startsWith('/cinematic-v4')) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <CinematicV4Page />
+      </Suspense>
+    )
+  }
+  return <LandingPage />
 }
