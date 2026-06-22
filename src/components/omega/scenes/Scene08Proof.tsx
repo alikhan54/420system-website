@@ -41,7 +41,7 @@ export default function Scene08Proof({ scene, onActivate }: SceneProps) {
       data-scene={palette.dataScene}
       className="omega-scene relative min-h-screen flex items-center"
     >
-      <div className="relative z-10 w-full max-w-[46rem] pl-[8vw] pr-6 py-24">
+      <div className="relative z-10 w-full max-w-[46rem] omega-inset py-24">
         <Eyebrow className="mb-5" color="#0A6E62">
           {COPY.proof.eyebrow}
         </Eyebrow>

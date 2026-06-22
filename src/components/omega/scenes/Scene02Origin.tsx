@@ -36,7 +36,7 @@ export default function Scene02Origin({ scene, onActivate }: SceneProps) {
       className="omega-scene relative min-h-screen flex items-center"
     >
       {/* asymmetric: text hugs the left, orb sits upper-right (orb directive) */}
-      <div className="relative z-10 w-full max-w-[44rem] pl-[8vw] pr-6">
+      <div className="relative z-10 w-full max-w-[44rem] omega-inset">
         <Eyebrow className="s-origin-rise mb-8">{COPY.origin.eyebrow}</Eyebrow>
         <blockquote
           className="u-display s-origin-rise omega-legible"

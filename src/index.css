@@ -406,3 +406,75 @@ html[data-omega][data-omega-light="1"] .omega-chrome a:focus-visible {
     radial-gradient(82% 56% at 70% 102%, rgba(230,120,60,0.6), transparent 60%),
     linear-gradient(180deg, #160f2a 0%, #3a2540 45%, #6b3a3a 80%, #8a4a32 100%);
 }
+
+/* ============================================================================
+   SPACING FIX — scoped to OMEGA pages ONLY.
+   The project's global, UNLAYERED `* { margin:0; padding:0 }` reset overrides
+   Tailwind's LAYERED spacing utilities site-wide (unlayered beats layered in the
+   cascade). The landing copes because it sets spacing via inline styles; the
+   OMEGA scenes lean on Tailwind utilities, so they collapse (the reported left
+   bleed + tight vertical rhythm). We re-assert ONLY the utilities the scenes use,
+   scoped under html[data-omega] (attr+class specificity beats `*`), so the
+   landing/production page is never affected. Fixing the global reset instead
+   would suddenly activate ~129 dead utilities on the live landing.
+   ============================================================================ */
+
+/* consistent, comfortable left inset for the left-anchored scenes (the user's ask) */
+html[data-omega] .omega-inset { padding-left: clamp(1.5rem, 6vw, 6rem); padding-right: clamp(1.5rem, 4vw, 3rem); }
+
+/* padding */
+html[data-omega] .p-6  { padding: 1.5rem; }
+html[data-omega] .p-7  { padding: 1.75rem; }
+html[data-omega] .px-3 { padding-left: .75rem; padding-right: .75rem; }
+html[data-omega] .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+html[data-omega] .px-\[8vw\] { padding-left: clamp(1.5rem, 6vw, 6rem); padding-right: clamp(1.5rem, 6vw, 6rem); }
+html[data-omega] .px-\[9vw\] { padding-left: clamp(1.5rem, 8vw, 8rem); padding-right: clamp(1.5rem, 8vw, 8rem); }
+html[data-omega] .py-1  { padding-top: .25rem; padding-bottom: .25rem; }
+html[data-omega] .py-3  { padding-top: .75rem; padding-bottom: .75rem; }
+html[data-omega] .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+html[data-omega] .py-24 { padding-top: 6rem; padding-bottom: 6rem; }
+html[data-omega] .py-28 { padding-top: 7rem; padding-bottom: 7rem; }
+html[data-omega] .py-\[22vh\] { padding-top: 22vh; padding-bottom: 22vh; }
+html[data-omega] .pr-6 { padding-right: 1.5rem; }
+html[data-omega] .pt-6 { padding-top: 1.5rem; }
+html[data-omega] .pl-\[26px\] { padding-left: 26px; }
+
+/* margin */
+html[data-omega] .mx-auto { margin-left: auto; margin-right: auto; }
+html[data-omega] .mt-1  { margin-top: .25rem; }
+html[data-omega] .mt-2  { margin-top: .5rem; }
+html[data-omega] .mt-3  { margin-top: .75rem; }
+html[data-omega] .mt-5  { margin-top: 1.25rem; }
+html[data-omega] .mt-6  { margin-top: 1.5rem; }
+html[data-omega] .mt-7  { margin-top: 1.75rem; }
+html[data-omega] .mt-8  { margin-top: 2rem; }
+html[data-omega] .mt-9  { margin-top: 2.25rem; }
+html[data-omega] .mt-10 { margin-top: 2.5rem; }
+html[data-omega] .mt-14 { margin-top: 3.5rem; }
+html[data-omega] .mt-16 { margin-top: 4rem; }
+html[data-omega] .mt-\[8vh\] { margin-top: 8vh; }
+html[data-omega] .mb-4  { margin-bottom: 1rem; }
+html[data-omega] .mb-5  { margin-bottom: 1.25rem; }
+html[data-omega] .mb-6  { margin-bottom: 1.5rem; }
+html[data-omega] .mb-8  { margin-bottom: 2rem; }
+html[data-omega] .mb-10 { margin-bottom: 2.5rem; }
+html[data-omega] .mb-12 { margin-bottom: 3rem; }
+html[data-omega] .mb-14 { margin-bottom: 3.5rem; }
+html[data-omega] .mb-16 { margin-bottom: 4rem; }
+
+/* flex / grid gaps */
+html[data-omega] .gap-1   { gap: .25rem; }
+html[data-omega] .gap-2   { gap: .5rem; }
+html[data-omega] .gap-3   { gap: .75rem; }
+html[data-omega] .gap-4   { gap: 1rem; }
+html[data-omega] .gap-5   { gap: 1.25rem; }
+html[data-omega] .gap-6   { gap: 1.5rem; }
+html[data-omega] .gap-x-6 { column-gap: 1.5rem; }
+html[data-omega] .gap-y-3 { row-gap: .75rem; }
+
+/* vertical stacks (space-y) */
+html[data-omega] .space-y-3  > * + * { margin-top: .75rem; }
+html[data-omega] .space-y-7  > * + * { margin-top: 1.75rem; }
+html[data-omega] .space-y-8  > * + * { margin-top: 2rem; }
+html[data-omega] .space-y-10 > * + * { margin-top: 2.5rem; }
+html[data-omega] .space-y-\[12vh\] > * + * { margin-top: 12vh; }

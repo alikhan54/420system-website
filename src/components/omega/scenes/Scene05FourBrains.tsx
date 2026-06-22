@@ -44,7 +44,7 @@ export default function Scene05FourBrains({ scene, onActivate }: SceneProps) {
       data-scene={palette.dataScene}
       className="omega-scene relative h-screen overflow-hidden flex items-center"
     >
-      <div className="relative z-10 w-full max-w-[40rem] pl-[8vw] pr-6">
+      <div className="relative z-10 w-full max-w-[40rem] omega-inset">
         <Eyebrow className="mb-10">{COPY.brains.eyebrow}</Eyebrow>
         <div className="space-y-8">
           {depts.map((d) => (
