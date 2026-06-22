@@ -28,6 +28,13 @@ function getRoute() {
   return window.location.pathname
 }
 
+/** The OMEGA product domain serves the cinematic experience at its root.
+ *  Other hosts (e.g. 420system.vercel.app) keep the existing landing at "/". */
+function isOmegaHost() {
+  if (typeof window === 'undefined') return false
+  return window.location.hostname.startsWith('omega.')
+}
+
 function RouteFallback() {
   return (
     <div style={{ position: 'fixed', inset: 0, display: 'grid', placeItems: 'center', background: '#05060A' }}>
@@ -111,7 +118,7 @@ export default function App() {
       </Suspense>
     )
   }
-  if (route.startsWith('/cinematic-v4')) {
+  if (route.startsWith('/cinematic-v4') || (route === '/' && isOmegaHost())) {
     return (
       <Suspense fallback={<RouteFallback />}>
         <CinematicV4Page />

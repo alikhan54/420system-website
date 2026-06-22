@@ -7,7 +7,11 @@
  */
 export const BRAND = {
   name: 'OMEGA',
-  url: 'https://heyomega.ai',
+  // Marketing / canonical site (this deploy). Used for footer + brand links.
+  url: 'https://omega.zatesystems.com',
+  // The live product app — where people actually talk to / sign up for OMEGA.
+  // Conversion CTAs ("Talk to OMEGA", "Start free") point here, never back to url.
+  app: 'https://ai.zatesystems.com',
   phone: '+1 (404) 819-2917',
   // Convenience derivations (kept here so they rename in lockstep).
   get domain() {

@@ -16,7 +16,7 @@ export const COPY = {
   },
   origin: {
     eyebrow: 'THE ORIGIN',
-    quote: `“I built ${BRAND.name} because I was running my business with 47 tabs open at 2am. Replying to leads. Approving payroll. Chasing invoices. I wasn't a CEO — I was an assistant to my own company. So I built something to take it back.”`,
+    quote: `“I built ${BRAND.name} because I'd spent years automating other people's businesses — and hitting the gaps nobody else would solve. Meanwhile my own ran on 47 tabs at 2am. Replying to leads. Approving payroll. Chasing invoices. I wasn't a CEO — I was an assistant to my own company. So I built something to take it back.”`,
     attribution: '— Adeel, Founder',
   },
   mirror: {
@@ -60,11 +60,11 @@ export const COPY = {
   proof: {
     eyebrow: 'THE PROOF',
     headline: 'Already running.',
-    // TODO: confirm real numbers before any public launch — these are defensible/illustrative.
+    // Honest claims — breadth, not a fabricated count. No fixed numbers.
     stats: [
-      { value: '16', unit: 'businesses', caption: 'live on the platform across real operations.' },
-      { value: '6', unit: 'industries', caption: 'from clinics to construction to real estate.' },
-      { value: 'Thousands', unit: 'of decisions a day', caption: 'scored, drafted, routed, reconciled — autonomously.' },
+      { value: 'Any', unit: 'business', caption: 'Restaurants, fintech, accounting, gold, healthcare, real estate, even creators — the work is always the same.' },
+      { value: 'Every', unit: 'department', caption: 'Sales, marketing, HR, and operations — one intelligence.' },
+      { value: 'Always', unit: 'on', caption: "Autonomous, 24/7, whether you're in the room or not." },
     ],
   },
   exhale: {

@@ -1,6 +1,6 @@
 /**
  * sceneUi.tsx — small shared primitives for the 11 scenes: the mono eyebrow, the
- * "Talk to OMEGA" CTA (magnetic on desktop, links BRAND.url + tel:BRAND.phone),
+ * "Talk to OMEGA" CTA (magnetic on desktop, links BRAND.app + tel:BRAND.phone),
  * and legibility helpers. Brand strings come from BRAND / COPY (one-file rename).
  */
 import { useRef } from 'react'
@@ -56,7 +56,7 @@ export function OmegaCTA({ label, light, center }: { label: string; light?: bool
     <div ref={root} className="flex flex-wrap items-center gap-x-6 gap-y-3" style={{ justifyContent: center ? 'center' : 'flex-start' }}>
       <a
         ref={btn}
-        href={BRAND.url}
+        href={BRAND.app}
         target="_blank"
         rel="noreferrer"
         className="omega-cta inline-block will-change-transform"

@@ -87,7 +87,7 @@ export default function Scene10Choice({ scene, onActivate }: SceneProps) {
               ))}
             </ul>
             <a
-              href={BRAND.url}
+              href={BRAND.app}
               target="_blank"
               rel="noreferrer"
               className="mt-7 text-center rounded-full py-3"
