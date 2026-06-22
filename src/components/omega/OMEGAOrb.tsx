@@ -17,7 +17,7 @@
 import { useMemo, useRef, useEffect } from 'react'
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
-import { ORB_VERT, ORB_FRAG } from './orbShaders'
+import { ORB_VERT, ORB_FRAG, CORE_VERT, CORE_FRAG } from './orbShaders'
 import { sceneState } from '../../lib/sceneState'
 import { THREE_COLORS, SCENE_SEQUENCE, PALETTES } from '../../design/scenePalette'
 
@@ -104,29 +104,41 @@ export function OMEGAOrb({
   const ripple = useRef(0)
   const lastBlend = useRef<THREE.Blending>(THREE.AdditiveBlending)
 
+  const initialColor = useMemo(
+    () => (color ? new THREE.Color(color).convertSRGBToLinear() : THREE_COLORS[SCENE_SEQUENCE[0]].clone()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+
   // ⚠ build uniforms ONCE (empty deps). Re-creating would disconnect useFrame.
-  const uniforms = useMemo(() => {
-    const initial = color
-      ? new THREE.Color(color).convertSRGBToLinear()
-      : THREE_COLORS[SCENE_SEQUENCE[0]].clone()
-    return {
+  const uniforms = useMemo(
+    () => ({
       uTime: { value: 0 },
       uSize: { value: 0.045 },
       uScale: { value: size.height * viewport.dpr },
       uMorph: { value: 0 },
       uBreath: { value: 0.03 },
-      uNoiseAmp: { value: 0.18 },
+      uNoiseAmp: { value: 0.16 },
       uNoiseFreq: { value: 0.55 },
       uNoiseSpeed: { value: 0.12 },
+      uWave: { value: 0 },
       uMouse: { value: new THREE.Vector3() },
       uMouseRadius: { value: 1.6 },
       uMouseStrength: { value: tier.reduced ? 0 : 0.6 },
-      uColor: { value: initial },
+      uColor: { value: initialColor.clone() },
       uIntensity: { value: 1 },
       uAlpha: { value: 0 },
-    }
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    [],
+  )
+
+  // separate uniforms for the inner core glow (color/intensity mirrored each frame).
+  const coreUniforms = useMemo(
+    () => ({ uColor: { value: initialColor.clone() }, uIntensity: { value: 1 }, uAlpha: { value: 0 } }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   useFrame((stThree, delta) => {
     const u = uniforms
@@ -139,7 +151,11 @@ export function OMEGAOrb({
     u.uAlpha.value = THREE.MathUtils.damp(u.uAlpha.value, 1, 3, d)
 
     const tune = STATE_TUNING[state]
-    const baseAmp = 0.05 + Math.max(0, Math.min(1, distortion)) * 0.5
+    const dist = Math.max(0, Math.min(1, distortion))
+    // capped radial turbulence — bounded so the sphere never scatters apart; the bulk
+    // of "distortion" is the COHERENT travelling surface wave (uWave) in the shader.
+    const baseAmp = 0.03 + dist * 0.18
+    u.uWave.value = THREE.MathUtils.damp(u.uWave.value, tier.reduced ? dist * 0.3 : dist, 4, d)
 
     // ---- mouse → world on z=0 plane; damped (hypersensitive yet smooth) ----
     if (gravityOn) {
@@ -185,6 +201,13 @@ export function OMEGAOrb({
     const stateGlow = state === 'thinking' ? 0.18 : 0
     u.uIntensity.value = 1 + stateGlow + speakPulse + sceneState.transitioning * 1.5 + ripple.current * 1.6
 
+    // ---- inner core glow: mirrors the orb colour; hidden on the light White-Out scene
+    // (additive glow over near-white would be invisible / muddy). ----
+    coreUniforms.uColor.value.copy(u.uColor.value)
+    coreUniforms.uAlpha.value = light ? 0 : u.uAlpha.value
+    coreUniforms.uIntensity.value =
+      0.85 + sceneState.transitioning * 0.8 + ripple.current * 0.6 + speakPulse * 0.5
+
     // ---- gentle scene-/state-driven rotation (group transform; gravity stays world-correct) ----
     if (groupRef.current && !tier.reduced) groupRef.current.rotation.y += tune.spin * d
   })
@@ -197,6 +220,19 @@ export function OMEGAOrb({
 
   return (
     <group ref={groupRef} scale={scale}>
+      {/* inner core glow — an internal light source so the field reads as a lit volume */}
+      <mesh frustumCulled={false}>
+        <sphereGeometry args={[1.15, 48, 48]} />
+        <shaderMaterial
+          vertexShader={CORE_VERT}
+          fragmentShader={CORE_FRAG}
+          uniforms={coreUniforms}
+          transparent
+          depthWrite={false}
+          depthTest={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
       <points geometry={geometry} frustumCulled={false}>
         <shaderMaterial
           ref={matRef}

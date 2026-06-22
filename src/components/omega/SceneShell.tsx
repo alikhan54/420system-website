@@ -114,25 +114,17 @@ export function SceneShell({ scene, onActivate }: SceneShellProps) {
       const mm = gsap.matchMedia()
       mm.add('(prefers-reduced-motion: no-preference)', () => {
         if (scene.mode === 'pin') {
-          gsap.fromTo(
-            root.querySelector('.omega-fill'),
-            { scale: 0.6, opacity: 0.25 },
-            {
-              scale: 1.4,
-              opacity: 0.9,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: root,
-                start: 'top top',
-                end: '+=110%',
-                pin: true,
-                pinSpacing: true,
-                anticipatePin: 1,
-                scrub: true,
-                invalidateOnRefresh: true,
-              },
-            },
-          )
+          // pin-hold only — the persistent orb is the SOLE focal circle (the old
+          // decorative ring competed with it and bled into adjacent scenes).
+          ScrollTrigger.create({
+            trigger: root,
+            start: 'top top',
+            end: '+=110%',
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          })
         } else if (scene.mode === 'horizontal') {
           const track = root.querySelector('.omega-htrack') as HTMLElement
           const panels = gsap.utils.toArray<HTMLElement>('.omega-hpanel', track)
@@ -229,16 +221,6 @@ export function SceneShell({ scene, onActivate }: SceneShellProps) {
   if (scene.mode === 'pin') {
     return (
       <section ref={rootRef} data-scene={palette.dataScene} className="omega-scene relative h-screen overflow-hidden grid place-items-center">
-        <div
-          className="omega-fill absolute rounded-full pointer-events-none"
-          style={{
-            width: 'min(60vw, 60vh)',
-            height: 'min(60vw, 60vh)',
-            border: '1px solid var(--scene-accent)',
-            boxShadow: '0 0 120px var(--scene-glow)',
-            opacity: 0.3,
-          }}
-        />
         <div className="omega-card-inner">
           <SceneCard scene={scene} palette={palette} />
         </div>
