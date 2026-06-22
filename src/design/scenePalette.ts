@@ -79,8 +79,8 @@ const PALETTES_DEF = {
   /** Pale Aurora Teal — EXHALE: calm, breath, peace. */
   exhale: {
     name: 'Pale Aurora Teal', dataScene: 'exhale',
-    hex: '#5EEAD4', particleHex: '#5EEAD4', glow: '#99F6E4', oklch: 'oklch(0.86 0.10 175)',
-    bg: '#04130F', mid: '#0A241D', text: '#BFD8D0',
+    hex: '#5EEAD4', particleHex: '#7BF0DC', glow: '#BAF7EC', oklch: 'oklch(0.86 0.10 175)',
+    bg: '#0A2A22', mid: '#143C31', text: '#CFE6DE',
   },
   /** Clean White — CHOICE: pricing, contrast pop, dark particles. */
   choice: {

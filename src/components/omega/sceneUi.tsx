@@ -20,7 +20,8 @@ export function Eyebrow({ children, color, className = '' }: { children: React.R
 
 const telHref = (phone: string) => `tel:${phone.replace(/[^+\d]/g, '')}`
 
-/** The primary CTA used by MEET + DOOR. */
+/** The primary CTA used by MEET + DOOR. NOTE: designed for DARK scenes only — the
+ *  fill is the scene accent with dark ink. Do not place on the light (white) scenes. */
 export function OmegaCTA({ label, light, center }: { label: string; light?: boolean; center?: boolean }) {
   const root = useRef<HTMLDivElement>(null)
   const btn = useRef<HTMLAnchorElement>(null)
@@ -66,7 +67,7 @@ export function OmegaCTA({ label, light, center }: { label: string; light?: bool
           padding: '0.95rem 1.8rem',
           borderRadius: 999,
           background: 'var(--scene-accent)',
-          color: light ? '#FFFFFF' : '#05060A',
+          color: '#05060A', // dark ink on the bright accent fill (dark-scene CTA)
           textDecoration: 'none',
           boxShadow: '0 0 36px -6px var(--scene-glow)',
         }}

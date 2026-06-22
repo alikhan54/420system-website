@@ -21,7 +21,7 @@ const pad = (i: number) => String(i + 1).padStart(2, '0')
 export default function CinematicV4Page() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<OmegaScene>(OMEGA_SCENES[0])
-  useSceneOrchestrator(rootRef)
+  useSceneOrchestrator(rootRef, setActive)
 
   useEffect(() => {
     const prev = document.title

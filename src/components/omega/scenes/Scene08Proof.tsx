@@ -42,7 +42,7 @@ export default function Scene08Proof({ scene, onActivate }: SceneProps) {
       className="omega-scene relative min-h-screen flex items-center"
     >
       <div className="relative z-10 w-full max-w-[46rem] pl-[8vw] pr-6 py-24">
-        <Eyebrow className="mb-5" color="#0D9488">
+        <Eyebrow className="mb-5" color="#0A6E62">
           {COPY.proof.eyebrow}
         </Eyebrow>
         <h2
@@ -74,7 +74,7 @@ export default function Scene08Proof({ scene, onActivate }: SceneProps) {
                 >
                   {s.value}
                 </span>
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.1rem, 1rem + 0.8vw, 1.6rem)', color: '#0D9488' }}>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.1rem, 1rem + 0.8vw, 1.6rem)', color: '#0A6E62' }}>
                   {s.unit}
                 </span>
               </div>

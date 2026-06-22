@@ -29,12 +29,10 @@ export function setAtmosphere(p: Palette) {
   sceneState.transitioning = 1
 }
 
-let reduced = false
-if (typeof window !== 'undefined') reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
-
 /** A short brightness pulse — the film cut at an act boundary. */
 export function triggerFilmCut() {
-  if (reduced) return
+  // read reduced-motion live so a runtime OS-setting toggle is respected
+  if (typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) return
   const el = document.getElementById('omega-cut')
   if (!el) return
   gsap.killTweensOf(el)

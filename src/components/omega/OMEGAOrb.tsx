@@ -158,10 +158,12 @@ export function OMEGAOrb({
     const src: MorphShapes = shapes
     if (from) {
       arrA.set(src[from])
-    } else {
-      // freeze the current interpolated positions → no snap on rapid scene flips
+    } else if (cur > 0.999) {
+      arrA.set(arrB) // settled at B → freeze B into A (skip the per-element loop)
+    } else if (cur >= 0.001) {
+      // mid-flight: freeze the current interpolated positions → no snap on rapid flips
       for (let i = 0; i < arrA.length; i++) arrA[i] = arrA[i] + (arrB[i] - arrA[i]) * cur
-    }
+    } // cur < 0.001 → arrA already holds the current shape; nothing to do
     arrB.set(src[to])
     aA.needsUpdate = true
     aB.needsUpdate = true
@@ -201,12 +203,15 @@ export function OMEGAOrb({
     } else {
       const idx = Math.max(0, Math.min(sceneState.index, SCENE_ORB.length - 1))
       const dir = orbForScene(idx)
+      // morph completion: by-progress (assemble) or auto-complete; reduced → instant
+      const morphTarget = dir.morphByProgress ? Math.max(0, Math.min(1, sceneState.progress)) : 1
       if (morphIndex.current !== idx) {
         applyMorph(dir.morphTo, dir.morphFrom)
         morphIndex.current = idx
+        // progress-driven scenes (SHIFT) must START at their progress, not ramp from 0 —
+        // else entering from the END (scrolling up) briefly collapses to scatter.
+        if (dir.morphByProgress) u.uMorph.value = morphTarget
       }
-      // morph completion: by-progress (assemble) or auto-complete; reduced → instant
-      const morphTarget = dir.morphByProgress ? Math.max(0, Math.min(1, sceneState.progress)) : 1
       u.uMorph.value = tier.reduced ? morphTarget : damp(u.uMorph.value, morphTarget, 3, d)
 
       const dolly = dir.dolly && !tier.reduced ? Math.max(0, sceneState.progress) * 4.2 : 0

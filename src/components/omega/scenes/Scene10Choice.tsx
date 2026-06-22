@@ -37,7 +37,7 @@ export default function Scene10Choice({ scene, onActivate }: SceneProps) {
       className="omega-scene relative min-h-screen flex flex-col justify-center px-6 py-28"
     >
       <div className="relative z-10 text-center mb-14 mt-[8vh]">
-        <Eyebrow className="mb-4" color="#0D9488">
+        <Eyebrow className="mb-4" color="#0A6E62">
           {COPY.choice.eyebrow}
         </Eyebrow>
         <h2
@@ -71,7 +71,7 @@ export default function Scene10Choice({ scene, onActivate }: SceneProps) {
               </span>
             )}
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', letterSpacing: '-0.02em' }}>{t.name}</h3>
-            <p className="u-kicker mt-1" style={{ color: t.popular ? '#7FD9CC' : '#0D9488' }}>
+            <p className="u-kicker mt-1" style={{ color: t.popular ? '#7FD9CC' : '#0A6E62' }}>
               {t.for}
             </p>
             <div className="mt-5 flex items-baseline gap-1">
@@ -81,7 +81,7 @@ export default function Scene10Choice({ scene, onActivate }: SceneProps) {
             <ul className="mt-6 space-y-3 grow">
               {t.features.map((f) => (
                 <li key={f} className="u-body flex gap-2" style={{ fontSize: '0.95rem', color: t.popular ? '#C7D2D0' : '#3C4654' }}>
-                  <span style={{ color: '#14B8A6' }}>—</span>
+                  <span style={{ color: t.popular ? '#14B8A6' : '#0A6E62' }}>—</span>
                   {f}
                 </li>
               ))}
@@ -97,8 +97,8 @@ export default function Scene10Choice({ scene, onActivate }: SceneProps) {
                 letterSpacing: '0.06em',
                 textDecoration: 'none',
                 background: t.popular ? '#14B8A6' : 'transparent',
-                color: t.popular ? '#04140F' : '#0D9488',
-                border: t.popular ? 'none' : '1px solid rgba(13,148,136,0.4)',
+                color: t.popular ? '#04140F' : '#0A6E62',
+                border: t.popular ? 'none' : '1px solid rgba(10,110,98,0.55)',
               }}
             >
               Start free
