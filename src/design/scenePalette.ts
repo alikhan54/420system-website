@@ -1,195 +1,161 @@
 /**
- * scenePalette.ts — the CSS ↔ WebGL color bridge + the 8-palette atmosphere set.
+ * scenePalette.ts — the CSS ↔ WebGL color bridge + the per-scene atmosphere set.
  *
  * ⚠ CRITICAL: `new THREE.Color("oklch(...)")` DOES NOT WORK — THREE.Color.setStyle
  * only parses #hex / rgb() / hsl() / named colors. So this JS object is the ONE
  * source of truth: `hex` feeds three, `oklch` feeds CSS. WebGL reads this object,
  * never the DOM (DESIGN_SYSTEM §6.4).
  *
- * The 8 palettes are the atmosphere system from DESIGN_SYSTEM §2.2.
+ * Phase 2: the palette set is expanded to the 11-scene story (wine MIRROR, cool
+ * SHIFT, terminal-green FEED, time-of-day A-DAY, pale EXHALE, white CHOICE, aurora
+ * DOOR) on top of the original 8. Every value is OKLCH-tinted-black, never #000.
  */
 import * as THREE from 'three'
 
 export interface Palette {
-  /** human label */
   name: string
-  /** value used for the `data-scene` attribute + CSS [data-scene] rules */
   dataScene: string
-  /** accent hex (feeds three) */
   hex: string
-  /** the particle color fed to the orb (= hex, except light scenes use dark ink) */
   particleHex: string
-  /** secondary glow hex */
   glow: string
-  /** accent as OKLCH (feeds CSS) */
   oklch: string
-  /** scene background (CSS) */
   bg: string
-  /** scene mid surface (CSS) */
   mid: string
-  /** text/neutral (CSS) */
   text: string
-  /** light scene → orb must switch to NormalBlending + dark particles */
   light?: boolean
-  /** palette has no accent on purpose (Graphite scaffold) → restrained orb */
   accentless?: boolean
-  /** optional multi-stop background gradient (Dawn) */
   gradient?: string
 }
 
 const PALETTES_DEF = {
-  /** Deep-Space Ink — home base: cold, infinite, calm. Reserve cyan for ONE element. */
+  /** Deep-Space Ink — MEET: cold, infinite, calm. */
   home: {
-    name: 'Deep-Space Ink',
-    dataScene: 'home',
-    hex: '#6EE7FF',
-    particleHex: '#6EE7FF',
-    glow: '#6EE7FF',
-    oklch: 'oklch(0.86 0.13 215)',
-    bg: '#05060A',
-    mid: '#0C0F18',
-    text: '#C7CBD6',
+    name: 'Deep-Space Ink', dataScene: 'home',
+    hex: '#6EE7FF', particleHex: '#6EE7FF', glow: '#6EE7FF', oklch: 'oklch(0.86 0.13 215)',
+    bg: '#05060A', mid: '#0C0F18', text: '#C7CBD6',
   },
-  /** Bioluminescent Teal — AI thinking: alive, deep-ocean phosphorescence. */
-  think: {
-    name: 'Bioluminescent Teal',
-    dataScene: 'think',
-    hex: '#14B8A6',
-    particleHex: '#2DD4BF',
-    glow: '#5EEAD4',
-    oklch: 'oklch(0.72 0.13 178)',
-    bg: '#04100F',
-    mid: '#06201C',
-    text: '#B8C8C4',
-  },
-  /** Ember Amber — AI acting: warmth, energy, consequence. Brief. */
+  /** Ember Amber — ORIGIN: a single light in a dark room, warmth + memory. */
   act: {
-    name: 'Ember Amber',
-    dataScene: 'act',
-    hex: '#F97316',
-    particleHex: '#FB923C',
-    glow: '#FBBF24',
-    oklch: 'oklch(0.72 0.18 47)',
-    bg: '#120804',
-    mid: '#2A1206',
-    text: '#D6C3B4',
+    name: 'Ember Amber', dataScene: 'act',
+    hex: '#F97316', particleHex: '#FB923C', glow: '#FBBF24', oklch: 'oklch(0.72 0.18 47)',
+    bg: '#120804', mid: '#2A1206', text: '#D6C3B4',
   },
-  /** Graphite Neutral — scaffold: restraint, breathing room. NO accent. */
-  graphite: {
-    name: 'Graphite Neutral',
-    dataScene: 'graphite',
-    hex: '#8A909C',
-    particleHex: '#AEB4C0',
-    glow: '#8A909C',
-    oklch: 'oklch(0.66 0.01 265)',
-    bg: '#0F1115',
-    mid: '#181B21',
-    text: '#D8DCE3',
-    accentless: true,
+  /** Wine Red — MIRROR: anxiety, the cold leads, the unread follow-ups. */
+  mirror: {
+    name: 'Wine Red', dataScene: 'mirror',
+    hex: '#E11D48', particleHex: '#FB7185', glow: '#FB7185', oklch: 'oklch(0.60 0.21 18)',
+    bg: '#140609', mid: '#2A0A12', text: '#E8C5CC',
   },
-  /** Ultraviolet — off-leash autonomy: mysterious, premium, synth-noir. */
-  auto: {
-    name: 'Ultraviolet',
-    dataScene: 'auto',
-    hex: '#8B5CF6',
-    particleHex: '#A78BFA',
-    glow: '#C084FC',
-    oklch: 'oklch(0.62 0.20 295)',
-    bg: '#0A0612',
-    mid: '#1A0E2E',
-    text: '#C4BCD4',
+  /** Cool Blue Dawn — SHIFT: the question turns, first cool light. */
+  shift: {
+    name: 'Cool Blue Dawn', dataScene: 'shift',
+    hex: '#3B82F6', particleHex: '#60A5FA', glow: '#93C5FD', oklch: 'oklch(0.66 0.16 258)',
+    bg: '#070D1A', mid: '#0E1A2E', text: '#C3D2E6',
   },
-  /** Sterile White-Out — clarity inversion: the ONE hard cut to near-white. */
+  /** Four Brains — neutral deep base; the ORB cycles its own department hues. */
+  brains: {
+    name: 'Four Brains', dataScene: 'brains',
+    hex: '#22D3EE', particleHex: '#22D3EE', glow: '#67E8F9', oklch: 'oklch(0.80 0.13 200)',
+    bg: '#06121A', mid: '#0C2030', text: '#BCD2DA',
+  },
+  /** Terminal Green — LIVE FEED: the machine thinking out loud. */
+  feed: {
+    name: 'Terminal Green', dataScene: 'feed',
+    hex: '#22C55E', particleHex: '#4ADE80', glow: '#86EFAC', oklch: 'oklch(0.74 0.18 150)',
+    bg: '#03100A', mid: '#06231A', text: '#B7D8C4',
+  },
+  /** Time-of-day — A DAY: base = night; the scene scrubs night→dawn→day→dusk. */
+  day: {
+    name: 'A Day', dataScene: 'day',
+    hex: '#FBBF24', particleHex: '#FCD34D', glow: '#FCD34D', oklch: 'oklch(0.84 0.13 80)',
+    bg: '#080B16', mid: '#141A2E', text: '#CBD2E0',
+  },
+  /** Sterile White-Out — PROOF: the one hard cut to near-white, dark particles. */
   truth: {
-    name: 'Sterile White-Out',
-    dataScene: 'truth',
-    hex: '#0EA5E9',
-    particleHex: '#0C0F18', // dark particles on a light ground (NormalBlending)
-    glow: '#0EA5E9',
-    oklch: 'oklch(0.68 0.15 235)',
-    bg: '#F4F6F8',
-    mid: '#FFFFFF',
-    text: '#0C0F18',
-    light: true,
+    name: 'Sterile White-Out', dataScene: 'truth',
+    hex: '#0EA5E9', particleHex: '#0C0F18', glow: '#0EA5E9', oklch: 'oklch(0.62 0.15 235)',
+    bg: '#F4F6F8', mid: '#FFFFFF', text: '#0C0F18', light: true,
   },
-  /** Neural Magenta — connection: electric intimacy, synapse-fire. */
+  /** Pale Aurora Teal — EXHALE: calm, breath, peace. */
+  exhale: {
+    name: 'Pale Aurora Teal', dataScene: 'exhale',
+    hex: '#5EEAD4', particleHex: '#5EEAD4', glow: '#99F6E4', oklch: 'oklch(0.86 0.10 175)',
+    bg: '#04130F', mid: '#0A241D', text: '#BFD8D0',
+  },
+  /** Clean White — CHOICE: pricing, contrast pop, dark particles. */
+  choice: {
+    name: 'Clean White', dataScene: 'choice',
+    hex: '#0D9488', particleHex: '#0C1418', glow: '#14B8A6', oklch: 'oklch(0.58 0.11 185)',
+    bg: '#F5F7F9', mid: '#FFFFFF', text: '#0C0F18', light: true,
+  },
+  /** Aurora Teal Night — DOOR: the dolly-in, arrival, the threshold. */
+  door: {
+    name: 'Aurora Teal Night', dataScene: 'door',
+    hex: '#2DD4BF', particleHex: '#5EEAD4', glow: '#5EEAD4', oklch: 'oklch(0.80 0.13 178)',
+    bg: '#03110F', mid: '#072420', text: '#BFE0D8',
+  },
+
+  // ---- original palettes kept for the orb test page color buttons ----
+  think: {
+    name: 'Bioluminescent Teal', dataScene: 'think',
+    hex: '#14B8A6', particleHex: '#2DD4BF', glow: '#5EEAD4', oklch: 'oklch(0.72 0.13 178)',
+    bg: '#04100F', mid: '#06201C', text: '#B8C8C4',
+  },
+  auto: {
+    name: 'Ultraviolet', dataScene: 'auto',
+    hex: '#8B5CF6', particleHex: '#A78BFA', glow: '#C084FC', oklch: 'oklch(0.62 0.20 295)',
+    bg: '#0A0612', mid: '#1A0E2E', text: '#C4BCD4',
+  },
   synapse: {
-    name: 'Neural Magenta',
-    dataScene: 'synapse',
-    hex: '#EC4899',
-    particleHex: '#F472B6',
-    glow: '#F9A8D4',
-    oklch: 'oklch(0.66 0.22 0)',
-    bg: '#0E040B',
-    mid: '#2A0820',
-    text: '#D2BCC8',
-  },
-  /** Dawn Gradient — resolution/outro: hope, arrival, first light. */
-  dawn: {
-    name: 'Dawn Gradient',
-    dataScene: 'dawn',
-    hex: '#FBC78A',
-    particleHex: '#FBC78A',
-    glow: '#E8806B',
-    oklch: 'oklch(0.84 0.09 70)',
-    bg: '#1B1033',
-    mid: '#6D3B7A',
-    text: '#FFE3B3',
-    gradient:
-      'linear-gradient(180deg, #1B1033 0%, #6D3B7A 38%, #E8806B 72%, #FBC78A 100%)',
+    name: 'Neural Magenta', dataScene: 'synapse',
+    hex: '#EC4899', particleHex: '#F472B6', glow: '#F9A8D4', oklch: 'oklch(0.66 0.22 0)',
+    bg: '#0E040B', mid: '#2A0820', text: '#D2BCC8',
   },
 } satisfies Record<string, Palette>
 
 export type PaletteKey = keyof typeof PALETTES_DEF
-/** Exposed with the full Palette type so optional fields (light/accentless/gradient) are visible. */
 export const PALETTES: Record<PaletteKey, Palette> = PALETTES_DEF
 export const PALETTE_KEYS = Object.keys(PALETTES) as PaletteKey[]
 
-/**
- * Pre-build three Colors ONCE (hex parses fine; oklch never reaches three).
- * convertSRGBToLinear so the additive glow matches the CSS, not washed out —
- * paired with `#include <colorspace_fragment>` on output in the fragment shader.
- */
+/** Pre-build three Colors ONCE (hex parses fine; oklch never reaches three). */
 export const THREE_COLORS: Record<PaletteKey, THREE.Color> = Object.fromEntries(
-  PALETTE_KEYS.map((k) => [
-    k,
-    new THREE.Color(PALETTES[k].particleHex).convertSRGBToLinear(),
-  ]),
+  PALETTE_KEYS.map((k) => [k, new THREE.Color(PALETTES[k].particleHex).convertSRGBToLinear()]),
 ) as Record<PaletteKey, THREE.Color>
 
-/** One scene definition for the 11-scene scaffold. */
+/** One scene of the 11-scene story. */
 export interface OmegaScene {
   index: number
-  /** scene title shown in the placeholder + indicator */
+  /** scene short name (content, fine to hardcode — not the brand) */
   name: string
   act: string
   paletteKey: PaletteKey
-  /** scroll behaviour proven by the scaffold */
   mode: 'normal' | 'pin' | 'horizontal' | 'time-scrub'
+  /** fires the film-cut brightness pulse on enter (act boundaries) */
+  actStart?: boolean
 }
 
 /**
- * The 11-scene → 5-act arc (DESIGN_SYSTEM §5). All 8 palettes appear; the four
- * scroll modes (normal / pin / horizontal / time-scrub) are all exercised.
+ * THE STORY — 11 scenes (definitive). The orb is ONE persistent entity morphing
+ * sphere → mesh → streams → sphere across these as you scroll. Orb 3D directives
+ * live in orbDirectives.ts (index-aligned); copy lives in sceneCopy.ts.
  */
 export const OMEGA_SCENES: OmegaScene[] = [
-  { index: 0, name: 'Hero', act: 'I — Awakening', paletteKey: 'home', mode: 'normal' },
-  { index: 1, name: 'Premise', act: 'I — Awakening', paletteKey: 'home', mode: 'normal' },
-  { index: 2, name: 'Reasoning', act: 'II — Thinking', paletteKey: 'think', mode: 'pin' },
-  { index: 3, name: 'Memory', act: 'II — Thinking', paletteKey: 'think', mode: 'normal' },
-  { index: 4, name: 'Deploy', act: 'III — Acting', paletteKey: 'act', mode: 'pin' },
-  { index: 5, name: 'Scale', act: 'III — Acting', paletteKey: 'graphite', mode: 'horizontal' },
-  { index: 6, name: 'Off-leash', act: 'IV — Autonomy', paletteKey: 'auto', mode: 'normal' },
-  { index: 7, name: 'Truth', act: 'IV — Autonomy', paletteKey: 'truth', mode: 'time-scrub' },
-  { index: 8, name: 'Synapse', act: 'V — Connection & Arrival', paletteKey: 'synapse', mode: 'normal' },
-  { index: 9, name: 'Network', act: 'V — Connection & Arrival', paletteKey: 'synapse', mode: 'pin' },
-  { index: 10, name: 'CTA', act: 'V — Connection & Arrival', paletteKey: 'dawn', mode: 'normal' },
+  { index: 0,  name: 'Meet',       act: 'I',   paletteKey: 'home',   mode: 'normal',     actStart: true },
+  { index: 1,  name: 'Origin',     act: 'I',   paletteKey: 'act',    mode: 'normal' },
+  { index: 2,  name: 'Mirror',     act: 'II',  paletteKey: 'mirror', mode: 'normal',     actStart: true },
+  { index: 3,  name: 'Shift',      act: 'II',  paletteKey: 'shift',  mode: 'horizontal' },
+  { index: 4,  name: 'Four Brains',act: 'III', paletteKey: 'brains', mode: 'pin',        actStart: true },
+  { index: 5,  name: 'Live Feed',  act: 'III', paletteKey: 'feed',   mode: 'normal' },
+  { index: 6,  name: 'A Day',      act: 'IV',  paletteKey: 'day',    mode: 'time-scrub', actStart: true },
+  { index: 7,  name: 'Proof',      act: 'IV',  paletteKey: 'truth',  mode: 'normal',     actStart: true },
+  { index: 8,  name: 'Exhale',     act: 'IV',  paletteKey: 'exhale', mode: 'normal' },
+  { index: 9,  name: 'Choice',     act: 'V',   paletteKey: 'choice', mode: 'normal',     actStart: true },
+  { index: 10, name: 'Door',       act: 'V',   paletteKey: 'door',   mode: 'pin',        actStart: true },
 ]
 
 /** palette key per scene index — the orb reads this to pick its color. */
 export const SCENE_SEQUENCE: PaletteKey[] = OMEGA_SCENES.map((s) => s.paletteKey)
 
-/** Resolve a scene index → its palette (clamped). */
 export function paletteForScene(index: number): Palette {
   const key = SCENE_SEQUENCE[Math.max(0, Math.min(index, SCENE_SEQUENCE.length - 1))]
   return PALETTES[key]

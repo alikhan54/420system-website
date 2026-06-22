@@ -8,7 +8,9 @@
       "Bash(python3 -c \":*)",
       "Bash(npx tsc:*)",
       "Bash(npm run:*)",
-      "Bash(python provision_bobadook.py)"
+      "Bash(python provision_bobadook.py)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)"
     ]
   }
 }

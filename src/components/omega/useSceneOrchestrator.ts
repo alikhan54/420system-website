@@ -39,6 +39,7 @@ export function useSceneOrchestrator(rootRef: RefObject<HTMLElement | null>) {
       window.removeEventListener('load', refresh)
       delete el.dataset.omega
       delete el.dataset.dawn
+      delete el.dataset.omegaLight
       // reset shared authority so a later mount starts clean
       sceneState.index = 0
       sceneState.progress = 0

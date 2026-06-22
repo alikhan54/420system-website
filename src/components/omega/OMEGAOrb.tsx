@@ -1,23 +1,25 @@
 /**
  * OMEGAOrb.tsx — the hypersensitive particle sphere (the OMEGA differentiation
- * anchor). Lives inside a <Canvas>. Built from the verified CODE_PATTERNS §R
- * reference: Fibonacci geometry (disposed), corrected gl_PointSize attenuation,
- * world-space mouse-gravity, scene-driven color lerp, breathing, simplex noise.
+ * anchor) AND the per-scene morphing entity. Lives inside a <Canvas>.
+ *
+ * Phase 2: ONE persistent particle system that smoothly transforms between four
+ * named shapes (sphere · neural-mesh · directed-streams · scatter) as the story
+ * scrolls — `mix(aMorphA, aMorphB, uMorph)` in the shader, both buffers sharing
+ * the sphere's index ordering so every particle travels 1:1. It also reads its
+ * scale / position / visibility / spin / hue per scene from SCENE_ORB.
  *
  * Props:
- *  - particleCount  default 8000 desktop, auto-reduced to 4000 on mobile/touch
- *  - color          optional CSS hex; when set the orb is *controlled* (test page).
- *                   when omitted the orb reads the scene authority (cinematic page).
- *  - scale          overall scale multiplier (default 1)
- *  - distortion     0..1 turbulence amount (default 0.22)
- *  - reactive       enable mouse-gravity (default true; always off on touch)
- *  - state          'idle' | 'thinking' | 'speaking' — modulates behaviour
- *  - onClick        fires on orb click (also triggers a brightness ripple)
+ *  - color       optional CSS hex; when set the orb is *controlled* (test page) —
+ *                a static sphere, no scene morphing/directives.
+ *  - distortion  0..1 turbulence amount (test page slider)
+ *  - state       'idle' | 'thinking' | 'speaking' — modulates motion (test page)
  */
 import { useMemo, useRef, useEffect } from 'react'
 import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ORB_VERT, ORB_FRAG, CORE_VERT, CORE_FRAG } from './orbShaders'
+import { buildMorphShapes, type MorphShapes, type MorphKey } from './morphShapes'
+import { SCENE_ORB, DEPT_COLORS, orbForScene } from './orbDirectives'
 import { sceneState } from '../../lib/sceneState'
 import { THREE_COLORS, SCENE_SEQUENCE, PALETTES } from '../../design/scenePalette'
 
@@ -33,11 +35,12 @@ export interface OMEGAOrbProps {
   onClick?: () => void
 }
 
-/** Fibonacci sphere geometry, memoized + disposed (raw geometry is not auto-disposed). */
-function useParticleGeometry(count: number, radius = 2) {
-  const geometry = useMemo(() => {
+const ORB_RADIUS = 2
+
+/** Fibonacci sphere + the four morph shape buffers, memoized + disposed. */
+function useParticleGeometry(count: number, radius = ORB_RADIUS) {
+  const data = useMemo(() => {
     const positions = new Float32Array(count * 3)
-    const targets = new Float32Array(count * 3)
     const scales = new Float32Array(count)
     const randoms = new Float32Array(count)
     const golden = Math.PI * (3 - Math.sqrt(5)) // golden angle ≈ 2.39996
@@ -45,36 +48,36 @@ function useParticleGeometry(count: number, radius = 2) {
       const y = 1 - (i / (count - 1)) * 2
       const r = Math.sqrt(Math.max(0, 1 - y * y))
       const theta = golden * i
-      const x = Math.cos(theta) * r * radius
-      const z = Math.sin(theta) * r * radius
-      positions[i * 3] = x
+      positions[i * 3] = Math.cos(theta) * r * radius
       positions[i * 3 + 1] = y * radius
-      positions[i * 3 + 2] = z
-      // no morph target yet (Phase 1) → target = position (uMorph stays ~0)
-      targets[i * 3] = x
-      targets[i * 3 + 1] = y * radius
-      targets[i * 3 + 2] = z
+      positions[i * 3 + 2] = Math.sin(theta) * r * radius
       scales[i] = 0.5 + Math.random() * 1.5
       randoms[i] = Math.random()
     }
+    const shapes = buildMorphShapes(count, radius, positions)
+
     const g = new THREE.BufferGeometry()
     g.setAttribute('position', new THREE.BufferAttribute(positions, 3))
-    g.setAttribute('aTarget', new THREE.BufferAttribute(targets, 3))
+    // morph A/B start as the sphere (own copies → independently mutable each scene)
+    g.setAttribute('aMorphA', new THREE.BufferAttribute(Float32Array.from(positions), 3))
+    g.setAttribute('aMorphB', new THREE.BufferAttribute(Float32Array.from(positions), 3))
     g.setAttribute('aScale', new THREE.BufferAttribute(scales, 1))
     g.setAttribute('aRandom', new THREE.BufferAttribute(randoms, 1))
-    return g
+    return { geometry: g, shapes }
   }, [count, radius])
 
-  useEffect(() => () => geometry.dispose(), [geometry])
-  return geometry
+  useEffect(() => () => data.geometry.dispose(), [data])
+  return data
 }
 
-/** per-state behaviour targets (damped toward each frame) */
+/** per-state behaviour targets (test page only) */
 const STATE_TUNING: Record<OrbState, { speed: number; breath: number; freq: number; spin: number; ampBoost: number }> = {
   idle: { speed: 0.12, breath: 0.03, freq: 0.55, spin: 0.035, ampBoost: 0 },
   thinking: { speed: 0.4, breath: 0.05, freq: 0.85, spin: 0.13, ampBoost: 0.06 },
   speaking: { speed: 0.22, breath: 0.07, freq: 0.6, spin: 0.06, ampBoost: 0.02 },
 }
+
+const damp = THREE.MathUtils.damp
 
 export function OMEGAOrb({
   particleCount = 8000,
@@ -87,7 +90,6 @@ export function OMEGAOrb({
 }: OMEGAOrbProps) {
   const { size, viewport, pointer } = useThree()
 
-  // capability tiers (DESIGN_SYSTEM §6.8) — auto-reduce + disable gravity on touch.
   const tier = useMemo(() => {
     const touch = typeof window !== 'undefined' && (matchMedia('(hover: none)').matches || 'ontouchstart' in window)
     const reduced = typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -96,7 +98,7 @@ export function OMEGAOrb({
   const count = tier.touch ? Math.min(4000, particleCount) : particleCount
   const gravityOn = reactive && !tier.touch && !tier.reduced
 
-  const geometry = useParticleGeometry(count, 2)
+  const { geometry, shapes } = useParticleGeometry(count)
   const groupRef = useRef<THREE.Group>(null)
   const matRef = useRef<THREE.ShaderMaterial>(null)
   const mouseWorld = useRef(new THREE.Vector3())
@@ -104,13 +106,20 @@ export function OMEGAOrb({
   const ripple = useRef(0)
   const lastBlend = useRef<THREE.Blending>(THREE.AdditiveBlending)
 
+  // orb-directive damping refs (the persistent transform state)
+  const morphIndex = useRef(-1)
+  const orbScale = useRef(color ? scale : SCENE_ORB[0].scale)
+  const orbPos = useRef(new THREE.Vector3())
+  const dirAlpha = useRef(color ? 1 : SCENE_ORB[0].alpha)
+  const spin = useRef(color ? STATE_TUNING[state].spin : SCENE_ORB[0].spin)
+  const entrance = useRef(0)
+
   const initialColor = useMemo(
     () => (color ? new THREE.Color(color).convertSRGBToLinear() : THREE_COLORS[SCENE_SEQUENCE[0]].clone()),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
 
-  // ⚠ build uniforms ONCE (empty deps). Re-creating would disconnect useFrame.
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -133,29 +142,44 @@ export function OMEGAOrb({
     [],
   )
 
-  // separate uniforms for the inner core glow (color/intensity mirrored each frame).
   const coreUniforms = useMemo(
     () => ({ uColor: { value: initialColor.clone() }, uIntensity: { value: 1 }, uAlpha: { value: 0 } }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
 
+  /** swap the morph buffers: aMorphA ← current (or an explicit `from`), aMorphB ← `to`. */
+  function applyMorph(to: MorphKey, from?: MorphKey) {
+    const aA = geometry.getAttribute('aMorphA') as THREE.BufferAttribute
+    const aB = geometry.getAttribute('aMorphB') as THREE.BufferAttribute
+    const arrA = aA.array as Float32Array
+    const arrB = aB.array as Float32Array
+    const cur = uniforms.uMorph.value
+    const src: MorphShapes = shapes
+    if (from) {
+      arrA.set(src[from])
+    } else {
+      // freeze the current interpolated positions → no snap on rapid scene flips
+      for (let i = 0; i < arrA.length; i++) arrA[i] = arrA[i] + (arrB[i] - arrA[i]) * cur
+    }
+    arrB.set(src[to])
+    aA.needsUpdate = true
+    aB.needsUpdate = true
+    uniforms.uMorph.value = 0
+  }
+
   useFrame((stThree, delta) => {
     const u = uniforms
     const t = stThree.clock.elapsedTime
-    const d = Math.min(delta, 0.05) // clamp big tab-switch deltas
+    const d = Math.min(delta, 0.05)
     u.uTime.value = t
     u.uScale.value = stThree.size.height * stThree.viewport.dpr
-
-    // entrance: particle "assembly" alpha ramp 0→1 over ~1.4s
-    u.uAlpha.value = THREE.MathUtils.damp(u.uAlpha.value, 1, 3, d)
+    entrance.current = damp(entrance.current, 1, 3, d)
 
     const tune = STATE_TUNING[state]
     const dist = Math.max(0, Math.min(1, distortion))
-    // capped radial turbulence — bounded so the sphere never scatters apart; the bulk
-    // of "distortion" is the COHERENT travelling surface wave (uWave) in the shader.
     const baseAmp = 0.03 + dist * 0.18
-    u.uWave.value = THREE.MathUtils.damp(u.uWave.value, tier.reduced ? dist * 0.3 : dist, 4, d)
+    u.uWave.value = damp(u.uWave.value, tier.reduced ? dist * 0.3 : dist, 4, d)
 
     // ---- mouse → world on z=0 plane; damped (hypersensitive yet smooth) ----
     if (gravityOn) {
@@ -167,18 +191,46 @@ export function OMEGAOrb({
     }
     u.uMouse.value.copy(mouseWorld.current)
 
-    // ---- color: controlled (prop) or scene authority ----
+    // ---- per-scene orb directives (skipped on the controlled test page) ----
+    let dirIntensity = 1
     let light = false
     if (color) {
       targetColor.current.set(color).convertSRGBToLinear()
+      orbScale.current = damp(orbScale.current, scale, 4, d)
+      spin.current = tune.spin
     } else {
-      const key = SCENE_SEQUENCE[Math.max(0, Math.min(sceneState.index, SCENE_SEQUENCE.length - 1))]
-      targetColor.current.copy(THREE_COLORS[key])
-      light = !!PALETTES[key].light
+      const idx = Math.max(0, Math.min(sceneState.index, SCENE_ORB.length - 1))
+      const dir = orbForScene(idx)
+      if (morphIndex.current !== idx) {
+        applyMorph(dir.morphTo, dir.morphFrom)
+        morphIndex.current = idx
+      }
+      // morph completion: by-progress (assemble) or auto-complete; reduced → instant
+      const morphTarget = dir.morphByProgress ? Math.max(0, Math.min(1, sceneState.progress)) : 1
+      u.uMorph.value = tier.reduced ? morphTarget : damp(u.uMorph.value, morphTarget, 3, d)
+
+      const dolly = dir.dolly && !tier.reduced ? Math.max(0, sceneState.progress) * 4.2 : 0
+      orbScale.current = damp(orbScale.current, dir.scale + dolly, 4, d)
+      orbPos.current.x = damp(orbPos.current.x, dir.x, 5, d)
+      orbPos.current.y = damp(orbPos.current.y, dir.y, 5, d)
+      dirAlpha.current = damp(dirAlpha.current, dir.alpha, 5, d)
+      spin.current = damp(spin.current, dir.spin, 3, d)
+      dirIntensity = dir.intensity
+
+      if (dir.colorCycle) {
+        // cycle teal→ocean→indigo→amber across this scene's progress
+        const p = Math.max(0, Math.min(1, sceneState.progress)) * (DEPT_COLORS.length - 1)
+        const seg = Math.min(DEPT_COLORS.length - 2, Math.floor(p))
+        targetColor.current.copy(DEPT_COLORS[seg]).lerp(DEPT_COLORS[seg + 1], p - seg)
+      } else {
+        const key = SCENE_SEQUENCE[idx]
+        targetColor.current.copy(THREE_COLORS[key])
+        light = !!PALETTES[key].light
+      }
     }
     u.uColor.value.lerp(targetColor.current, 1 - Math.exp(-3 * d))
 
-    // ---- light scene (White-Out): NormalBlending + dark particles (DESIGN_SYSTEM §6.5) ----
+    // ---- light scene (White-Out / CHOICE): NormalBlending + dark particles ----
     const wantBlend = light ? THREE.NormalBlending : THREE.AdditiveBlending
     if (matRef.current && wantBlend !== lastBlend.current) {
       matRef.current.blending = wantBlend
@@ -187,29 +239,33 @@ export function OMEGAOrb({
     }
 
     // ---- motion uniforms damped toward state targets ----
-    u.uNoiseSpeed.value = THREE.MathUtils.damp(u.uNoiseSpeed.value, tier.reduced ? 0.01 : tune.speed, 4, d)
-    u.uBreath.value = THREE.MathUtils.damp(u.uBreath.value, tier.reduced ? 0 : tune.breath, 4, d)
-    u.uNoiseFreq.value = THREE.MathUtils.damp(u.uNoiseFreq.value, tune.freq, 4, d)
-    u.uNoiseAmp.value = THREE.MathUtils.damp(u.uNoiseAmp.value, tier.reduced ? baseAmp * 0.3 : baseAmp + tune.ampBoost, 4, d)
-    u.uMorph.value = THREE.MathUtils.damp(u.uMorph.value, sceneState.progress, 4, d)
+    u.uNoiseSpeed.value = damp(u.uNoiseSpeed.value, tier.reduced ? 0.01 : tune.speed, 4, d)
+    u.uBreath.value = damp(u.uBreath.value, tier.reduced ? 0 : tune.breath, 4, d)
+    u.uNoiseFreq.value = damp(u.uNoiseFreq.value, tune.freq, 4, d)
+    u.uNoiseAmp.value = damp(u.uNoiseAmp.value, tier.reduced ? baseAmp * 0.3 : baseAmp + tune.ampBoost, 4, d)
 
-    // ---- intensity: base + state + scene transition + click ripple ----
-    ripple.current = THREE.MathUtils.damp(ripple.current, 0, 3, d)
-    // decay the scene-cut transition energy (SceneShell sets it to 1 on each activate)
-    sceneState.transitioning = THREE.MathUtils.damp(sceneState.transitioning, 0, 2.5, d)
+    // ---- master alpha = entrance ramp × scene visibility ----
+    u.uAlpha.value = entrance.current * dirAlpha.current
+
+    // ---- intensity: scene dim × (base + state + transition + click ripple) ----
+    ripple.current = damp(ripple.current, 0, 3, d)
+    sceneState.transitioning = damp(sceneState.transitioning, 0, 2.5, d)
     const speakPulse = state === 'speaking' ? Math.abs(Math.sin(t * 7)) * 0.45 : 0
     const stateGlow = state === 'thinking' ? 0.18 : 0
-    u.uIntensity.value = 1 + stateGlow + speakPulse + sceneState.transitioning * 1.5 + ripple.current * 1.6
+    u.uIntensity.value = dirIntensity * (1 + stateGlow + speakPulse + sceneState.transitioning * 1.5 + ripple.current * 1.6)
 
-    // ---- inner core glow: mirrors the orb colour; hidden on the light White-Out scene
-    // (additive glow over near-white would be invisible / muddy). ----
+    // ---- inner core glow (hidden on light scenes + when the orb is hidden) ----
     coreUniforms.uColor.value.copy(u.uColor.value)
     coreUniforms.uAlpha.value = light ? 0 : u.uAlpha.value
     coreUniforms.uIntensity.value =
-      0.85 + sceneState.transitioning * 0.8 + ripple.current * 0.6 + speakPulse * 0.5
+      dirIntensity * (0.85 + sceneState.transitioning * 0.8 + ripple.current * 0.6 + speakPulse * 0.5)
 
-    // ---- gentle scene-/state-driven rotation (group transform; gravity stays world-correct) ----
-    if (groupRef.current && !tier.reduced) groupRef.current.rotation.y += tune.spin * d
+    // ---- apply the persistent transform ----
+    if (groupRef.current) {
+      groupRef.current.scale.setScalar(orbScale.current)
+      groupRef.current.position.set(orbPos.current.x, orbPos.current.y, 0)
+      if (!tier.reduced) groupRef.current.rotation.y += spin.current * d
+    }
   })
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
@@ -219,7 +275,7 @@ export function OMEGAOrb({
   }
 
   return (
-    <group ref={groupRef} scale={scale}>
+    <group ref={groupRef}>
       {/* inner core glow — an internal light source so the field reads as a lit volume */}
       <mesh frustumCulled={false}>
         <sphereGeometry args={[1.15, 48, 48]} />

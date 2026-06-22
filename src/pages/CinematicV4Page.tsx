@@ -1,17 +1,18 @@
 /**
- * CinematicV4Page.tsx — the 11-scene scaffold (Phase 1: placeholders only).
+ * CinematicV4Page.tsx — the finished 11-scene cinematic OMEGA story (Phase 2).
  *
- * Proves the engine: ONE persistent orchestrator-driven orb (fixed canvas),
- * a scene indicator + scroll progress bar, and 11 <SceneShell> placeholders —
- * one per scene of the 5-act arc — each with its palette atmosphere and scroll
- * mode (normal / pin / horizontal / time-scrub). No real copy or visuals yet.
+ * ONE persistent orchestrator-driven orb (fixed canvas) that morphs sphere →
+ * mesh → streams → sphere across the scroll, eleven story scenes layered on top,
+ * a site-wide color grade + film cuts, the scene indicator and progress bar.
+ * The brand name reads from BRAND so the deferred rename stays a one-file change.
  */
 import { useEffect, useRef, useState } from 'react'
 import { OMEGA_SCENES, type OmegaScene } from '../design/scenePalette'
-import { SceneShell } from '../components/omega/SceneShell'
+import { SCENE_COMPONENTS } from '../components/omega/scenes/registry'
 import { OMEGACanvas } from '../components/omega/OMEGACanvas'
 import { OMEGAOrb } from '../components/omega/OMEGAOrb'
 import { AtmosphereOverlay } from '../components/omega/AtmosphereOverlay'
+import { ColorGrade } from '../components/omega/ColorGrade'
 import { useSceneOrchestrator } from '../components/omega/useSceneOrchestrator'
 import { BRAND } from '../config/brand'
 
@@ -24,7 +25,7 @@ export default function CinematicV4Page() {
 
   useEffect(() => {
     const prev = document.title
-    document.title = `${BRAND.name} — Living System`
+    document.title = `${BRAND.name} — The living system`
     return () => {
       document.title = prev
     }
@@ -34,40 +35,40 @@ export default function CinematicV4Page() {
     <>
       <AtmosphereOverlay />
 
-      {/* the single persistent orb — fixed, behind the DOM, orchestrator-driven */}
+      {/* the single persistent, morphing orb — fixed, behind the DOM */}
       <OMEGACanvas fixed>
         <OMEGAOrb reactive state="idle" />
       </OMEGACanvas>
 
-      {/* top-left brand mark + back link */}
-      <header
-        className="fixed top-0 left-0 z-50 flex items-center gap-4 p-6"
-        style={{ mixBlendMode: 'difference' }}
-      >
-        <span className="u-kicker" style={{ color: '#fff' }}>{BRAND.name}</span>
-        <a href="/" className="u-kicker opacity-60 hover:opacity-100" style={{ color: '#fff', textDecoration: 'none' }}>
+      {/* site-wide color grade + film-cut veil */}
+      <ColorGrade />
+
+      {/* top-left brand mark + nav (mix-blend keeps it legible on dark AND white scenes) */}
+      <header className="omega-chrome fixed top-0 left-0 z-50 flex items-center gap-4 p-6">
+        <span className="u-kicker">{BRAND.name}</span>
+        <a href="/" className="u-kicker opacity-60 hover:opacity-100" style={{ textDecoration: 'none' }}>
           ← home
         </a>
-        <a href="/omega-test" className="u-kicker opacity-60 hover:opacity-100" style={{ color: '#fff', textDecoration: 'none' }}>
+        <a href="/omega-test" className="u-kicker opacity-60 hover:opacity-100" style={{ textDecoration: 'none' }}>
           orb test →
         </a>
       </header>
 
       {/* bottom-left scene indicator */}
-      <div className="fixed bottom-0 left-0 z-50 p-6" style={{ mixBlendMode: 'difference' }} aria-live="polite">
-        <div className="u-kicker" style={{ color: '#fff' }}>
+      <div className="omega-chrome fixed bottom-0 left-0 z-50 p-6" aria-live="polite">
+        <div className="u-kicker">
           <span style={{ fontSize: 'var(--text-lead)' }}>{pad(active.index)}</span>
           <span className="opacity-50"> / {pad(OMEGA_SCENES.length - 1)}</span>
         </div>
-        <div className="u-kicker mt-1" style={{ color: '#fff' }}>{active.name}</div>
-        <div className="u-kicker opacity-50">ACT {active.act}</div>
+        <div className="u-kicker mt-1" style={{ letterSpacing: '0.14em' }}>{active.name}</div>
       </div>
 
       {/* the 11 scenes scroll on top of the fixed orb */}
       <main ref={rootRef} className="relative z-10">
-        {OMEGA_SCENES.map((scene) => (
-          <SceneShell key={scene.index} scene={scene} onActivate={setActive} />
-        ))}
+        {OMEGA_SCENES.map((scene, i) => {
+          const Scene = SCENE_COMPONENTS[i]
+          return <Scene key={scene.index} scene={scene} onActivate={setActive} />
+        })}
       </main>
     </>
   )

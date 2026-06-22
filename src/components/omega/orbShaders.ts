@@ -19,7 +19,8 @@ uniform float uNoiseAmp, uNoiseFreq, uNoiseSpeed, uWave;
 uniform vec3  uMouse;        // world-space point on z=0 plane
 uniform float uMouseRadius, uMouseStrength;
 
-attribute vec3  aTarget;     // morph target (same point count!)
+attribute vec3  aMorphA;     // shape we are morphing FROM (same point count!)
+attribute vec3  aMorphB;     // shape we are morphing TO
 attribute float aScale;      // per-particle size variance
 attribute float aRandom;     // per-particle phase
 
@@ -49,10 +50,12 @@ float snoise(vec3 v){
 }
 
 void main(){
-  // 1) morph sphere → target (same N indices)
-  vec3 pos = mix(position, aTarget, uMorph);
+  // 1) morph between two precomputed shape buffers (sphere↔mesh↔streams↔scatter).
+  //    Both share the sphere's index ordering → each particle travels 1:1.
+  vec3 pos = mix(aMorphA, aMorphB, uMorph);
   // 2) idle breathing BEFORE displacement (radial, coherent), shimmer via phase
   pos *= 1.0 + sin(uTime * 0.6 + aRandom * 6.2831) * uBreath;
+  // sphere normal as the organic-shimmer basis (stable across every morph shape)
   vec3 nrm = normalize(position);
   // 3) COHERENT structural surface waves — distortion travels as ripples, not scatter.
   //    Three orthogonal travelling sines keep it organic yet sphere-preserving.
