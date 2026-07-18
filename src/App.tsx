@@ -22,6 +22,13 @@ import { usePrefersReducedMotion } from './utils/animations'
 // keeping the landing chunk light.
 const CinematicV4Page = lazy(() => import('./pages/CinematicV4Page'))
 const OmegaTestPage = lazy(() => import('./pages/OmegaTestPage'))
+const VideosPage = lazy(() => import('./pages/VideosPage'))
+
+/** `/videos` → null, `/videos/sales` → 'sales'. Tolerates a trailing slash. */
+function videoSlug(route: string): string | null {
+  const rest = route.replace(/^\/videos\/?/, '').replace(/\/+$/, '')
+  return rest === '' ? null : rest.split('/')[0]
+}
 
 function getRoute() {
   if (typeof window === 'undefined') return '/'
@@ -122,6 +129,17 @@ export default function App() {
     return (
       <Suspense fallback={<RouteFallback />}>
         <CinematicV4Page />
+      </Suspense>
+    )
+  }
+  // Public film hub. `/videos/<slug>` filters by collection; an unrecognised
+  // slug falls back to the full hub rather than rendering an empty promise.
+  // NB: static assets under public/videos/ still win — Vercel only rewrites to
+  // index.html when no file matches — so /videos/hero-bg.mp4 keeps serving.
+  if (route.startsWith('/videos')) {
+    return (
+      <Suspense fallback={<RouteFallback />}>
+        <VideosPage slug={videoSlug(route)} />
       </Suspense>
     )
   }
