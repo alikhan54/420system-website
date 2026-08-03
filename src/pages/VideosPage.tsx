@@ -16,9 +16,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { BRAND } from '../config/brand'
 import {
   collectionBySlug,
-  filmsByTag,
   formatDuration,
-  publicCollections,
+  publicCollectionsByKind,
   publicFilms,
   type Film,
 } from '../data/films'
@@ -40,7 +39,7 @@ export default function VideosPage({ slug }: Props) {
   const unknownSlug = Boolean(slug) && !collection
 
   const films = useMemo<Film[]>(
-    () => (collection ? filmsByTag(collection.tag) : publicFilms()),
+    () => (collection ? collection.films() : publicFilms()),
     [collection],
   )
 
@@ -89,7 +88,9 @@ export default function VideosPage({ slug }: Props) {
   }
 
   const rest = films.filter((f) => f.id !== active.id)
-  const collections = publicCollections()
+  const typeCollections = publicCollectionsByKind('type')
+  const industryCollections = publicCollectionsByKind('industry')
+  const departmentCollections = publicCollectionsByKind('department')
 
   return (
     <main
@@ -140,9 +141,11 @@ export default function VideosPage({ slug }: Props) {
           {collection ? collection.blurb : 'Watch it actually run.'}
         </h1>
         <p style={{ margin: '1.1rem 0 0', maxWidth: '58ch', fontSize: '1.0625rem', lineHeight: 1.6, color: MUTED }}>
-          {collection
-            ? `Recorded from the live product — nothing staged, nothing mocked up.`
-            : `Every film below is a screen recording of the real system doing real work. No mockups, no fake dashboards.`}
+          {collection?.slug === 'founder-story'
+            ? `The founder, on camera — not a screen recording, but nothing staged either.`
+            : collection
+              ? `Recorded from the live product — nothing staged, nothing mocked up.`
+              : `Every film below is a screen recording of the real system doing real work. No mockups, no fake dashboards.`}
         </p>
 
         {unknownSlug && (
@@ -157,7 +160,7 @@ export default function VideosPage({ slug }: Props) {
           </p>
         )}
 
-        {/* player */}
+        {/* player — vertical cuts get a phone-width frame instead of stretching to full bleed */}
         <div
           style={{
             marginTop: 'clamp(1.75rem, 3vw, 2.75rem)',
@@ -165,6 +168,9 @@ export default function VideosPage({ slug }: Props) {
             border: `1px solid ${HAIRLINE}`,
             background: '#000',
             boxShadow: `0 40px 120px -40px color-mix(in oklab, var(--vh-accent) 45%, transparent)`,
+            maxWidth: active.aspect === '9:16' ? 420 : undefined,
+            marginLeft: active.aspect === '9:16' ? 'auto' : undefined,
+            marginRight: active.aspect === '9:16' ? 'auto' : undefined,
           }}
         >
           <video
@@ -174,7 +180,11 @@ export default function VideosPage({ slug }: Props) {
             controls
             playsInline
             preload="metadata"
-            style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', background: '#000' }}
+            style={{
+              display: 'block', width: '100%',
+              aspectRatio: active.aspect === '9:16' ? '9 / 16' : '16 / 9',
+              background: '#000',
+            }}
           >
             <source src={active.src} type="video/mp4" />
             Your browser can't play this video.{' '}
@@ -217,11 +227,15 @@ export default function VideosPage({ slug }: Props) {
                   style={{ ['--vh-card-accent' as string]: film.accent }}
                   aria-label={`Play ${film.title} — ${formatDuration(film.durationS)}`}
                 >
-                  <span className="vh-thumb">
+                  <span className="vh-thumb" style={{ aspectRatio: film.aspect === '9:16' ? '9 / 16' : '16 / 9' }}>
                     {/* Eager, deliberately: the whole library is ~1.1MB of posters and
                         they ARE this page's primary content. loading="lazy" also proved
                         unreliable here — the requests never fired even in-viewport. */}
-                    <img src={film.poster} alt="" decoding="async" width={1920} height={1080} />
+                    <img
+                      src={film.poster} alt="" decoding="async"
+                      width={film.aspect === '9:16' ? 1080 : 1920}
+                      height={film.aspect === '9:16' ? 1920 : 1080}
+                    />
                     <span className="vh-play" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                     </span>
@@ -238,22 +252,50 @@ export default function VideosPage({ slug }: Props) {
         </section>
       )}
 
-      {/* ── collections ────────────────────────────────────────────────── */}
+      {/* ── filterable library: three independent axes, each its own row ── */}
       <section style={{ padding: 'clamp(2.5rem, 5vw, 4rem) clamp(1.25rem, 5vw, 4rem) 0', maxWidth: 1440, margin: '0 auto' }}>
-        <h2 className="vh-kicker" style={{ color: MUTED, marginBottom: '1rem' }}>Browse by</h2>
-        <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+        <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.75rem' }}>
           <a href="/videos" className="vh-chip" aria-current={!collection ? 'page' : undefined}>Everything</a>
-          {collections.map((c) => (
-            <a
-              key={c.slug}
-              href={`/videos/${c.slug}`}
-              className="vh-chip"
-              aria-current={collection?.slug === c.slug ? 'page' : undefined}
-            >
-              {c.label}
-            </a>
-          ))}
         </nav>
+
+        {typeCollections.length > 0 && (
+          <>
+            <h2 className="vh-kicker" style={{ color: MUTED, marginBottom: '0.75rem' }}>Type</h2>
+            <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.75rem' }}>
+              {typeCollections.map((c) => (
+                <a key={c.slug} href={`/videos/${c.slug}`} className="vh-chip" aria-current={collection?.slug === c.slug ? 'page' : undefined}>
+                  {c.label}
+                </a>
+              ))}
+            </nav>
+          </>
+        )}
+
+        {industryCollections.length > 0 && (
+          <>
+            <h2 className="vh-kicker" style={{ color: MUTED, marginBottom: '0.75rem' }}>Industry</h2>
+            <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '1.75rem' }}>
+              {industryCollections.map((c) => (
+                <a key={c.slug} href={`/videos/${c.slug}`} className="vh-chip" aria-current={collection?.slug === c.slug ? 'page' : undefined}>
+                  {c.label}
+                </a>
+              ))}
+            </nav>
+          </>
+        )}
+
+        {departmentCollections.length > 0 && (
+          <>
+            <h2 className="vh-kicker" style={{ color: MUTED, marginBottom: '0.75rem' }}>Department</h2>
+            <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+              {departmentCollections.map((c) => (
+                <a key={c.slug} href={`/videos/${c.slug}`} className="vh-chip" aria-current={collection?.slug === c.slug ? 'page' : undefined}>
+                  {c.label}
+                </a>
+              ))}
+            </nav>
+          </>
+        )}
       </section>
 
       {/* ── cta ────────────────────────────────────────────────────────── */}

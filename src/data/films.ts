@@ -1,5 +1,6 @@
 /**
- * films.ts — the ONE manifest behind /videos and /videos/<slug>.
+ * films.ts — the ONE manifest behind /videos, /videos/<type>, /videos/<industry>
+ * and the legacy per-department /videos/<department> pages.
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * PUBLIC-ELIGIBILITY LAW (operator directive 2026-07-18, LOCKED, RETROACTIVE)
@@ -12,6 +13,9 @@
  *   regardless of finish state. That covers BBQ Tonight, BSH, MNT Halan,
  *   Dubai Sports City, Marhama, Cosmique, Smart Ledger, Tend and the rest of
  *   the pre-2026-07-04 library — roughly 90% by volume of E:\video-library.
+ *   It also covers a small set of government-ministry pitch assets that are
+ *   not listed anywhere in this file, by name or otherwise — those stay
+ *   private pitch material for their intended recipients only, permanently.
  *
  *   `isPublic` therefore DEFAULTS TO FALSE and is set true only after a
  *   leak scan for real-client names has passed and is recorded in `leakScan`.
@@ -20,6 +24,7 @@
  *
  *   Source of truth for the law: work/dept-film-suite/DEMO_TENANT_RULES.md
  *   Recon + blast radius:        work/video-hub/PHASE0_RECON.md
+ *   2026-08-04 taxonomy pass:    work/video-hub/PHASE1_TAXONOMY.md
  * ─────────────────────────────────────────────────────────────────────────────
  *
  * Media lives in the public Supabase `media` bucket under our OWN `hub/` prefix
@@ -28,6 +33,25 @@
  */
 
 const CDN = 'https://fncfbywkemsxwuiowxxe.supabase.co/storage/v1/object/public/media/hub'
+
+/** TYPE — what kind of film this is. Every public film has exactly one. */
+export type FilmType =
+  | 'flagship-ads'
+  | 'founder-story'
+  | 'how-to'
+  | 'explainers'
+  | 'department-films'
+  | 'industry-films'
+
+/** INDUSTRY — which business this film shows OMEGA running. Every public film has exactly one. */
+export type Industry =
+  | 'healthcare'
+  | 'government'
+  | 'restaurant-hospitality'
+  | 'retail'
+  | 'finance'
+  | 'real-estate'
+  | 'tech'
 
 export interface Film {
   id: string
@@ -40,21 +64,46 @@ export interface Film {
   durationS: number
   /** Sampled from the film's own title card, so the UI inherits its palette. */
   accent: string
-  /** Drives /videos/<slug>. A slug with no public film simply has no page. */
+  /** Drives the legacy per-department /videos/<slug> pages. */
   tags: string[]
-  /** Provenance — which demo tenant was on screen. Required by the law above. */
+  /** Required taxonomy — see FilmType above. */
+  type: FilmType
+  /** Required taxonomy — see Industry above. */
+  industry: Industry
+  /** Provenance — which demo tenant (or ZATE itself) was on screen. Required by the law above. */
   tenant: string
   /** DEFAULT FALSE. Only a recorded leak scan may flip this. */
   isPublic: boolean
   leakScan?: string
   src: string
   poster: string
-  /** 9:16 cut, where one exists. */
+  /** 9:16 cut, where one exists as a SEPARATE download alongside a 16:9 primary. */
   srcVertical?: string
+  /** Native aspect ratio of `src` itself. Omit for the default 16:9. */
+  aspect?: '16:9' | '9:16'
 }
 
 /** Every film we know about. Public or not — the filter is `isPublic`. */
 const FILMS: Film[] = [
+  // ── Founder story — featured first: the human entry point. ──
+  {
+    id: 'founder',
+    title: 'Why I Built OMEGA',
+    line: "Five or six tools. That don't talk.",
+    blurb: 'The founder, on the actual problem OMEGA exists to fix — shot vertical, meant to be watched on a phone.',
+    durationS: 49.0,
+    accent: '#8B7CF6',
+    tags: [],
+    type: 'founder-story',
+    industry: 'tech',
+    tenant: 'ZATE Systems (founder)',
+    isPublic: true,
+    leakScan: '2026-08-04 — frame review (6 samples across the runtime), zero real-client names, zero other-company material',
+    src: `${CDN}/video/founder-omega.mp4`,
+    poster: `${CDN}/poster/founder-omega.jpg`,
+    aspect: '9:16',
+  },
+
   {
     id: 'apex',
     title: 'APEX',
@@ -64,6 +113,8 @@ const FILMS: Film[] = [
     durationS: 73.6,
     accent: '#6EE7FF',
     tags: ['flagship'],
+    type: 'flagship-ads',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -75,17 +126,34 @@ const FILMS: Film[] = [
     id: 'platform',
     title: 'One Intelligence',
     line: 'Six departments. One intelligence.',
-    blurb:
-      'How the departments stop being separate tools and start behaving as a single system.',
+    blurb: 'How the departments stop being separate tools and start behaving as a single system.',
     durationS: 79.3,
     accent: '#A78BFA',
     tags: ['flagship'],
+    type: 'flagship-ads',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
     src: `${CDN}/video/platform.mp4`,
     poster: `${CDN}/poster/platform.jpg`,
     srcVertical: `${CDN}/video/platform-9x16.mp4`,
+  },
+  {
+    id: 'investor-vision',
+    title: 'Investor Vision',
+    line: 'Every company is about to run an AI workforce.',
+    blurb: "ZATE's own pitch for OMEGA — built the same way every client film is: real screens, real product, nothing staged.",
+    durationS: 101.9,
+    accent: '#A78BFA',
+    tags: ['flagship'],
+    type: 'flagship-ads',
+    industry: 'tech',
+    tenant: 'ZATE Systems (own content, illustrated on the Aurelia Estates + Veyra Robotics fictional demos)',
+    isPublic: true,
+    leakScan: '2026-08-04 — frame review (7 samples), synthetic demo figures throughout (no real financials, no real client names)',
+    src: `${CDN}/video/zate-investor-vision.mp4`,
+    poster: `${CDN}/poster/zate-investor-vision.jpg`,
   },
   {
     id: 'sales',
@@ -95,6 +163,8 @@ const FILMS: Film[] = [
     durationS: 73.3,
     accent: '#0C6C50',
     tags: ['department', 'sales'],
+    type: 'department-films',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -109,6 +179,8 @@ const FILMS: Film[] = [
     durationS: 66.5,
     accent: '#C81E5D',
     tags: ['department', 'marketing'],
+    type: 'department-films',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -123,6 +195,8 @@ const FILMS: Film[] = [
     durationS: 66.4,
     accent: '#B55308',
     tags: ['department', 'communications'],
+    type: 'department-films',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -137,6 +211,8 @@ const FILMS: Film[] = [
     durationS: 66.4,
     accent: '#34617E',
     tags: ['department', 'operations'],
+    type: 'department-films',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -151,6 +227,8 @@ const FILMS: Film[] = [
     durationS: 66.6,
     accent: '#D2AF37',
     tags: ['department', 'finance'],
+    type: 'department-films',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -165,6 +243,8 @@ const FILMS: Film[] = [
     durationS: 66.5,
     accent: '#167A72',
     tags: ['department', 'people', 'hr'],
+    type: 'department-films',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -180,6 +260,8 @@ const FILMS: Film[] = [
     durationS: 62.1,
     accent: '#67E8F9',
     tags: ['living'],
+    type: 'explainers',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -194,6 +276,8 @@ const FILMS: Film[] = [
     durationS: 48.8,
     accent: '#A78BFA',
     tags: ['living'],
+    type: 'explainers',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -208,6 +292,8 @@ const FILMS: Film[] = [
     durationS: 22.1,
     accent: '#6EE7FF',
     tags: ['flagship'],
+    type: 'flagship-ads',
+    industry: 'tech',
     tenant: 'Veyra Robotics (fictional demo)',
     isPublic: true,
     leakScan: '2026-07-18 — frame review, zero real-client names',
@@ -215,11 +301,56 @@ const FILMS: Film[] = [
     poster: `${CDN}/poster/cinema-reel.jpg`,
   },
 
+  // ── Industry films — a vertical shown end to end on one fictional tenant. ──
+  {
+    id: 'northlight',
+    title: 'Northlight Clinic',
+    line: 'Your whole clinic, awake.',
+    blurb: "A boutique clinic's patients, automations and revenue, running through OMEGA end to end.",
+    durationS: 64.4,
+    accent: '#5EEAD4',
+    tags: [],
+    type: 'industry-films',
+    industry: 'healthcare',
+    tenant: 'Northlight Clinic (fictional demo)',
+    isPublic: true,
+    leakScan: '2026-08-04 — frame review (6 samples), synthetic patient records throughout, zero real-client names',
+    src: `${CDN}/video/clinic-northlight.mp4`,
+    poster: `${CDN}/poster/clinic-northlight.jpg`,
+  },
+
+  // ── How-to — the first entry in the tutorial shelf. ──
+  {
+    id: 'how-to-sequences',
+    title: 'Building a Sequence',
+    line: 'Add touchpoints to your outreach sequence.',
+    blurb: 'A real screen recording of building a multi-step outreach sequence in OMEGA, start to finish.',
+    durationS: 234.7,
+    accent: '#34D399',
+    tags: [],
+    type: 'how-to',
+    industry: 'tech',
+    tenant: 'Veyra Robotics (fictional demo)',
+    isPublic: true,
+    leakScan: '2026-08-04 — frame review, zero real-client names (synthetic sequence content only)',
+    src: `${CDN}/video/sequences-tutorial.mp4`,
+    poster: `${CDN}/poster/sequences-tutorial.jpg`,
+  },
+
   // ── Held back. Real films, deliberately not public. Do NOT flip without the operator. ──
-  // Vertical films (real_estate on Aurelia Estates, hospital on Cedarcrest) are consent-clean
-  // but carry open flags: the RE trilogy ships with placeholder music pending a swap, and
-  // HLT_SHOW_V3's look was superseded in V4 with its audio remux awaiting a founder listen.
-  // The whole pre-2026-07-04 client library (BBQ, BSH, MNT Halan, DSC, Marhama, Cosmique,
+  // Cedarcrest Hospital (healthcare, fictional-tenant-cleared): the founder rejected the
+  // HLT_SHOW_V3 audio twice for metallic tick/chime transients; a re-mixed audio2 cut shipped
+  // 2026-07-09 under a HARD STOP for a founder listen before going further. No record of that
+  // listen having happened — stays held.
+  // Aurelia Estates real-estate trilogy (Capabilities/FieldGuide, fictional-tenant-cleared):
+  // ships with a SYNTH placeholder music bed pending a licensed swap, never done as of the last
+  // audit. Not release quality — stays held.
+  // ONE MIND + THE FLOOR NEVER SLEEPS (Vox-style explainers, Veyra Robotics, all quality gates
+  // already PASS): the founder's own note on this work is "NEXT (founder-gated): review → ...
+  // → hub publish" — hub publish was explicitly the last, gated step, not yet exercised. These
+  // are the strongest remaining candidate for the Explainers shelf and technically ready — held
+  // only on that outstanding sign-off, not on any law or quality issue.
+  // The whole pre-2026-07-04 real-client library (BBQ, BSH, MNT Halan, DSC, Marhama, Cosmique,
   // Smart Ledger, Tend) is permanently internal under the law at the top of this file and is
   // therefore not listed here at all.
 ]
@@ -233,41 +364,83 @@ export function filmById(id: string): Film | undefined {
   return publicFilms().find((f) => f.id === id)
 }
 
-/** Films carrying a tag — public only, by construction. */
+/** Films carrying a department tag — public only, by construction. */
 export function filmsByTag(tag: string): Film[] {
   return publicFilms().filter((f) => f.tags.includes(tag))
+}
+
+export function filmsByType(type: FilmType): Film[] {
+  return publicFilms().filter((f) => f.type === type)
+}
+
+export function filmsByIndustry(industry: Industry): Film[] {
+  return publicFilms().filter((f) => f.industry === industry)
 }
 
 export interface Collection {
   slug: string
   label: string
   blurb: string
-  tag: string
+  kind: 'type' | 'industry' | 'department'
+  films: () => Film[]
 }
 
 /**
- * /videos/<slug>. A collection only renders if it has at least one PUBLIC film —
- * so a slug never becomes an empty page making a promise we can't keep.
- *
- * Department slugs are live today. Industry slugs (real-estate, hospital,
- * restaurant, …) intentionally have no entry yet: their films are either held
- * or, in the restaurant case, were never cut on a fictional tenant. They get
- * added here the moment a film clears — the page machinery already supports it.
+ * /videos/<slug> for TYPE — "what kind of film is this". Always registered;
+ * a type with zero cleared films simply renders the honest empty-state fallback
+ * (see VideosPage's `unknownSlug` handling), never a broken or missing page.
  */
-const COLLECTIONS: Collection[] = [
-  { slug: 'sales',          label: 'Sales',          blurb: 'How OMEGA works a pipeline end to end.',        tag: 'sales' },
-  { slug: 'marketing',      label: 'Marketing',      blurb: 'How OMEGA runs a brand end to end.',            tag: 'marketing' },
-  { slug: 'communications', label: 'Communications', blurb: 'Every channel, one inbox, answered.',           tag: 'communications' },
-  { slug: 'operations',     label: 'Operations',     blurb: 'Stock, supply chain and the things that slip.', tag: 'operations' },
-  { slug: 'finance',        label: 'Finance',        blurb: 'Cash, receivables and continuous reconciliation.', tag: 'finance' },
-  { slug: 'people',         label: 'People',         blurb: 'Sourcing, screening and ranking, continuously.', tag: 'people' },
-  { slug: 'flagship',       label: 'The Flagship',   blurb: 'The full OMEGA story.',                          tag: 'flagship' },
-  { slug: 'living',         label: 'The Living System', blurb: 'The organization brain, recorded live.',      tag: 'living' },
+const TYPE_COLLECTIONS: Collection[] = [
+  { slug: 'flagship-ads', label: 'Flagship Ads', blurb: 'The pitch, cut for the timeline.', kind: 'type', films: () => filmsByType('flagship-ads') },
+  { slug: 'founder-story', label: 'Founder Story', blurb: 'Why this exists, from the person who built it.', kind: 'type', films: () => filmsByType('founder-story') },
+  { slug: 'how-to', label: 'How-To', blurb: 'Step-by-step walkthroughs of the real product.', kind: 'type', films: () => filmsByType('how-to') },
+  { slug: 'explainers', label: 'Explainers', blurb: 'How the intelligence actually works, taught plainly.', kind: 'type', films: () => filmsByType('explainers') },
+  { slug: 'department-films', label: 'Department Films', blurb: 'Each department, on its own.', kind: 'type', films: () => filmsByType('department-films') },
+  { slug: 'industry-films', label: 'Industry Films', blurb: 'OMEGA built for one specific business.', kind: 'type', films: () => filmsByType('industry-films') },
 ]
 
-/** Only collections that actually have a public film behind them. */
+/**
+ * /videos/<slug> for INDUSTRY — "which business is this shown on". Always
+ * registered for the same honest-fallback reason as TYPE_COLLECTIONS above.
+ * Slugs are deliberately distinct from the legacy department slugs below
+ * (e.g. financial-services here vs. finance for the Finance department film) —
+ * those are two different dimensions of the same word and must not collide.
+ */
+const INDUSTRY_COLLECTIONS: Collection[] = [
+  { slug: 'healthcare', label: 'Healthcare', blurb: 'Clinics and hospitals running on OMEGA.', kind: 'industry', films: () => filmsByIndustry('healthcare') },
+  { slug: 'government', label: 'Government', blurb: 'Public-sector deployments.', kind: 'industry', films: () => filmsByIndustry('government') },
+  { slug: 'restaurant-hospitality', label: 'Restaurant & Hospitality', blurb: 'Restaurants, hotels and hospitality brands.', kind: 'industry', films: () => filmsByIndustry('restaurant-hospitality') },
+  { slug: 'retail', label: 'Retail', blurb: 'Retail and e-commerce operations.', kind: 'industry', films: () => filmsByIndustry('retail') },
+  { slug: 'financial-services', label: 'Financial Services', blurb: 'Finance and accounting operations.', kind: 'industry', films: () => filmsByIndustry('finance') },
+  { slug: 'real-estate', label: 'Real Estate', blurb: 'Brokerages and property teams.', kind: 'industry', films: () => filmsByIndustry('real-estate') },
+  { slug: 'tech', label: 'Tech', blurb: 'Software and technology companies.', kind: 'industry', films: () => filmsByIndustry('tech') },
+]
+
+/**
+ * /videos/<slug> for DEPARTMENT — the original, finer-grained "which OMEGA
+ * module" browse. Unchanged from before the type/industry pass; kept for the
+ * existing links into it.
+ */
+const DEPARTMENT_COLLECTIONS: Collection[] = [
+  { slug: 'sales',          label: 'Sales',          blurb: 'How OMEGA works a pipeline end to end.',        kind: 'department', films: () => filmsByTag('sales') },
+  { slug: 'marketing',      label: 'Marketing',      blurb: 'How OMEGA runs a brand end to end.',            kind: 'department', films: () => filmsByTag('marketing') },
+  { slug: 'communications', label: 'Communications', blurb: 'Every channel, one inbox, answered.',           kind: 'department', films: () => filmsByTag('communications') },
+  { slug: 'operations',     label: 'Operations',     blurb: 'Stock, supply chain and the things that slip.', kind: 'department', films: () => filmsByTag('operations') },
+  { slug: 'finance',        label: 'Finance',        blurb: 'Cash, receivables and continuous reconciliation.', kind: 'department', films: () => filmsByTag('finance') },
+  { slug: 'people',         label: 'People',         blurb: 'Sourcing, screening and ranking, continuously.', kind: 'department', films: () => filmsByTag('people') },
+  { slug: 'flagship',       label: 'The Flagship',   blurb: 'The full OMEGA story.',                          kind: 'department', films: () => filmsByTag('flagship') },
+  { slug: 'living',         label: 'The Living System', blurb: 'The organization brain, recorded live.',      kind: 'department', films: () => filmsByTag('living') },
+]
+
+const ALL_COLLECTIONS: Collection[] = [...TYPE_COLLECTIONS, ...INDUSTRY_COLLECTIONS, ...DEPARTMENT_COLLECTIONS]
+
+/** Only collections (of any kind) that actually have a public film behind them. */
 export function publicCollections(): Collection[] {
-  return COLLECTIONS.filter((c) => filmsByTag(c.tag).length > 0)
+  return ALL_COLLECTIONS.filter((c) => c.films().length > 0)
+}
+
+export function publicCollectionsByKind(kind: Collection['kind']): Collection[] {
+  return publicCollections().filter((c) => c.kind === kind)
 }
 
 export function collectionBySlug(slug: string): Collection | undefined {
