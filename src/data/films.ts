@@ -51,6 +51,7 @@ export type Industry =
   | 'retail'
   | 'finance'
   | 'real-estate'
+  | 'construction'
   | 'tech'
 
 export interface Film {
@@ -302,21 +303,111 @@ const FILMS: Film[] = [
   },
 
   // ── Industry films — a vertical shown end to end on one fictional tenant. ──
+  // ── Industry films — the vertical set. Each is ONE business, ONE journey, shot end to end on
+  //    its own approved fictional tenant. Every product frame in these five carries the
+  //    "DEMO DATA · FICTIONAL TENANT" chip and a tenant watermark, build-gated, so a viewer can
+  //    never mistake a seeded record for a real one. That gate is why these five are public and
+  //    the earlier clinic-northlight.mp4 cut is not — see work/video-hub/RECLEAR.md.
+  //
+  //    ⚠ `accent` below is CHOSEN, not sampled. The field's doc comment describes the department
+  //    films, which open on a full-bleed colour title card; these are letterboxed product captures
+  //    with no such card. Two attempts to extract a colour automatically returned the same value
+  //    for all five films — first the shared demo chip, then the shared intro word — so the honest
+  //    thing is to pick per film and say so rather than record a "sampled" value that never was.
+  {
+    id: 're-aurelia',
+    title: 'Aurelia Estates',
+    line: 'One board. Every stage.',
+    blurb:
+      'One Dubai property deal from first enquiry to transfer — the RERA forms, the commission and the board that tracks all of it.',
+    durationS: 72.1,
+    accent: '#818CF8',
+    tags: [],
+    type: 'industry-films',
+    industry: 'real-estate',
+    tenant: 'Aurelia Estates (fictional demo)',
+    isPublic: true,
+    leakScan:
+      '2026-08-24 — re-cleared. Source data scanned with the fixed all-tenant scanner (no table-prefix pattern, both slug and UUID keys); frames re-read at 1 per 3.8s (19 frames, 26% coverage). Demo chip + tenant watermark present on every product frame, build-gated.',
+    src: `${CDN}/video/re-aurelia.mp4`,
+    poster: `${CDN}/poster/re-aurelia.jpg`,
+    aspect: '9:16',
+  },
+  {
+    id: 'thornwick',
+    title: 'Thornwick Estimating',
+    line: 'Measured by machine. Signed by a person.',
+    blurb:
+      "A contractor's take-off priced in ninety seconds, then checked line by line by a human before it counts.",
+    durationS: 57.8,
+    accent: '#FBBF24',
+    tags: [],
+    type: 'industry-films',
+    industry: 'construction',
+    tenant: 'Thornwick Estimating (fictional demo)',
+    isPublic: true,
+    leakScan:
+      '2026-08-24 — re-cleared. Source data scanned with the fixed all-tenant scanner; frames re-read at 1 per 3.9s (15 frames, 26% coverage). Demo chip + tenant watermark on every product frame, build-gated.',
+    src: `${CDN}/video/thornwick.mp4`,
+    poster: `${CDN}/poster/thornwick.jpg`,
+    aspect: '9:16',
+  },
+  {
+    id: 'ashvale',
+    title: 'Ashvale Recovery Partners',
+    line: 'Every attempt on the record.',
+    blurb:
+      'A collections desk working one overdue account through to settlement — every call, every promise and every rule that governs them, logged.',
+    durationS: 109.3,
+    accent: '#FB923C',
+    tags: [],
+    type: 'industry-films',
+    industry: 'finance',
+    tenant: 'Ashvale Recovery Partners (fictional demo)',
+    isPublic: true,
+    leakScan:
+      '2026-08-24 — re-cleared. Source data scanned with the fixed all-tenant scanner; frames re-read at 1 per 3.9s (28 frames, 26% coverage). Demo chip + tenant watermark on every product frame, build-gated.',
+    src: `${CDN}/video/ashvale.mp4`,
+    poster: `${CDN}/poster/ashvale.jpg`,
+    aspect: '9:16',
+  },
+  {
+    id: 'halvern',
+    title: 'Halvern Jewellers',
+    line: 'Gold moved three times this week.',
+    blurb:
+      "A jeweller's book when the metal price moves faster than the quote — repricing, stock by weight, and a trial balance that still closes.",
+    durationS: 107.0,
+    accent: '#E5C07B',
+    tags: [],
+    type: 'industry-films',
+    industry: 'retail',
+    tenant: 'Halvern Jewellers (fictional demo)',
+    isPublic: true,
+    leakScan:
+      '2026-08-24 — re-cleared. Source data scanned with the fixed all-tenant scanner; frames re-read at 1 per 4.0s (27 frames, 25% coverage). Demo chip + tenant watermark on every product frame, build-gated.',
+    src: `${CDN}/video/halvern.mp4`,
+    poster: `${CDN}/poster/halvern.jpg`,
+    aspect: '9:16',
+  },
   {
     id: 'northlight',
     title: 'Northlight Clinic',
-    line: 'Your whole clinic, awake.',
-    blurb: "A boutique clinic's patients, automations and revenue, running through OMEGA end to end.",
-    durationS: 64.4,
+    line: 'One patient. One morning.',
+    blurb:
+      'One patient from front desk to visit closed — vitals, chart, consult, dispensary — and the six people who all have to know the same thing.',
+    durationS: 105.5,
     accent: '#5EEAD4',
     tags: [],
     type: 'industry-films',
     industry: 'healthcare',
     tenant: 'Northlight Clinic (fictional demo)',
     isPublic: true,
-    leakScan: '2026-08-04 — frame review (6 samples), synthetic patient records throughout, zero real-client names',
-    src: `${CDN}/video/clinic-northlight.mp4`,
-    poster: `${CDN}/poster/clinic-northlight.jpg`,
+    leakScan:
+      '2026-08-24 — re-cleared, and REPLACES the earlier clinic-northlight.mp4 cut, which is held (see RECLEAR.md). Patient contact details are masked at render time and never written to the tenant; the seeded-demo chip is build-gated onto all 28 product beats. Frames re-read at 1 per 3.9s (27 frames, 26% coverage).',
+    src: `${CDN}/video/northlight-clinic.mp4`,
+    poster: `${CDN}/poster/northlight-clinic.jpg`,
+    aspect: '9:16',
   },
 
   // ── How-to — the first entry in the tutorial shelf. ──
@@ -413,6 +504,7 @@ const INDUSTRY_COLLECTIONS: Collection[] = [
   { slug: 'retail', label: 'Retail', blurb: 'Retail and e-commerce operations.', kind: 'industry', films: () => filmsByIndustry('retail') },
   { slug: 'financial-services', label: 'Financial Services', blurb: 'Finance and accounting operations.', kind: 'industry', films: () => filmsByIndustry('finance') },
   { slug: 'real-estate', label: 'Real Estate', blurb: 'Brokerages and property teams.', kind: 'industry', films: () => filmsByIndustry('real-estate') },
+  { slug: 'construction', label: 'Construction', blurb: 'Contractors, estimating and the cost of a wrong take-off.', kind: 'industry', films: () => filmsByIndustry('construction') },
   { slug: 'tech', label: 'Tech', blurb: 'Software and technology companies.', kind: 'industry', films: () => filmsByIndustry('tech') },
 ]
 
