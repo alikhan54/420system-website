@@ -353,6 +353,25 @@ const FILMS: Film[] = [
     aspect: '9:16',
   },
   {
+    id: 'marhama',
+    title: 'Marhama',
+    line: 'The AI priced fifteen line items. Who checks its work?',
+    blurb:
+      'A UAE fit-out bid, taken off in AED by the AI and priced to the fils — then approved line by line before it enters the estimate.',
+    durationS: 54.1,
+    accent: '#D97706',
+    tags: [],
+    type: 'industry-films',
+    industry: 'construction',
+    tenant: 'Marhama (fictional demo)',
+    isPublic: true,
+    leakScan:
+      '2026-08-26 — cleared before first publish. Source data scanned with the fixed all-tenant scanner (0 findings over 294 columns / 92 values / 25 plate strings; every contact field NULL by design). Frame-level scan added: every engine-authored overlay string (chapters/labels/callouts/hooks/endcard/position pill) scanned with the same detector (0 findings), plus a 28-tile contact sheet sampled at 1 per 1.9s from the DELIVERED file and reviewed directly — no OCR on this box, same method as the rest of this set. Demo chip + chapter label + position pill + journey spine confirmed present on all 14 product frames, measured on the delivered artifact itself, not the pre-mux build. Crossfilm identity check run with this tenant IN the published hub scope (4 distinct identity values, 0 collisions). Built on an isolated demo tenant (marhama-estimating-demo) — the real Marhama account was never touched.',
+    src: `${CDN}/video/marhama.mp4`,
+    poster: `${CDN}/poster/marhama.jpg`,
+    aspect: '9:16',
+  },
+  {
     id: 'ashvale',
     title: 'Ashvale Recovery Partners',
     line: 'Every attempt on the record.',
