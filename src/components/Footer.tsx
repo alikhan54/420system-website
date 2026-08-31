@@ -224,10 +224,10 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-6 text-sm" style={{ color: '#8A8F98' }}>
-            <a href="#" className="transition-colors" style={{ color: '#8A8F98' }}
+            <a href="https://ai.zatesystems.com/privacy" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: '#8A8F98' }}
                onMouseEnter={(e) => (e.currentTarget.style.color = '#F0F0F5')}
                onMouseLeave={(e) => (e.currentTarget.style.color = '#8A8F98')}>Privacy</a>
-            <a href="#" className="transition-colors" style={{ color: '#8A8F98' }}
+            <a href="https://ai.zatesystems.com/terms" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: '#8A8F98' }}
                onMouseEnter={(e) => (e.currentTarget.style.color = '#F0F0F5')}
                onMouseLeave={(e) => (e.currentTarget.style.color = '#8A8F98')}>Terms</a>
             <a href="mailto:ai@zatesystems.com" className="transition-colors" style={{ color: '#8A8F98' }}
