@@ -73,8 +73,8 @@ export default function Scene11Door({ scene, onActivate }: SceneProps) {
         </div>
         <div className="flex items-center gap-6">
           {COPY.door.footerLinks.map((l) => (
-            <a key={l} href={BRAND.url} target="_blank" rel="noreferrer" className="u-kicker" style={{ color: '#9FC4BA', textDecoration: 'none' }}>
-              {l}
+            <a key={l.label} href={`${BRAND.app}${l.path}`} target="_blank" rel="noreferrer" className="u-kicker" style={{ color: '#9FC4BA', textDecoration: 'none' }}>
+              {l.label}
             </a>
           ))}
         </div>

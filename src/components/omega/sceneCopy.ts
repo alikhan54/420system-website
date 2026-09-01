@@ -104,7 +104,15 @@ export const COPY = {
     headline: 'Ready to meet your CEO?',
     sub: `One conversation. No demo deck. Just ${BRAND.name}.`,
     cta: `Talk to ${BRAND.name} →`,
-    footerLinks: ['Privacy', 'Terms', 'Contact'],
+    // {label, path} rather than bare strings: the previous shape carried no
+    // destination, so Scene11Door had nothing to link to and fell back to BRAND.url
+    // for every entry -- i.e. all three pointed at this same page. Paths are resolved
+    // against BRAND.app in Scene11Door.
+    footerLinks: [
+      { label: 'Privacy', path: '/privacy' },
+      { label: 'Terms', path: '/terms' },
+      { label: 'Contact', path: '/demo' },
+    ],
     builtIn: 'BUILT IN KARACHI',
   },
 } as const
