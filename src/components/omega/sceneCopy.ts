@@ -44,10 +44,14 @@ export const COPY = {
       { key: 'ops', label: 'Operations', hue: '#FBBF24', body: 'Inventory, vendors, reconciliation, exceptions — the work nobody wants to do.' },
     ],
   },
+  // The qualifier sits in the HEADING, not in small print under it. The previous copy put
+  // "LIVE - RIGHT NOW" at the top and "Illustrative of real decision categories" underneath, so
+  // the prominent half asserted a live feed and the quiet half withdrew it. The items below are
+  // written examples of decision CATEGORIES; they are not a feed of real decisions.
   feed: {
-    eyebrow: 'LIVE · RIGHT NOW',
-    headline: `What ${BRAND.name} is thinking.`,
-    caption: 'Illustrative of real decision categories.',
+    eyebrow: 'ILLUSTRATIVE · DECISION CATEGORIES',
+    headline: `What ${BRAND.name} decides.`,
+    caption: 'Written examples, not a live feed.',
   },
   day: {
     vignettes: [
