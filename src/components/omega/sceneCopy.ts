@@ -44,10 +44,14 @@ export const COPY = {
       { key: 'ops', label: 'Operations', hue: '#FBBF24', body: 'Inventory, vendors, reconciliation, exceptions — the work nobody wants to do.' },
     ],
   },
+  // The qualifier sits in the HEADING, not in small print under it. The previous copy put
+  // "LIVE - RIGHT NOW" at the top and "Illustrative of real decision categories" underneath, so
+  // the prominent half asserted a live feed and the quiet half withdrew it. The items below are
+  // written examples of decision CATEGORIES; they are not a feed of real decisions.
   feed: {
-    eyebrow: 'LIVE · RIGHT NOW',
-    headline: `What ${BRAND.name} is thinking.`,
-    caption: 'Illustrative of real decision categories.',
+    eyebrow: 'ILLUSTRATIVE · DECISION CATEGORIES',
+    headline: `What ${BRAND.name} decides.`,
+    caption: 'Written examples, not a live feed.',
   },
   day: {
     vignettes: [
@@ -104,7 +108,15 @@ export const COPY = {
     headline: 'Ready to meet your CEO?',
     sub: `One conversation. No demo deck. Just ${BRAND.name}.`,
     cta: `Talk to ${BRAND.name} →`,
-    footerLinks: ['Privacy', 'Terms', 'Contact'],
+    // {label, path} rather than bare strings: the previous shape carried no
+    // destination, so Scene11Door had nothing to link to and fell back to BRAND.url
+    // for every entry -- i.e. all three pointed at this same page. Paths are resolved
+    // against BRAND.app in Scene11Door.
+    footerLinks: [
+      { label: 'Privacy', path: '/privacy' },
+      { label: 'Terms', path: '/terms' },
+      { label: 'Contact', path: '/demo' },
+    ],
     builtIn: 'BUILT IN KARACHI',
   },
 } as const

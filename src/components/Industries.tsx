@@ -2,40 +2,53 @@ import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { usePrefersReducedMotion } from '../utils/animations'
 
+/**
+ * "Designed for", not "delivers".
+ *
+ * Every bullet below names something the platform actually models for that industry. Each one was
+ * checked against the industry configuration and against the records that industry works with
+ * before it was written here; a bullet with nothing behind it was dropped rather than softened.
+ *
+ * Deliberately absent: outcome verbs, percentages, customer counts and customer names. This grid
+ * describes what the platform is BUILT FOR. It does not claim a result, because a result is a
+ * different claim requiring different evidence.
+ *
+ * "Technology & SaaS" previously sat in this grid and has been removed: nothing behind it existed.
+ */
 const industries = [
   {
     title: 'Hospitality & Restaurant',
-    description: 'Automated reservations, AI-powered guest management, kitchen optimization, review response AI, and intelligent upselling across every touchpoint.',
+    bullets: ['Menus, branches and table reservations', 'Orders through to kitchen display', 'Delivery riders and dispatch'],
     gradient: 'linear-gradient(180deg, #F59E0B 0%, #FBBF24 100%)',
     glow: 'rgba(245, 158, 11, 0.18)',
   },
   {
-    title: 'Banking & Financial Services',
-    description: 'Risk assessment AI, automated compliance monitoring, fraud detection, customer onboarding automation, and intelligent portfolio management.',
+    title: 'Banking & Collections',
+    bullets: ['Collections accounts and contact history', 'Promise-to-pay tracking and settlements', 'Compliance rules with an audit log'],
     gradient: 'linear-gradient(180deg, #00B4D8 0%, #4DC8E0 100%)',
     glow: 'rgba(0, 180, 216, 0.18)',
   },
   {
-    title: 'Healthcare & Aesthetics',
-    description: 'Patient intake automation, appointment scheduling AI, treatment plan optimization, insurance processing, and personalized follow-up sequences.',
+    title: 'Healthcare & Clinics',
+    bullets: ['Patient records, visits and consultations', 'Treatments with post-care scheduling', 'Consent forms and medical reports', 'Wards: beds, admissions and departments'],
     gradient: 'linear-gradient(180deg, #00D4AA 0%, #3FDFC0 100%)',
     glow: 'rgba(0, 212, 170, 0.18)',
   },
   {
     title: 'Construction & Estimation',
-    description: 'AI-powered cost estimation, project timeline automation, subcontractor management, material optimization, and real-time budget tracking.',
+    bullets: ['Drawing pages and room take-off', 'Room finishes and materials', 'Project estimates'],
     gradient: 'linear-gradient(180deg, #D97706 0%, #F59E0B 100%)',
     glow: 'rgba(217, 119, 6, 0.18)',
   },
   {
-    title: 'Technology & SaaS',
-    description: 'Automated lead scoring, product-led growth optimization, churn prediction AI, developer documentation, and intelligent customer success.',
+    title: 'Accounting Practice (UK)',
+    bullets: ['Client and job records with statuses', 'Statutory filing reference data', 'Invoices and payment reminders'],
     gradient: 'linear-gradient(180deg, #6366F1 0%, #818CF8 100%)',
     glow: 'rgba(99, 102, 241, 0.18)',
   },
   {
     title: 'Real Estate & Property',
-    description: 'Property matching AI, automated valuations, tenant screening, lease management automation, and intelligent market analysis.',
+    bullets: ['Listings, viewings and client matching', 'Deals and commissions', 'Off-plan projects'],
     gradient: 'linear-gradient(180deg, #8B5CF6 0%, #A78BFA 100%)',
     glow: 'rgba(139, 92, 246, 0.18)',
   },
@@ -113,12 +126,17 @@ function IndustryCard({ ind, index }: { ind: typeof industries[0]; index: number
           >
             {ind.title}
           </h3>
-          <p
-            className="text-sm leading-relaxed"
+          <ul
+            className="text-sm leading-relaxed space-y-1.5"
             style={{ color: '#8A8F98', lineHeight: 1.8 }}
           >
-            {ind.description}
-          </p>
+            {ind.bullets.map((b) => (
+              <li key={b} className="flex gap-2">
+                <span aria-hidden="true" style={{ color: '#00D4AA' }}>&middot;</span>
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </motion.div>
@@ -173,9 +191,9 @@ export default function Industries() {
             className="font-[800]"
             style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.02em', lineHeight: 1.1, color: '#F0F0F5' }}
           >
-            One Platform. Every Industry.
+            One platform.
             <br />
-            <span className="gradient-text">Infinite Possibilities.</span>
+            <span className="gradient-text">Built for specific industries.</span>
           </h2>
         </motion.div>
 

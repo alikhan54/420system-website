@@ -37,23 +37,10 @@ export default function LogoBar() {
         }}
       />
 
-      <motion.p
-        initial={{ opacity: 0, y: 12 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          fontSize: '0.7rem',
-          fontFamily: 'monospace',
-          letterSpacing: '0.3em',
-          textTransform: 'uppercase',
-          color: '#4A4F58',
-          marginBottom: '1.75rem',
-          textAlign: 'center',
-        }}
-      >
-        Trusted across 6 industries &middot; 16+ active businesses
-      </motion.p>
+      {/* Removed: "Trusted across 6 industries - 16+ active businesses".
+          It was a hardcoded string with no data behind it and no way to keep it true. A customer
+          count is a claim about customers; it needs a source, and there was none. Nothing replaces
+          it, because no smaller version of that sentence would be any better evidenced. */}
 
       <motion.div
         initial="hidden"
